@@ -1,0 +1,66 @@
+@php($bodyClass = 'soundfresh-login')
+@extends('layouts.guest')
+
+@section('title', 'Masuk')
+
+@section('content')
+<main class="login-page">
+    <section class="login-hero" aria-label="Tentang Soundfresh">
+        <div class="login-hero-overlay"></div>
+        <div class="login-hero-content">
+            <a class="login-hero-logo" href="{{ url('/') }}"><img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" alt="Soundfresh"></a>
+            <p class="login-kicker">Musik lebih jauh</p>
+            <h1>Karyamu layak<br>didengar <em>lebih jauh.</em></h1>
+            <p class="login-hero-copy">Kelola rilis, pantau performa, dan terima penghasilanmu dalam satu ruang kerja.</p>
+            <div class="login-feature-list">
+                <div class="login-feature"><span class="material-icons-outlined feature-orange">music_note</span><div><strong>Rilis ke platform</strong><small>Distribusikan musikmu ke seluruh dunia</small></div></div>
+                <div class="login-feature"><span class="material-icons-outlined feature-purple">bar_chart</span><div><strong>Pantau performa</strong><small>Lihat statistik dan perkembangan real-time</small></div></div>
+                <div class="login-feature"><span class="material-icons-outlined feature-green">account_balance_wallet</span><div><strong>Kelola penghasilan</strong><small>Terima royalti dengan mudah dan transparan</small></div></div>
+            </div>
+            <div class="login-social-proof">
+                <div class="login-avatars"><span></span><span></span><span></span><span></span><span></span></div>
+                <div><strong>Dipercaya oleh kreator<br>musik Indonesia</strong><small>Ribuan musisi telah berkembang bersama Soundfresh.</small></div>
+            </div>
+            <p class="login-tagline">Musik, lebih banyak cerita.</p>
+        </div>
+    </section>
+
+    <section class="login-panel" aria-labelledby="login-title">
+        <div class="login-form-wrap">
+            <a class="login-brand" href="{{ url('/') }}"><img src="{{ URL::asset('build/images/logo-soundfresh-full.webp') }}" alt="Soundfresh"></a>
+            <div class="login-heading"><h2 id="login-title">Selamat datang kembali</h2><p>Masuk untuk melanjutkan perjalanan musikmu.</p></div>
+            <form method="POST" action="{{ route('login') }}" class="login-form">
+                @csrf
+                <div class="login-field"><label for="email">Alamat email</label><div class="login-input-wrap"><span class="material-icons-outlined">mail_outline</span><input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email" placeholder="nama@email.com" class="@error('email') is-invalid @enderror"></div>@error('email')<small class="login-error">{{ $message }}</small>@enderror</div>
+                <div class="login-field"><label for="password">Kata sandi</label><div class="login-input-wrap" id="show_hide_password"><span class="material-icons-outlined">lock_outline</span><input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Masukkan kata sandi" style="text-align:left!important;direction:ltr!important" class="@error('password') is-invalid @enderror"><button type="button" aria-label="Tampilkan kata sandi"><span class="material-icons-outlined">visibility_off</span></button></div>@error('password')<small class="login-error">{{ $message }}</small>@enderror</div>
+                <div class="login-options"><label><input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}><span>Ingat saya</span></label>@if (Route::has('password.request'))<a href="{{ route('password.request') }}">Lupa kata sandi?</a>@endif</div>
+                <button type="submit" class="login-submit">Masuk ke dashboard <span class="material-icons-outlined">arrow_forward</span></button>
+            </form>
+            <div class="login-signup"><span></span><p>Baru di Soundfresh? <a href="{{ route('register') }}">Buat akun</a></p><span></span></div>
+        </div>
+    </section>
+</main>
+@endsection
+
+@push('css')
+<style>
+body.soundfresh-login{margin:0;background:#111827;font-family:'Noto Sans',sans-serif}.soundfresh-login .login-page{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(460px,1fr);color:#fff}.login-hero{position:relative;overflow:hidden;background:#120c21 url('{{ URL::asset('build/images/auth/login-studio.png') }}') center/cover no-repeat}.login-hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,8,23,.86) 0%,rgba(12,8,26,.67) 47%,rgba(15,7,22,.35) 100%)}.login-hero-content{position:relative;z-index:1;max-width:730px;margin:0 auto;padding:clamp(2.5rem,5vw,5rem);min-height:100vh;display:flex;flex-direction:column;justify-content:center}.login-hero-logo img{width:230px;max-width:60%;height:auto}.login-kicker{margin:4.4rem 0 1rem;color:#fff;font-size:.76rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase}.login-hero h1{max-width:680px;margin:0;color:#fff;font-size:clamp(2.8rem,4.3vw,5rem);line-height:1.03;letter-spacing:-.055em;font-weight:750}.login-hero h1 em{font-style:normal;color:#ff7839}.login-hero-copy{max-width:625px;margin:1.35rem 0 1.9rem;color:#e5e7eb;font-size:1.16rem;line-height:1.65}.login-feature-list{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem}.login-feature{min-height:112px;padding:.85rem;border:1px solid rgba(255,255,255,.15);border-radius:1rem;background:rgba(17,19,40,.64);backdrop-filter:blur(10px)}.login-feature>span{display:grid;place-items:center;width:36px;height:36px;margin-bottom:.55rem;border-radius:.65rem;font-size:21px}.feature-orange{color:#ffad36;background:rgba(255,119,25,.16);border:1px solid rgba(255,138,47,.55)}.feature-purple{color:#bc8cff;background:rgba(124,58,237,.2);border:1px solid rgba(167,91,255,.55)}.feature-green{color:#48dc93;background:rgba(16,185,129,.18);border:1px solid rgba(60,220,149,.5)}.login-feature strong,.login-feature small{display:block}.login-feature strong{font-size:.84rem}.login-feature small{margin-top:.25rem;color:#bec3d4;font-size:.68rem;line-height:1.35}.login-social-proof{display:flex;align-items:center;gap:1rem;margin-top:1.8rem;padding-top:1.35rem;border-top:1px solid rgba(255,255,255,.25)}.login-avatars{display:flex}.login-avatars span{width:34px;height:34px;margin-left:-7px;border:2px solid #181123;border-radius:50%;background:linear-gradient(135deg,#ff8f4d,#7c3aed)}.login-avatars span:nth-child(2){background:linear-gradient(135deg,#59b9ff,#b84dff)}.login-avatars span:nth-child(3){background:linear-gradient(135deg,#ffcc70,#fa557b)}.login-avatars span:nth-child(4){background:linear-gradient(135deg,#3ddc97,#18a8ca)}.login-avatars span:nth-child(5){background:linear-gradient(135deg,#d3a4ff,#ff754b)}.login-social-proof strong,.login-social-proof small{display:block}.login-social-proof strong{font-size:.82rem;line-height:1.35}.login-social-proof small{max-width:350px;margin-top:.2rem;color:#bfc4d4;font-size:.7rem}.login-tagline{margin:1.7rem 0 0;color:#d5c9e5;font-family:cursive;font-size:1.15rem}.login-panel{display:flex;align-items:center;justify-content:center;background:#fbfaf8;color:#111827;border-radius:2rem 0 0 2rem}.login-form-wrap{width:min(100%,520px);padding:3rem}.login-brand img{width:248px;max-width:78%;height:auto}.login-heading{margin:3.4rem 0 2.35rem}.login-heading h2{margin:0;color:#111827;font-size:clamp(2rem,3.1vw,3.2rem);letter-spacing:-.05em;font-weight:750}.login-heading p{margin:.75rem 0 0;color:#64748b;font-size:1.05rem}.login-field{margin-bottom:1.4rem}.login-field label{display:block;margin-bottom:.55rem;font-size:.86rem;font-weight:750;color:#1f2937}.login-input-wrap{display:flex;align-items:center;gap:.7rem;border:1px solid #d7dce3;border-radius:.75rem;background:#fff;padding:0 .9rem;transition:.2s}.login-input-wrap:focus-within{border-color:#ff7a24;box-shadow:0 0 0 3px rgba(255,122,36,.14)}.login-input-wrap>span{color:#64748b;font-size:21px}.login-input-wrap input{width:100%;height:60px;border:0;outline:0;background:transparent;color:#111827;font-size:.96rem}.login-input-wrap input::placeholder{color:#94a3b8}.login-input-wrap button{border:0;background:transparent;color:#64748b;padding:0;display:grid;cursor:pointer}.login-error{display:block;margin-top:.4rem;color:#dc2626}.login-options{display:flex;justify-content:space-between;align-items:center;margin:-.05rem 0 1.75rem;font-size:.84rem}.login-options label{display:flex;align-items:center;gap:.55rem;color:#334155;cursor:pointer}.login-options input{width:19px;height:19px;accent-color:#ff6a00}.login-options a,.login-signup a{color:#f05f19;font-weight:700;text-decoration:none}.login-submit{width:100%;height:64px;border:0;border-radius:.8rem;background:linear-gradient(100deg,#ff4e43,#ff9137);color:#fff;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 12px 25px rgba(239,91,35,.24);display:flex;align-items:center;justify-content:center;gap:.55rem}.login-submit:hover{filter:brightness(1.04);transform:translateY(-1px)}.login-submit .material-icons-outlined{font-size:20px}.login-signup{display:flex;align-items:center;gap:1rem;margin:2.6rem 0 1.9rem}.login-signup span{height:1px;flex:1;background:#d8dde4}.login-signup p{margin:0;white-space:nowrap;color:#64748b;font-size:.83rem}.login-help{margin-left:auto;color:#64748b;text-decoration:none;display:flex;width:max-content;align-items:center;gap:.3rem;font-size:.78rem}.login-help .material-icons-outlined{font-size:18px}@media(max-width:1100px){.soundfresh-login .login-page{grid-template-columns:minmax(0,1fr) minmax(430px,.9fr)}.login-feature-list{grid-template-columns:1fr}.login-hero h1{font-size:3.3rem}}@media(max-width:820px){.soundfresh-login .login-page{display:block}.login-hero{min-height:260px}.login-hero-content{min-height:260px;padding:2rem;justify-content:flex-start}.login-kicker,.login-feature-list,.login-social-proof,.login-tagline{display:none}.login-hero h1{font-size:2.4rem}.login-hero-copy{font-size:1rem;margin:.8rem 0}.login-panel{border-radius:1.6rem 1.6rem 0 0;margin-top:-1.4rem;position:relative}.login-form-wrap{padding:2.25rem 1.5rem}.login-heading{margin:2.2rem 0 1.8rem}.login-heading h2{font-size:2rem}}
+@media (min-width:821px){body.soundfresh-login{overflow:hidden}.soundfresh-login .login-page{height:100vh;min-height:0;overflow:hidden}.login-hero-content{padding:clamp(2rem,3.4vw,3.75rem)}.login-kicker{margin:2.5rem 0 .7rem}.login-hero h1{font-size:clamp(2.5rem,3.8vw,4.35rem)}.login-hero-copy{margin:1rem 0 1.25rem;font-size:1.02rem}.login-feature{min-height:94px;padding:.7rem}.login-feature>span{width:32px;height:32px;margin-bottom:.4rem;font-size:19px}.login-feature strong{font-size:.78rem}.login-feature small{font-size:.63rem}.login-social-proof{margin-top:1.15rem;padding-top:1rem}.login-tagline{margin-top:1rem}.login-form-wrap{padding:2rem 3rem}.login-brand img{width:220px}.login-heading{margin:2.15rem 0 1.65rem}.login-heading h2{font-size:clamp(1.85rem,2.6vw,2.7rem)}.login-heading p{margin-top:.45rem;font-size:.93rem}.login-field{margin-bottom:1rem}.login-field label{margin-bottom:.38rem}.login-input-wrap input{height:52px}.login-options{margin:.05rem 0 1.15rem}.login-submit{height:56px}.login-signup{margin:1.55rem 0 1.05rem}.login-help{font-size:.72rem}}
+.login-signup p{font-size:1rem}.login-signup a{font-size:1.1rem;font-weight:800}
+.soundfresh-login .login-input-wrap{justify-content:flex-start!important}.soundfresh-login .login-input-wrap input{flex:1 1 0!important;min-width:0!important;margin:0!important;padding:0!important;text-indent:0!important;text-align:left!important;direction:ltr!important;appearance:none;-webkit-appearance:none;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;caret-color:#ff6a00;opacity:1}.soundfresh-login #show_hide_password{display:grid!important;grid-template-columns:24px minmax(0,1fr) 24px!important;column-gap:.7rem!important}.soundfresh-login #show_hide_password>span{grid-column:1}.soundfresh-login #show_hide_password input{grid-column:2;width:100%!important;justify-self:stretch!important;text-align:start!important}.soundfresh-login #show_hide_password button{grid-column:3}.soundfresh-login .login-input-wrap input:-webkit-autofill,.soundfresh-login .login-input-wrap input:-webkit-autofill:hover,.soundfresh-login .login-input-wrap input:-webkit-autofill:focus{-webkit-text-fill-color:#111827!important;box-shadow:0 0 0 1000px #fff inset!important;transition:background-color 9999s ease-out 0s}.soundfresh-login .login-input-wrap input::selection{background:rgba(255,122,36,.24);color:#111827}
+</style>
+@endpush
+
+@push('script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const passwordToggle = document.querySelector('#show_hide_password button');
+    const passwordInput = document.querySelector('#show_hide_password input');
+    passwordToggle?.addEventListener('click', function () {
+        const isText = passwordInput.type === 'text';
+        passwordInput.type = isText ? 'password' : 'text';
+        this.querySelector('span').textContent = isText ? 'visibility_off' : 'visibility';
+    });
+});
+</script>
+@endpush

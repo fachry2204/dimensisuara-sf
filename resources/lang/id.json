@@ -1,0 +1,118 @@
+{
+    "Bring Your Music to the World" : "Bawa Musik Anda ke Seluruh Dunia",
+    "Log in to take the next step in your music journey." : "Masuk untuk ambil langkah berikutnya dalam perjalanan musik Anda.",
+
+
+
+
+    "Join the Movement, Share Your Sound!" : "Bergabunglah dan bagikan suaramu!",
+    "Create your account and start your journey to global music distribution." : "Buat akunmu dan mulai perjalanan menuju distribusi musik global.",
+    "Registration Info" : "Informasi Pendaftaran",
+
+    "Getting your registration details" : "Mengisi detail pendaftaranmu",
+    "Address Details" : "Detail Alamat",
+    "Provide street name, city, etc" : "Masukkan nama jalan, kota, dan lainnya",
+    "Additional Document" : "Dokumen Tambahan",
+    "KTP, NIB, NPWP details" : "Detail KTP, NIB, NPWP",
+    "Bank Account" : "Rekening Bank",
+    "Bank name, account number" : "Nama bank, nomor, dan pemilik rekening",
+    "Credential Info" : "Informasi Kredensial",
+    "Set your password" : "Atur kata sandi anda",
+    "Review" : "Tinjau",
+    "Review and sign your contract" : "Tinjau dan tanda tangani kontrakmu",
+
+    "Who are you and how do you want to join?" : "Siapakah anda dan bagaimana anda ingin bergabung?",
+    "Complete your address or company details." : "Lengkapi detail alamat anda atau perusahaan anda.",
+    "Additional Documents" : "Dokumen Tambahan",
+    "Upload the following documents. Please upload with a maximum size of 5MB for each document." : "Unggahlah dokumen-dokumen berikut. Mohon unggah dengan maksimum ukuran 5MB untuk setiap dokumen.",
+    "This account will be used to withdraw earnings." : "Rekening berikut akan digunakan untuk mencairkan dana yang telah anda peroleh.",
+    "Credenital Info" : "Informasi Kredensial",
+    "Set your password to access all features available in our system." : "Atur kata sandi anda untuk dapat mengakses semua fitur.",
+    "Please read and agree to the terms and conditions. Make sure all information is correct." : "Bacalah dan setujui syarat dan ketentuan yang berlaku. Pastikan semua informasi yang anda berikan sudah benar.",
+
+    "First Name" : "Nama Depan",
+    "Last Name" : "Nama Belakang",
+    "Email Address" : "Alamat Email",
+    "Phone Number" : "Nomor Handphone",
+    "Personal ID Number (NIK)" : "Nomor Induk Kependudukan (NIK)",
+    "Register as Personal" : "Daftar sebagai personal",
+    "Register as Company" : "Daftar sebagai perusahaan",
+    "Company Name" : "Nama Perusahaan",
+
+    "Address" : "Alamat",
+    "Address Line 1" : "Alamat Baris 1",
+    "Address Line 2" : "Alamat Baris 2",
+    "City" : "Kota",
+    "State" : "Provinsi",
+    "Zip Code" : "Kode Pos",
+    "Country" : "Negara",
+
+    "Personal ID (KTP) Photo of PIC" : "Foto KTP",
+    "Personal Tax ID (NPWP) Photo" : "Foto NPWP",
+    "Company ID (NIB) Photo" : "Foto NIB Perusahaan",
+    "Company Tax ID (NPWP) Photo" : "Foto NPWP Perusahaan",
+    "Company Deed (Akta Perusahaan) Photo" : "Foto Akta Perusahaan",
+    "Company Decree of Establishment (SK Kementerian) Photo" : "Foto SK Kementerian Pendirian Perusahaan",
+
+    "Bank Name" : "Nama Bank",
+    "Bank Branch" : "Cabang Bank",
+    "Account Owner Name" : "Nama Pemilik Rekening",
+    "Account Number" : "Nomor Rekening",
+    "Password" : "Kata Sandi",
+    "Confirm Password" : "Konfirmasi Kata Sandi",
+    "Reenter your new password" : "Masukkan kembali kata sandi anda",
+    "Contract Signature" : "Tanda Tangan Kontrak",
+    "Clear Signature" : "Hapus Tanda Tangan",
+
+    "I have read and agree to the" : "Saya telah membaca dan menyetujui",
+    "terms and conditions" : "syarat dan ketentuan yang berlaku",
+
+    "Previous" : "Kembali",
+    "Next" : "Berikutnya",
+    "Register" : "Daftar",
+    "Close" : "Tutup",
+
+    "Your browser doesn't support canvas. Please update your browser." : "Browser anda tidak mendukung canvas. Mohon perbarui browser anda.",
+    "We found several errors in your submission. Please correct them before resubmitting." : "Kami menemukan beberapa kesalahan dalam pendaftaran anda. Mohon perbaiki sebelum mendaftar kembali.",
+    "Please wait while we are processing your request" : "Mohon tunggu sebentar, kami sedang memproses permintaan anda.",
+
+    "New Account Registered" : "Akun Baru Melakukan Registrasi",
+    "New account registered under email address :email.":"Akun baru melakukan registrasi dengan alamat email :email.",
+    "You can check it via this link below:" : "Anda dapat memeriksa melalui link di bawah ini:",
+
+    "Your Account Is Blocked" : "Akun Anda Terblokir",
+    "Your account has been blocked by admin." : "Akun anda telah diblokir oleh admin",
+
+    "User Verified" : "User Diverifikasi",
+    "Your account has been verified by admin." : "Akun anda telah diverifikasi oleh admin",
+    "You can login via this link below:" : "Anda dapat masuk melalui link di bawah ini:",
+
+    "New Release Submitted" : "Rilisan Baru Telah Diajukan",
+    "Your release with title \":Title\" has been successfully submitted." : "Rilisan Anda dengan judul \":Title\" telah berhasil diajukan.",
+    "Admin will verify and will update the status of your release." : "Admin akan memeriksa dan memperbarui status dari rilisan anda.",
+
+    "New Release Submission" : "Pengajuan Rilisan Baru",
+    "User :Firstname :Lastname has submitted a new release with title \":Title\"." : "User :Firstname :Lastname telah mengajukan rilisan baru dengan judul \":Title\". ",
+    "Please check and update the status immediately." : "Mohon untuk dapat segera diperiksa dan diperbarui statusnya",
+
+    "Release Rejected" : "Rilisan Anda Ditolak",
+    "Your release with title \":Title\" has been rejected with the following reason:" : "Rilisan Anda dengan judul \":Title\" telah ditolak dengan alasan berikut:",
+    "You have five days to submit revision based on the reason stated above, or your release will be automatically deleted." : "Anda memiliki waktu lima hari untuk mengirimkan revisi berdasarkan alasan di atas, atau rilisan anda akan dihapus secara otomatis.",
+
+    "Release Verified" : "Rilisan Anda Telah Diverifikasi",
+    "Your release with title \":Title\" has been verified." : "Rilisan Anda dengan judul \":Title\" telah diverifikasi.",
+    
+    "Release link":"Link rilisan",
+    "Thank you" : "Terima kasih",
+    "Thank you for your trust in our service" : "Terima kasih atas kepercayaan anda dalam menggunakan layanan kami.",
+    
+    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below into your web browser:":"Apabila terdapat kendala ketika klik tombol \":actionText\", copy-paste URL di bawah ini ke web browser anda:",
+    
+    
+    "Validation Failed" : "Validasi Gagal",
+
+    "provinceid" : "Provinsi",
+    "cityid"     : "Kabupaten/Kota",
+    "districtid" : "Kecamatan",
+    "villageid"  : "Kelurahan"
+}

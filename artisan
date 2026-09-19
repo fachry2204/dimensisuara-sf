@@ -1,0 +1,31 @@
+<?php
+
+// #!/usr/bin/env php
+
+use Symfony\Component\Console\Input\ArgvInput;
+
+define('LARAVEL_START', microtime(true));
+
+// Register the Composer autoloader...
+require __DIR__.'/vendor/autoload.php';
+
+// Support the PHP built-in web server when public/index.php is unavailable.
+if (PHP_SAPI === 'cli-server') {
+    $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+    $asset = __DIR__.'/public'.$path;
+
+    if ($path !== '/' && is_file($asset)) {
+        return false;
+    }
+
+    (require_once __DIR__.'/bootstrap/app.php')
+        ->handleRequest(\Illuminate\Http\Request::capture());
+
+    exit;
+}
+
+// Bootstrap Laravel and handle the command...
+$status = (require_once __DIR__.'/bootstrap/app.php')
+    ->handleCommand(new ArgvInput);
+
+exit($status);

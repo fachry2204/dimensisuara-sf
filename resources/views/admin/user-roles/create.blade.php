@@ -1,0 +1,29 @@
+@extends('layouts.app')
+@section('title', 'Create User Role')
+@section('header')
+<div class="role-form-header"><a href="{{ route('admin.user-roles.index') }}"><i class="material-icons-outlined">arrow_back</i> Kembali ke User Roles</a><h1>Create User Role</h1><p>Tentukan nama role dan pilih akses yang akan diberikan.</p></div>
+@endsection
+@section('content')
+<form action="{{ route('admin.user-roles.store') }}" method="POST" class="role-form-page">@csrf
+    <section class="role-form-panel"><div class="role-form-grid"><label>Nama role <span>*</span><input type="text" name="name" value="{{ old('name') }}" placeholder="Contoh: Release Manager" required><small>Gunakan nama singkat yang mudah dikenali tim.</small></label><label>Deskripsi <span>*</span><textarea name="description" rows="3" placeholder="Jelaskan tujuan dan cakupan role ini" required>{{ old('description') }}</textarea><small>Jelaskan siapa yang sebaiknya menggunakan role ini.</small></label></div></section>
+    @php
+        $categories = ['users'=>['User Management','group'],'aggregator'=>['Aggregator (Releases)','album'],'publishing'=>['Publishing','music_note'],'mcn'=>['MCN','hub'],'reporting'=>['Reporting','bar_chart'],'transaction'=>['Transaction','payments'],'contract'=>['Contracts','description'],'logging'=>['Logging','history'],'automation'=>['Automation','settings_suggest'],'rolespermissions'=>['Roles & Permissions','admin_panel_settings']];
+        $selectedPermissions = old('permissions', []);
+    @endphp
+    <section class="role-form-panel role-permission-panel"><header><div><h2>Permission groups</h2><p>Pilih akses yang akan dimiliki role ini.</p></div><strong><span id="selected-permission-count">{{ count($selectedPermissions) }}</span> dari {{ $permissions->count() }} dipilih</strong></header><div class="permission-group-grid">
+        @foreach($categories as $category => [$label, $icon])
+            @php($categoryPermissions = $permissions->where('category', $category))
+            @if($categoryPermissions->isNotEmpty())
+                <article class="permission-group"><h3><i class="material-icons-outlined">{{ $icon }}</i>{{ $label }}</h3>@foreach($categoryPermissions as $permission)<label class="permission-choice"><input type="checkbox" name="permissions[]" value="{{ $permission->id }}" {{ in_array($permission->id, $selectedPermissions) ? 'checked' : '' }}><span>{{ $permission->name }}</span></label>@endforeach</article>
+            @endif
+        @endforeach
+    </div></section>
+    <footer class="role-form-actions"><a href="{{ route('admin.user-roles.index') }}">Cancel</a><button type="submit">Save Role</button></footer>
+</form>
+@endsection
+@push('css')
+<style>
+.sf-app .main-wrapper .main-content{max-width:1440px!important;padding:28px 32px 46px!important;background:#081225!important}.role-form-header{margin-bottom:20px}.role-form-header>a{display:inline-flex;align-items:center;gap:5px;color:#8ebdf0;font-size:.74rem;font-weight:700;text-decoration:none}.role-form-header>a i{font-size:17px}.role-form-header h1{margin:12px 0 4px;color:#f5f9ff!important;font-size:1.85rem!important;font-weight:800!important}.role-form-header p{margin:0;color:#91afd0;font-size:.78rem}.role-form-page{display:grid;gap:16px}.role-form-panel{border:1px solid #294c71;border-radius:14px;background:linear-gradient(145deg,#0e2036,#0a192b);padding:20px}.role-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.role-form-grid label{display:grid;gap:7px;color:#d8e8f7;font-size:.77rem;font-weight:800}.role-form-grid label>span{color:#ff8867}.role-form-grid input,.role-form-grid textarea{width:100%;border:1px solid #3a628b;border-radius:8px;background:#091a2d;color:#edf6ff;font:inherit;font-size:.76rem;padding:10px;outline:0}.role-form-grid textarea{resize:vertical}.role-form-grid small{color:#799cbc;font-size:.67rem;font-weight:400}.role-permission-panel{padding:0;overflow:hidden}.role-permission-panel header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid rgba(75,116,157,.35)}.role-permission-panel h2{margin:0;color:#f3f8ff;font-size:1.05rem;font-weight:800}.role-permission-panel p{margin:4px 0 0;color:#8faecc;font-size:.72rem}.role-permission-panel header strong{color:#a8c8e8;font-size:.7rem}.permission-group-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:18px}.permission-group{border:1px solid #294c71;border-radius:11px;padding:14px;background:rgba(12,31,52,.72)}.permission-group h3{display:flex;align-items:center;gap:7px;margin:0 0 11px;color:#eaf4ff;font-size:.8rem;font-weight:800}.permission-group h3 i{color:#7db7ff;font-size:19px}.permission-choice{display:flex;align-items:center;gap:8px;padding:5px 0;color:#b9d0e6;font-size:.72rem}.permission-choice input{width:16px;height:16px;accent-color:#5fa6ff}.role-form-actions{display:flex;justify-content:flex-end;gap:10px}.role-form-actions a,.role-form-actions button{height:39px;padding:0 14px;border-radius:8px;font-size:.74rem;font-weight:800;text-decoration:none;display:inline-flex;align-items:center}.role-form-actions a{border:1px solid #476b91;color:#c2d9ef}.role-form-actions button{border:0;background:#ff7146;color:#fff}@media(max-width:900px){.role-form-grid,.permission-group-grid{grid-template-columns:1fr 1fr}}@media(max-width:620px){.sf-app .main-wrapper .main-content{padding:18px!important}.role-form-grid,.permission-group-grid{grid-template-columns:1fr}.role-permission-panel header{align-items:flex-start;flex-direction:column}}
+</style>
+@endpush
+@push('script')<script>document.querySelectorAll('.permission-choice input').forEach(input=>input.addEventListener('change',()=>{document.getElementById('selected-permission-count').textContent=document.querySelectorAll('.permission-choice input:checked').length;}));</script>@endpush

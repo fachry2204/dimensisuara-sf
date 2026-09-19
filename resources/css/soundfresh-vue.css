@@ -1,0 +1,14 @@
+.sf-app{--sf-accent:#ff793c;--sf-surface:#17202b;--sf-border:#33404e;--sf-text:#f5f7fa;background:#0d121b;color:var(--sf-text)}
+.sf-app .sidebar-wrapper{background:#111923;border-right:1px solid var(--sf-border)}
+.sf-app .top-header{background:#111923;border-bottom:1px solid var(--sf-border)}
+.sf-app .main-wrapper{background:#0d121b;min-height:100vh}
+.sf-app .card{background:var(--sf-surface);border:1px solid var(--sf-border);box-shadow:0 10px 34px rgba(0,0,0,.1)}
+.sf-app .btn-primary{background:linear-gradient(100deg,#ff4738,#ff913a);border-color:transparent;color:#fff;font-weight:600}
+.sf-app .btn-primary:hover{filter:brightness(1.08);border-color:transparent}
+.sf-app .menu-label,.sf-app .sidebar-nav .menu-title{letter-spacing:.01em}
+.sf-app .sidebar-nav a:hover,.sf-app .sidebar-nav a.active{color:var(--sf-accent)}
+.sf-app a:not(.btn):focus-visible,.sf-app button:focus-visible{outline:2px solid #ffb264;outline-offset:2px}
+.sf-welcome{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 24px;padding:18px 22px;border:1px solid #754734;border-radius:14px;background:linear-gradient(110deg,#271e21,#191f2b);color:#f7f2ef}
+.sf-welcome__eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;color:#ff9b65}
+.sf-welcome p{margin:4px 0 0}.sf-welcome button{border:0;background:transparent;color:#e8d8d1;font-size:28px;line-height:1;cursor:pointer}
+@media(max-width:600px){.sf-welcome{padding:14px 16px}.sf-welcome p{font-size:14px}}
