@@ -349,8 +349,12 @@
                 </div>
             </div>
         </template>
-        <button type="button" class="btn release-inline-action"
-            @click="addRoleItem('$store.release.tracks[0]', 'contributors')"><i class="material-icons-outlined">person_add</i><span><strong>Tambah kontributor</strong><small>Tambahkan peran kreatif untuk lagu ini</small></span></button>
+        <button type="button" class="btn release-inline-action" aria-label="Tambah kontributor"
+            @click="addRoleItem('$store.release.tracks[0]', 'contributors')">
+            <i class="material-icons-outlined" aria-hidden="true">person_add</i>
+            <span class="release-inline-action-copy"><strong>Tambah kontributor</strong><small>Tambahkan peran kreatif untuk lagu ini</small></span>
+            <i class="material-icons-outlined release-inline-action-arrow" aria-hidden="true">add</i>
+        </button>
     </div>
 
     <!-- Production Details -->
@@ -380,8 +384,12 @@
                 </div>
             </div>
         </template>
-        <button type="button" class="btn release-inline-action"
-            @click="addRoleItem('$store.release.tracks[0]', 'productions')"><i class="material-icons-outlined">tune</i><span><strong>Tambah produksi / engineering</strong><small>Catat producer, mixer, atau engineer</small></span></button>
+        <button type="button" class="btn release-inline-action" aria-label="Tambah produksi / engineering"
+            @click="addRoleItem('$store.release.tracks[0]', 'productions')">
+            <i class="material-icons-outlined" aria-hidden="true">tune</i>
+            <span class="release-inline-action-copy"><strong>Tambah produksi / engineering</strong><small>Catat producer, mixer, atau engineer</small></span>
+            <i class="material-icons-outlined release-inline-action-arrow" aria-hidden="true">add</i>
+        </button>
     </div>
 
     <!-- Songwriters Array -->
@@ -406,8 +414,12 @@
                 </div>
             </div>
         </template>
-        <button type="button" class="btn release-inline-action mt-2"
-            @click="addSongwriterItem('$store.release.tracks[0]')"><i class="material-icons-outlined">edit_note</i><span><strong>Tambah penulis lagu</strong><small>Masukkan songwriter dan perannya</small></span></button>
+        <button type="button" class="btn release-inline-action mt-2" aria-label="Tambah penulis lagu"
+            @click="addSongwriterItem('$store.release.tracks[0]')">
+            <i class="material-icons-outlined" aria-hidden="true">edit_note</i>
+            <span class="release-inline-action-copy"><strong>Tambah penulis lagu</strong><small>Masukkan songwriter dan perannya</small></span>
+            <i class="material-icons-outlined release-inline-action-arrow" aria-hidden="true">add</i>
+        </button>
     </div>
 
     <!-- ISWC -->

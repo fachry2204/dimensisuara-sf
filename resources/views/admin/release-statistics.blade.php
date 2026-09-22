@@ -39,24 +39,26 @@
         <form class="release-filter-panel" method="GET" action="{{ url()->current() }}" aria-label="Filter statistik rilis">
             <input type="hidden" name="period_group" value="{{ $selectedPeriodGroup }}">
             <div class="release-filter-heading"><i class="material-icons-outlined">tune</i><span>Filter statistik</span></div>
-            <label>Platform
-                <select name="platform">
+            <label for="release-platform-filter">Platform
+                <select id="release-platform-filter" name="platform">
                     <option value="">Semua platform</option>
                     @foreach($availablePlatforms as $platform)
                         <option value="{{ $platform }}" @selected($selectedPlatform === $platform)>{{ $platform }}</option>
                     @endforeach
                 </select>
             </label>
-            <label>Tanggal laporan<input type="month" name="month" value="{{ $selectedMonth }}"></label>
-            <label>Kuartal
-                <select name="quarter">
+            <label for="release-month-filter">Bulan laporan
+                <input id="release-month-filter" type="month" name="month" value="{{ $selectedMonth }}" aria-label="Pilih bulan laporan">
+            </label>
+            <label for="release-quarter-filter">Kuartal
+                <select id="release-quarter-filter" name="quarter">
                     <option value="">Semua kuartal</option>
                     @foreach([1, 2, 3, 4] as $quarter)
                         <option value="{{ $quarter }}" @selected($selectedQuarter === $quarter)>Q{{ $quarter }}</option>
                     @endforeach
                 </select>
             </label>
-            <div class="release-filter-actions"><a href="{{ url()->current() }}">Reset</a><button type="submit">Terapkan <i class="material-icons-outlined">arrow_forward</i></button></div>
+            <div class="release-filter-actions"><a href="{{ url()->current() }}" class="reset-filter">Reset</a><button type="submit">Terapkan <i class="material-icons-outlined">arrow_forward</i></button></div>
         </form>
 
         @php

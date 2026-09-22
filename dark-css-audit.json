@@ -1,0 +1,3807 @@
+[
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".admin-studio-hero",
+        "property": "background",
+        "value": "linear-gradient(118deg,#102541 0%,#142742 46%,#53291e 155%)"
+      },
+      {
+        "selector": ".admin-eyebrow",
+        "property": "color",
+        "value": "#ff916c"
+      },
+      {
+        "selector": ".admin-studio-hero h1",
+        "property": "color",
+        "value": "#f8fbff"
+      },
+      {
+        "selector": ".admin-metric-card",
+        "property": "background",
+        "value": "#0e2036"
+      },
+      {
+        "selector": ".admin-metric-card",
+        "property": "color",
+        "value": "#eaf4ff"
+      },
+      {
+        "selector": ".admin-metric-card:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-metric-icon",
+        "property": "background",
+        "value": "#1b3556"
+      },
+      {
+        "selector": ".admin-metric-card strong",
+        "property": "color",
+        "value": "#f8fbff"
+      },
+      {
+        "selector": ".metric-pending",
+        "property": "background",
+        "value": "linear-gradient(120deg,#241d27,#162941)"
+      },
+      {
+        "selector": ".metric-pending .admin-metric-icon",
+        "property": "color",
+        "value": "#ff9864"
+      },
+      {
+        "selector": ".metric-live",
+        "property": "background",
+        "value": "linear-gradient(120deg,#0f2f33,#142d45)"
+      },
+      {
+        "selector": ".metric-attention",
+        "property": "background",
+        "value": "linear-gradient(120deg,#2a251a,#182a43)"
+      },
+      {
+        "selector": ".metric-attention .admin-metric-icon",
+        "property": "color",
+        "value": "#ffca55"
+      },
+      {
+        "selector": ".admin-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0b1a2d)"
+      },
+      {
+        "selector": ".admin-panel-header h2",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".admin-queue-item",
+        "property": "color",
+        "value": "#d9e7f6"
+      },
+      {
+        "selector": ".admin-queue-item:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-queue-item img",
+        "property": "background",
+        "value": "#1c304a"
+      },
+      {
+        "selector": ".admin-release-name strong",
+        "property": "color",
+        "value": "#eff6ff"
+      },
+      {
+        "selector": ".admin-status-pending",
+        "property": "color",
+        "value": "#ffaf75"
+      },
+      {
+        "selector": ".admin-status-revision",
+        "property": "color",
+        "value": "#ffd067"
+      },
+      {
+        "selector": ".admin-status-rejected",
+        "property": "color",
+        "value": "#ff9ba3"
+      },
+      {
+        "selector": ".admin-review-action",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".admin-activity-row:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-activity-row strong",
+        "property": "color",
+        "value": "#eef6ff"
+      },
+      {
+        "selector": ".admin-empty-state i",
+        "property": "background",
+        "value": "#183352"
+      },
+      {
+        "selector": ".admin-empty-state strong",
+        "property": "color",
+        "value": "#dceafd"
+      },
+      {
+        "selector": ".admin-catalog-period-form",
+        "property": "background",
+        "value": "#0c1d31"
+      },
+      {
+        "selector": ".admin-catalog-period-form select",
+        "property": "color",
+        "value": "#d8eaff"
+      },
+      {
+        "selector": ".admin-catalog-period-form option",
+        "property": "background",
+        "value": "#10233a"
+      },
+      {
+        "selector": ".admin-catalog-period-form option",
+        "property": "color",
+        "value": "#eaf4ff"
+      },
+      {
+        "selector": ".admin-catalog-chart-summary strong",
+        "property": "color",
+        "value": "#eef6ff"
+      },
+      {
+        "selector": ".admin-release-stat-row:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-stat-title img",
+        "property": "background",
+        "value": "#1c304a"
+      },
+      {
+        "selector": ".admin-release-stat-title strong",
+        "property": "color",
+        "value": "#eff6ff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/release-statistics.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".release-stat-hero-content",
+        "property": "background",
+        "value": "linear-gradient(112deg,#102843,#12233b 58%,#3e2830)"
+      },
+      {
+        "selector": ".release-stat-hero-content>img",
+        "property": "background",
+        "value": "#203b58"
+      },
+      {
+        "selector": ".release-stat-eyebrow",
+        "property": "color",
+        "value": "#ff9971"
+      },
+      {
+        "selector": ".release-stat-hero h1",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".release-stat-scope strong",
+        "property": "color",
+        "value": "#e3f6ff"
+      },
+      {
+        "selector": ".release-stat-kpis article",
+        "property": "background",
+        "value": "linear-gradient(140deg,#0e2138,#0b1a2d)"
+      },
+      {
+        "selector": ".release-stat-icon.tracks",
+        "property": "color",
+        "value": "#ff9c73"
+      },
+      {
+        "selector": ".release-stat-kpis strong",
+        "property": "color",
+        "value": "#f4f9ff"
+      },
+      {
+        "selector": ".release-stat-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)"
+      },
+      {
+        "selector": ".release-stat-panel h2",
+        "property": "color",
+        "value": "#f2f8ff"
+      },
+      {
+        "selector": ".platform-name",
+        "property": "color",
+        "value": "#eef6ff"
+      },
+      {
+        "selector": ".release-stat-empty i",
+        "property": "background",
+        "value": "#183352"
+      },
+      {
+        "selector": ".release-stat-empty strong",
+        "property": "color",
+        "value": "#dceafd"
+      },
+      {
+        "selector": ".release-chart-period-form select option",
+        "property": "background",
+        "value": "#10243b"
+      },
+      {
+        "selector": ".release-chart-period-form select option",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": ".release-insight-panel h2",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".insight-icon.latest",
+        "property": "color",
+        "value": "#ffa377"
+      },
+      {
+        "selector": ".release-insight-grid strong",
+        "property": "color",
+        "value": "#f4f9ff"
+      },
+      {
+        "selector": ".release-filter-panel",
+        "property": "background",
+        "value": "linear-gradient(110deg,#0e243d,#0c1e33)"
+      },
+      {
+        "selector": ".release-filter-heading",
+        "property": "color",
+        "value": "#c5def7"
+      },
+      {
+        "selector": ".release-filter-panel select,.release-filter-panel input",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".release-filter-panel select,.release-filter-panel input",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": ".release-filter-actions button",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/create.blade.php",
+    "selectors": [
+      {
+        "selector": ".track-placeholder:hover",
+        "property": "background-color",
+        "value": "rgba(0, 0, 0, 0.1)"
+      },
+      {
+        "selector": "html[data-bs-theme='dark'] .form-label",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "selector": "[data-bs-theme=dark] .album-items td:last-child",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "selector": ".overlay-custom",
+        "property": "background-color",
+        "value": "rgba(0, 0, 0, 0.7)"
+      },
+      {
+        "selector": ".admin-release-editor-header h4",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".admin-release-editor>.card",
+        "property": "background",
+        "value": "linear-gradient(135deg,#10243d,#0b2036)"
+      },
+      {
+        "selector": ".admin-release-editor>.card>.card-header",
+        "property": "background",
+        "value": "rgba(11,31,52,.62)"
+      },
+      {
+        "selector": ".admin-release-editor>.card>.card-header .card-title",
+        "property": "color",
+        "value": "#f4f9ff"
+      },
+      {
+        "selector": ".admin-release-editor .form-label",
+        "property": "color",
+        "value": "#c4dcf3!important"
+      },
+      {
+        "selector": ".admin-release-editor .form-control,.admin-release-editor .form-select",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".admin-release-editor .form-control,.admin-release-editor .form-select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".admin-release-editor .input-group .btn",
+        "property": "background",
+        "value": "#102b47"
+      },
+      {
+        "selector": ".admin-release-editor .input-group .btn",
+        "property": "color",
+        "value": "#d5e8fa"
+      },
+      {
+        "selector": ".admin-release-editor .input-group .btn:hover",
+        "property": "background",
+        "value": "#1b4166"
+      },
+      {
+        "selector": ".admin-release-editor .input-group .btn:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".track-editor-modal",
+        "property": "background",
+        "value": "#0d2036"
+      },
+      {
+        "selector": ".track-editor-modal",
+        "property": "color",
+        "value": "#eaf4ff"
+      },
+      {
+        "selector": ".track-editor-modal .modal-header",
+        "property": "background",
+        "value": "#102943"
+      },
+      {
+        "selector": ".track-editor-modal .modal-title",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".track-editor-modal .modal-header a",
+        "property": "color",
+        "value": "#ff9a45"
+      },
+      {
+        "selector": ".track-editor-modal .form-label",
+        "property": "color",
+        "value": "#c4dcf3!important"
+      },
+      {
+        "selector": ".track-editor-modal .form-control,.track-editor-modal .form-select",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".track-editor-modal .form-control,.track-editor-modal .form-select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".track-editor-modal .track-placeholder",
+        "property": "background",
+        "value": "#0b1c30!important"
+      },
+      {
+        "selector": ".track-editor-modal .track-placeholder:hover",
+        "property": "background",
+        "value": "#102b47!important"
+      },
+      {
+        "selector": ".track-editor-modal .track-placeholder .material-icons-outlined",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".track-editor-modal .track-placeholder p",
+        "property": "color",
+        "value": "#ffad72!important"
+      },
+      {
+        "selector": ".track-editor-modal ul",
+        "property": "color",
+        "value": "#cddded"
+      },
+      {
+        "selector": ".track-editor-footer",
+        "property": "background",
+        "value": "#102943"
+      },
+      {
+        "selector": ".admin-release-editor .shadow,.track-editor-modal .shadow",
+        "property": "background",
+        "value": "#0d2742!important"
+      },
+      {
+        "selector": ".admin-release-editor #add-track",
+        "property": "color",
+        "value": "#ff9b78"
+      },
+      {
+        "selector": ".admin-release-editor .form-check",
+        "property": "background",
+        "value": "rgba(9,28,47,.45)"
+      },
+      {
+        "selector": ".admin-release-stepper",
+        "property": "background",
+        "value": "#0d1d31"
+      },
+      {
+        "selector": ".admin-release-step b",
+        "property": "color",
+        "value": "#d8e8f7"
+      },
+      {
+        "selector": ".admin-release-step.is-active span",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-step.is-active b",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-step-next",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-step-actions",
+        "property": "background",
+        "value": "#0d2036"
+      },
+      {
+        "selector": ".admin-release-editor .release-choice-card",
+        "property": "background",
+        "value": "#0b2036"
+      },
+      {
+        "selector": ".admin-release-editor .release-choice-card .form-check-label",
+        "property": "color",
+        "value": "#e5f1fc"
+      },
+      {
+        "selector": ".track-editor-modal .release-inline-action",
+        "property": "color",
+        "value": "#c7e1fa"
+      },
+      {
+        "selector": ".track-editor-modal .release-inline-action:hover",
+        "property": "background",
+        "value": "#173959"
+      },
+      {
+        "selector": ".track-editor-modal .release-inline-action:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".track-editor-modal .release-inline-action:hover small",
+        "property": "color",
+        "value": "#cce4fb"
+      },
+      {
+        "selector": ".admin-release-editor .select2-container--default .select2-selection--single",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".admin-release-editor .select2-container--default .select2-selection--single .select2-selection__rendered",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".select2-dropdown",
+        "property": "background",
+        "value": "#0d2036"
+      },
+      {
+        "selector": ".select2-search--dropdown .select2-search__field",
+        "property": "background",
+        "value": "#081a2c"
+      },
+      {
+        "selector": ".select2-search--dropdown .select2-search__field",
+        "property": "color",
+        "value": "#eff7ff"
+      },
+      {
+        "selector": ".select2-container--default .select2-results__option",
+        "property": "color",
+        "value": "#d7e8f8"
+      },
+      {
+        "selector": ".select2-container--default .select2-results__option--highlighted.select2-results__option--selectable",
+        "property": "background",
+        "value": "#1b4770"
+      },
+      {
+        "selector": ".select2-container--default .select2-results__option--highlighted.select2-results__option--selectable",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".select2-container--default .select2-results__option--selected",
+        "property": "background",
+        "value": "#17324e"
+      },
+      {
+        "selector": ".select2-container--default .select2-results__option--selected",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".release-index-hero h1",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".release-toolbar-button",
+        "property": "background",
+        "value": "rgba(12,30,50,.72)!important"
+      },
+      {
+        "selector": ".release-toolbar-button:hover",
+        "property": "background",
+        "value": "#173658!important"
+      },
+      {
+        "selector": ".release-toolbar-button:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-create-button",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-create-button:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-summary-card",
+        "property": "background",
+        "value": "linear-gradient(115deg,#0f2036,#142942)!important"
+      },
+      {
+        "selector": ".release-summary-card",
+        "property": "color",
+        "value": "#eff6ff"
+      },
+      {
+        "selector": ".release-summary-card h4",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".album-summary .release-summary-icon",
+        "property": "color",
+        "value": "#ca93ff"
+      },
+      {
+        "selector": ".release-status-tabs",
+        "property": "background",
+        "value": "#0d1d31"
+      },
+      {
+        "selector": ".release-status-tabs .nav-link.active",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-status-tabs .nav-link.active .tab-icon",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".tab-content",
+        "property": "background",
+        "value": "#0d1d31"
+      },
+      {
+        "selector": ".tab-content .dataTables_filter label,.tab-content .dataTables_length label",
+        "property": "color",
+        "value": "#c9dbed"
+      },
+      {
+        "selector": ".tab-content .dataTables_filter input,.tab-content .dataTables_length select",
+        "property": "background",
+        "value": "#08182a"
+      },
+      {
+        "selector": ".tab-content .dataTables_filter input,.tab-content .dataTables_length select",
+        "property": "color",
+        "value": "#eef6ff"
+      },
+      {
+        "selector": ".tab-content table.albums",
+        "property": "color",
+        "value": "#d9e8f7"
+      },
+      {
+        "selector": ".tab-content table.albums thead th",
+        "property": "background",
+        "value": "#172f4c"
+      },
+      {
+        "selector": ".tab-content table.albums tbody td",
+        "property": "color",
+        "value": "#d8e6f5"
+      },
+      {
+        "selector": ".albums .fw-bold",
+        "property": "color",
+        "value": "#eff6ff"
+      },
+      {
+        "selector": ".albums td .actions a:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".tab-content .pagination .page-link",
+        "property": "background",
+        "value": "#142a44"
+      },
+      {
+        "selector": ".tab-content .pagination .active>.page-link",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-date-cell>span",
+        "property": "color",
+        "value": "#dceafa"
+      },
+      {
+        "selector": ".release-countdown.is-overdue",
+        "property": "color",
+        "value": "#ff9a76"
+      },
+      {
+        "selector": ".release-type-badge.is-single",
+        "property": "color",
+        "value": "#ffad8a"
+      },
+      {
+        "selector": ".release-status-review",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-status-revision",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".uploaded-date-cell>span",
+        "property": "color",
+        "value": "#dceafa"
+      },
+      {
+        "selector": ".uploaded-date-cell strong",
+        "property": "color",
+        "value": "#ffbf8a"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/show.blade.php",
+    "selectors": [
+      {
+        "selector": ".admin-release-header h4",
+        "property": "color",
+        "value": "#f6f9ff"
+      },
+      {
+        "selector": ".admin-release-action--edit",
+        "property": "color",
+        "value": "#ffac61"
+      },
+      {
+        "selector": ".admin-release-action--reject",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-action--review",
+        "property": "background",
+        "value": "#16b978"
+      },
+      {
+        "selector": ".admin-release-action--review",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-action:hover",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/contract/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".contract-page-header h4",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".contract-create-button",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".contract-summary-card",
+        "property": "background",
+        "value": "linear-gradient(120deg,#102943,#0c2036)"
+      },
+      {
+        "selector": ".contract-summary-card small",
+        "property": "color",
+        "value": "#c5dcf2"
+      },
+      {
+        "selector": ".contract-summary-card strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".contract-summary-card--missing>span",
+        "property": "color",
+        "value": "#ff9b65"
+      },
+      {
+        "selector": ".contract-tabs",
+        "property": "background",
+        "value": "#0d1d31"
+      },
+      {
+        "selector": ".contract-tabs .nav-link.active",
+        "property": "background",
+        "value": "#1d69bc"
+      },
+      {
+        "selector": ".contract-tabs .nav-link.active",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".contract-table-panel",
+        "property": "background",
+        "value": "#0d1d31"
+      },
+      {
+        "selector": ".contract-table-panel .dataTables_filter label,.contract-table-panel .dataTables_length label",
+        "property": "color",
+        "value": "#c9dbed"
+      },
+      {
+        "selector": ".contract-table-panel .dataTables_filter input,.contract-table-panel .dataTables_length select",
+        "property": "background",
+        "value": "#08182a"
+      },
+      {
+        "selector": ".contract-table-panel .dataTables_filter input,.contract-table-panel .dataTables_length select",
+        "property": "color",
+        "value": "#eef6ff"
+      },
+      {
+        "selector": ".contract-table-panel table thead th",
+        "property": "background",
+        "value": "#172f4c"
+      },
+      {
+        "selector": ".contract-table-panel table tbody td",
+        "property": "color",
+        "value": "#d8e6f5"
+      },
+      {
+        "selector": ".contract-table-panel .btn-outline-primary:hover",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/reporting/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".reporting-page-heading h4",
+        "property": "color",
+        "value": "#f5f8ff"
+      },
+      {
+        "selector": ".reporting-summary-card strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".reporting-summary-card--attention .reporting-summary-icon",
+        "property": "color",
+        "value": "#ffc35c"
+      },
+      {
+        "selector": ".reporting-summary-card--attention strong",
+        "property": "color",
+        "value": "#ffc45d"
+      },
+      {
+        "selector": ".reporting-tabs .nav-link.active",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".reporting-tabs .nav-link.active",
+        "property": "background",
+        "value": "#173e67"
+      },
+      {
+        "selector": ".reporting-table-shell .dataTables_filter input",
+        "property": "background",
+        "value": "#071c30"
+      },
+      {
+        "selector": ".reporting-table-shell .dataTables_filter input",
+        "property": "color",
+        "value": "#eef7ff"
+      },
+      {
+        "selector": ".reporting-table-shell .dataTables_length select",
+        "property": "background",
+        "value": "#071c30"
+      },
+      {
+        "selector": ".reporting-table-shell .dataTables_length select",
+        "property": "color",
+        "value": "#eef7ff"
+      },
+      {
+        "selector": "#batches-table",
+        "property": "color",
+        "value": "#e9f4ff"
+      },
+      {
+        "selector": "#batches-table thead th",
+        "property": "color",
+        "value": "#d3e8ff"
+      },
+      {
+        "selector": "#batches-table td:first-child",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".reporting-filter-card",
+        "property": "background",
+        "value": "#0e2944"
+      },
+      {
+        "selector": ".reporting-filter-card .card-header",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".reporting-filter-card .card-header",
+        "property": "background",
+        "value": "#173d63"
+      },
+      {
+        "selector": ".reporting-filter-card .card-body",
+        "property": "color",
+        "value": "#c5dcf5"
+      },
+      {
+        "selector": ".reporting-filter-card .card-body",
+        "property": "background",
+        "value": "#0d2944"
+      },
+      {
+        "selector": ".reporting-filter-card .form-label",
+        "property": "color",
+        "value": "#cfe3f8"
+      },
+      {
+        "selector": ".reporting-filter-card .form-select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".reporting-filter-card .form-select",
+        "property": "background-color",
+        "value": "#091e32"
+      },
+      {
+        "selector": ".reporting-revenue-card",
+        "property": "background",
+        "value": "#102d49"
+      },
+      {
+        "selector": ".reporting-revenue-card .card-body",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": ".reporting-revenue-card h5",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": "#rows-table",
+        "property": "color",
+        "value": "#e9f4ff"
+      },
+      {
+        "selector": "#rows-table thead th",
+        "property": "color",
+        "value": "#d3e8ff"
+      },
+      {
+        "selector": ".reporting-data-table-shell .dataTables_filter input, .reporting-data-table-shell .dataTables_length select",
+        "property": "background",
+        "value": "#071c30"
+      },
+      {
+        "selector": ".reporting-data-table-shell .dataTables_filter input, .reporting-data-table-shell .dataTables_length select",
+        "property": "color",
+        "value": "#eef7ff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/settlement/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".transaction-page-heading h4",
+        "property": "color",
+        "value": "#f4f8ff"
+      },
+      {
+        "selector": ".transaction-filter-card",
+        "property": "background",
+        "value": "#0e2944"
+      },
+      {
+        "selector": ".transaction-filter-card .card-header",
+        "property": "background",
+        "value": "#173d63"
+      },
+      {
+        "selector": ".transaction-filter-card .card-header .card-title",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".transaction-filter-card .card-body",
+        "property": "color",
+        "value": "#c9e0f7"
+      },
+      {
+        "selector": ".transaction-filter-card .card-body",
+        "property": "background",
+        "value": "#0e2944"
+      },
+      {
+        "selector": ".transaction-filter-card .form-label",
+        "property": "color",
+        "value": "#cfe4f7"
+      },
+      {
+        "selector": ".transaction-filter-card .form-select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".transaction-filter-card .form-select",
+        "property": "background",
+        "value": "#091f34"
+      },
+      {
+        "selector": ".transaction-summary-card",
+        "property": "background",
+        "value": "linear-gradient(135deg,#123754,#0d2943)"
+      },
+      {
+        "selector": ".transaction-summary-card .card-body",
+        "property": "color",
+        "value": "#edf7ff"
+      },
+      {
+        "selector": ".transaction-summary-card h5",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": "#rows-table",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": "#rows-table thead th",
+        "property": "color",
+        "value": "#d3e8ff"
+      },
+      {
+        "selector": ".transaction-table-shell .dataTables_filter input,.transaction-table-shell .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".transaction-table-shell .dataTables_filter input,.transaction-table-shell .dataTables_length select",
+        "property": "background",
+        "value": "#081e33"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/aggregator/transaction/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".transaction-page-heading h4",
+        "property": "color",
+        "value": "#f4f8ff"
+      },
+      {
+        "selector": ".transaction-filter-card",
+        "property": "background",
+        "value": "#0e2944"
+      },
+      {
+        "selector": ".transaction-filter-card .card-header",
+        "property": "background",
+        "value": "#173d63"
+      },
+      {
+        "selector": ".transaction-filter-card .card-header .card-title",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".transaction-filter-card .card-body",
+        "property": "color",
+        "value": "#c9e0f7"
+      },
+      {
+        "selector": ".transaction-filter-card .card-body",
+        "property": "background",
+        "value": "#0e2944"
+      },
+      {
+        "selector": ".transaction-filter-card .form-label",
+        "property": "color",
+        "value": "#cfe4f7"
+      },
+      {
+        "selector": ".transaction-filter-card .form-select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".transaction-filter-card .form-select",
+        "property": "background",
+        "value": "#091f34"
+      },
+      {
+        "selector": ".transaction-summary-card",
+        "property": "background",
+        "value": "linear-gradient(135deg,#123754,#0d2943)"
+      },
+      {
+        "selector": ".transaction-summary-card .card-body",
+        "property": "color",
+        "value": "#edf7ff"
+      },
+      {
+        "selector": ".transaction-summary-card h5",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": "#rows-table",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": "#rows-table thead th",
+        "property": "color",
+        "value": "#d3e8ff"
+      },
+      {
+        "selector": ".transaction-table-shell .dataTables_filter input, .transaction-table-shell .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".transaction-table-shell .dataTables_filter input, .transaction-table-shell .dataTables_length select",
+        "property": "background",
+        "value": "#081e33"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/announcement/create.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".announcement-form-header h1",
+        "property": "color",
+        "value": "#f5f9ff!important"
+      },
+      {
+        "selector": ".announcement-editor-card",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)!important"
+      },
+      {
+        "selector": ".announcement-editor-card .form-label",
+        "property": "color",
+        "value": "#d5e6f6"
+      },
+      {
+        "selector": ".announcement-editor-card .form-control",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".announcement-editor-card .form-control",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".ql-toolbar.ql-snow,.ql-container.ql-snow",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".ql-toolbar.ql-snow,.ql-container.ql-snow",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".ql-editor",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".announcement-live-preview",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)"
+      },
+      {
+        "selector": ".announcement-live-preview h2",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".announcement-preview-card",
+        "property": "background",
+        "value": "#0a1b30"
+      },
+      {
+        "selector": ".announcement-preview-card",
+        "property": "color",
+        "value": "#c6dcf1"
+      },
+      {
+        "selector": ".announcement-preview-card>i",
+        "property": "background",
+        "value": "#1e4772"
+      },
+      {
+        "selector": ".announcement-preview-card h3",
+        "property": "color",
+        "value": "#eff7ff"
+      },
+      {
+        "selector": ".announcement-form-actions a",
+        "property": "color",
+        "value": "#c2d9ef"
+      },
+      {
+        "selector": ".announcement-form-actions button",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/announcement/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".admin-list-header h1",
+        "property": "color",
+        "value": "#f6faff!important"
+      },
+      {
+        "selector": ".announcement-create-btn",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".admin-summary-grid article",
+        "property": "background",
+        "value": "linear-gradient(140deg,#0f223a,#0a192c)"
+      },
+      {
+        "selector": ".admin-summary-icon.orange",
+        "property": "color",
+        "value": "#ffab7f"
+      },
+      {
+        "selector": ".admin-summary-grid strong",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".admin-data-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)"
+      },
+      {
+        "selector": ".admin-data-panel h2",
+        "property": "color",
+        "value": "#f4f9ff"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_filter input,.admin-data-panel .dataTables_length select",
+        "property": "background",
+        "value": "#09192b"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_filter input,.admin-data-panel .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".admin-data-panel table",
+        "property": "color",
+        "value": "#c4d6e8"
+      },
+      {
+        "selector": ".announcement-title",
+        "property": "color",
+        "value": "#eef6ff"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_paginate .paginate_button.current",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_paginate .paginate_button:hover",
+        "property": "background",
+        "value": "#1a3049!important"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_paginate .paginate_button:hover",
+        "property": "color",
+        "value": "#fff!important"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/automation/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".automation-header h1",
+        "property": "color",
+        "value": "#f5f9ff!important"
+      },
+      {
+        "selector": ".automation-summary article",
+        "property": "background",
+        "value": "linear-gradient(140deg,#0f223a,#0a192c)"
+      },
+      {
+        "selector": ".automation-summary .orange",
+        "property": "color",
+        "value": "#ffab7f"
+      },
+      {
+        "selector": ".automation-summary strong",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".automation-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)!important"
+      },
+      {
+        "selector": ".automation-panel .card-header",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".automation-panel .table",
+        "property": "color",
+        "value": "#c4d6e8"
+      },
+      {
+        "selector": ".automation-panel .dataTables_filter input,.automation-panel .dataTables_length select",
+        "property": "background",
+        "value": "#09192b"
+      },
+      {
+        "selector": ".automation-panel .dataTables_filter input,.automation-panel .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".automation-panel .dataTables_paginate .paginate_button.current",
+        "property": "color",
+        "value": "#fff!important"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/broadcast/create.blade.php",
+    "selectors": [
+      {
+        "selector": ".select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "selector": ".select2-container--bootstrap-5 .select2-results__option--highlighted",
+        "property": "color",
+        "value": "white"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/broadcast/edit.blade.php",
+    "selectors": [
+      {
+        "selector": ".select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "selector": ".select2-container--bootstrap-5 .select2-results__option--highlighted",
+        "property": "color",
+        "value": "white"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/broadcast/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".broadcast-page-heading h4",
+        "property": "color",
+        "value": "#f5f8ff"
+      },
+      {
+        "selector": ".broadcast-summary-card",
+        "property": "background",
+        "value": "linear-gradient(135deg,#123754,#0d2943)"
+      },
+      {
+        "selector": ".broadcast-summary-card small",
+        "property": "color",
+        "value": "#cce2fa"
+      },
+      {
+        "selector": ".broadcast-summary-card strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".broadcast-summary-card--draft .broadcast-summary-icon",
+        "property": "color",
+        "value": "#ffcb62"
+      },
+      {
+        "selector": ".broadcast-table-titlebar",
+        "property": "color",
+        "value": "#edf7ff"
+      },
+      {
+        "selector": ".broadcast-table-titlebar",
+        "property": "background",
+        "value": "#123758"
+      },
+      {
+        "selector": ".broadcast-table-shell .dataTables_filter input",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".broadcast-table-shell .dataTables_filter input",
+        "property": "background",
+        "value": "#091f34"
+      },
+      {
+        "selector": ".broadcast-table-shell .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".broadcast-table-shell .dataTables_length select",
+        "property": "background",
+        "value": "#091f34"
+      },
+      {
+        "selector": "#broadcast-table",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": "#broadcast-table thead th",
+        "property": "color",
+        "value": "#d3e8ff"
+      },
+      {
+        "selector": "#broadcast-table td:first-child a",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": "#broadcast-table td:first-child a:hover",
+        "property": "color",
+        "value": "#ffb068"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/logactivity/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".admin-list-header h1",
+        "property": "color",
+        "value": "#f6faff!important"
+      },
+      {
+        "selector": ".admin-summary-grid article",
+        "property": "background",
+        "value": "linear-gradient(140deg,#0f223a,#0a192c)"
+      },
+      {
+        "selector": ".admin-summary-icon.orange",
+        "property": "color",
+        "value": "#ffab7f"
+      },
+      {
+        "selector": ".admin-summary-grid strong",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".admin-data-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)"
+      },
+      {
+        "selector": ".admin-data-panel h2",
+        "property": "color",
+        "value": "#f4f9ff"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_filter input,.admin-data-panel .dataTables_length select",
+        "property": "background",
+        "value": "#09192b"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_filter input,.admin-data-panel .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".admin-data-panel table",
+        "property": "color",
+        "value": "#c4d6e8"
+      },
+      {
+        "selector": ".log-level-error",
+        "property": "color",
+        "value": "#ff999d"
+      },
+      {
+        "selector": ".log-level-warning",
+        "property": "color",
+        "value": "#ffc66b"
+      },
+      {
+        "selector": ".log-message",
+        "property": "color",
+        "value": "#eaf4ff"
+      },
+      {
+        "selector": ".log-user i",
+        "property": "background",
+        "value": "#203b58"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_paginate .paginate_button.current",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_paginate .paginate_button:hover",
+        "property": "background",
+        "value": "#1a3049!important"
+      },
+      {
+        "selector": ".admin-data-panel .dataTables_paginate .paginate_button:hover",
+        "property": "color",
+        "value": "#fff!important"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/user/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".user-management-heading h4",
+        "property": "color",
+        "value": "#f5f8ff"
+      },
+      {
+        "selector": ".user-summary-card",
+        "property": "color",
+        "value": "#d9eaff"
+      },
+      {
+        "selector": ".user-summary-card",
+        "property": "background",
+        "value": "linear-gradient(135deg,#123654,#0d2943)"
+      },
+      {
+        "selector": ".user-summary-card--pending .user-summary-icon",
+        "property": "color",
+        "value": "#ffc759"
+      },
+      {
+        "selector": ".user-summary-card small",
+        "property": "color",
+        "value": "#cce2fa"
+      },
+      {
+        "selector": ".user-summary-card strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".user-table-titlebar",
+        "property": "background",
+        "value": "#123758"
+      },
+      {
+        "selector": ".user-table-titlebar>div",
+        "property": "color",
+        "value": "#f2f8ff"
+      },
+      {
+        "selector": ".user-table-shell .dataTables_filter input,.user-table-shell .dataTables_length select",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".user-table-shell .dataTables_filter input,.user-table-shell .dataTables_length select",
+        "property": "background",
+        "value": "#091f34"
+      },
+      {
+        "selector": "#customer-table",
+        "property": "color",
+        "value": "#eaf5ff"
+      },
+      {
+        "selector": "#customer-table thead th",
+        "property": "color",
+        "value": "#d3e8ff"
+      },
+      {
+        "selector": "#customer-table td:first-child",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/user/show.blade.php",
+    "selectors": [
+      {
+        "selector": ".admin-user-breadcrumb a",
+        "property": "color",
+        "value": "#ff9a45"
+      },
+      {
+        "selector": ".admin-user-avatar",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-user-status--blocked",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-user-status--unknown",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-user-action-btn",
+        "property": "color",
+        "value": "#d9edff"
+      },
+      {
+        "selector": ".admin-user-action-btn:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-user-action-btn:hover",
+        "property": "background",
+        "value": "#1a5683"
+      },
+      {
+        "selector": ".admin-user-action-btn.is-warning",
+        "property": "color",
+        "value": "#ffd09a"
+      },
+      {
+        "selector": ".admin-user-action-btn.is-danger",
+        "property": "color",
+        "value": "#ffc0c8"
+      },
+      {
+        "selector": ".identity-document-preview",
+        "property": "background",
+        "value": "#0b2137"
+      },
+      {
+        "selector": ".identity-document-meta",
+        "property": "color",
+        "value": "#d9ebfb"
+      },
+      {
+        "selector": ".admin-user-tabs",
+        "property": "background",
+        "value": "#0b2540"
+      },
+      {
+        "selector": ".admin-user-tabs .nav-link.active",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/user-roles/create.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".role-form-header h1",
+        "property": "color",
+        "value": "#f5f9ff!important"
+      },
+      {
+        "selector": ".role-form-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)"
+      },
+      {
+        "selector": ".role-form-grid label",
+        "property": "color",
+        "value": "#d8e8f7"
+      },
+      {
+        "selector": ".role-form-grid label>span",
+        "property": "color",
+        "value": "#ff8867"
+      },
+      {
+        "selector": ".role-form-grid input,.role-form-grid textarea",
+        "property": "background",
+        "value": "#091a2d"
+      },
+      {
+        "selector": ".role-form-grid input,.role-form-grid textarea",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".role-permission-panel h2",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".permission-group",
+        "property": "background",
+        "value": "rgba(12,31,52,.72)"
+      },
+      {
+        "selector": ".permission-group h3",
+        "property": "color",
+        "value": "#eaf4ff"
+      },
+      {
+        "selector": ".role-form-actions a",
+        "property": "color",
+        "value": "#c2d9ef"
+      },
+      {
+        "selector": ".role-form-actions button",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/admin/user-roles/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#081225!important"
+      },
+      {
+        "selector": ".roles-page-header h1",
+        "property": "color",
+        "value": "#f5f9ff!important"
+      },
+      {
+        "selector": ".roles-page-header>a",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".roles-summary article",
+        "property": "background",
+        "value": "linear-gradient(140deg,#0f223a,#0a192c)"
+      },
+      {
+        "selector": ".roles-summary strong",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".roles-panel",
+        "property": "background",
+        "value": "linear-gradient(145deg,#0e2036,#0a192b)!important"
+      },
+      {
+        "selector": ".roles-panel .card-header",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".roles-panel .table",
+        "property": "color",
+        "value": "#c4d6e8"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/auth/login-redesign.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-login",
+        "property": "color",
+        "value": "#f8f9fc"
+      },
+      {
+        "selector": ".sf-login",
+        "property": "background",
+        "value": "#0d121b"
+      },
+      {
+        "selector": ".sf-story",
+        "property": "background",
+        "value": "#21142b url('{{ asset('build/images/login-studio.png') }}') center/cover no-repeat"
+      },
+      {
+        "selector": ".sf-story::before",
+        "property": "background",
+        "value": "linear-gradient(90deg,rgba(9,7,19,.45),rgba(9,7,19,.06) 75%)"
+      },
+      {
+        "selector": ".sf-story__brand",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-story h1",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-story__intro",
+        "property": "color",
+        "value": "#f0eaf4"
+      },
+      {
+        "selector": ".sf-benefits li",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-benefits__icon",
+        "property": "color",
+        "value": "#ff8a48"
+      },
+      {
+        "selector": ".sf-benefits__icon",
+        "property": "background",
+        "value": "rgba(17,12,27,.56)"
+      },
+      {
+        "selector": ".sf-story__footer",
+        "property": "color",
+        "value": "#e7dfea"
+      },
+      {
+        "selector": ".sf-form-side",
+        "property": "background",
+        "value": "#0d121b"
+      },
+      {
+        "selector": ".sf-form-panel h2",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-field label",
+        "property": "color",
+        "value": "#f6f6f9"
+      },
+      {
+        "selector": ".sf-input",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-input",
+        "property": "background",
+        "value": "#1b2430"
+      },
+      {
+        "selector": ".sf-password-toggle",
+        "property": "color",
+        "value": "#c8ced8"
+      },
+      {
+        "selector": ".sf-password-toggle:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-error",
+        "property": "color",
+        "value": "#ff9da3"
+      },
+      {
+        "selector": ".sf-submit",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-login-register",
+        "property": "color",
+        "value": "#d8dbe2"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/auth/login.blade.php",
+    "selectors": [
+      {
+        "selector": "body.soundfresh-login",
+        "property": "background",
+        "value": "#111827"
+      },
+      {
+        "selector": ".soundfresh-login .login-page",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".login-hero",
+        "property": "background",
+        "value": "#120c21 url('{{ URL::asset('build/images/auth/login-studio.png') }}') center/cover no-repeat"
+      },
+      {
+        "selector": ".login-hero-overlay",
+        "property": "background",
+        "value": "linear-gradient(90deg,rgba(9,8,23,.86) 0%,rgba(12,8,26,.67) 47%,rgba(15,7,22,.35) 100%)"
+      },
+      {
+        "selector": ".login-kicker",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".login-hero h1",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".login-hero h1 em",
+        "property": "color",
+        "value": "#ff7839"
+      },
+      {
+        "selector": ".login-hero-copy",
+        "property": "color",
+        "value": "#e5e7eb"
+      },
+      {
+        "selector": ".login-feature",
+        "property": "background",
+        "value": "rgba(17,19,40,.64)"
+      },
+      {
+        "selector": ".feature-orange",
+        "property": "color",
+        "value": "#ffad36"
+      },
+      {
+        "selector": ".login-avatars span:nth-child(4)",
+        "property": "background",
+        "value": "linear-gradient(135deg,#3ddc97,#18a8ca)"
+      },
+      {
+        "selector": ".login-tagline",
+        "property": "color",
+        "value": "#d5c9e5"
+      },
+      {
+        "selector": ".login-error",
+        "property": "color",
+        "value": "#dc2626"
+      },
+      {
+        "selector": ".login-options a,.login-signup a",
+        "property": "color",
+        "value": "#f05f19"
+      },
+      {
+        "selector": ".login-submit",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/components/release.blade.php",
+    "selectors": [
+      {
+        "selector": "[data-bs-theme=dark] .album-items td:last-child",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "selector": ".admin-release-detail .release-cover-download:hover",
+        "property": "background",
+        "value": "#173959"
+      },
+      {
+        "selector": ".admin-release-detail .release-cover-download:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-detail .album-title-status h2",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".admin-release-detail .release-items-table td:last-child",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".admin-release-detail .section-toggle-btn",
+        "property": "color",
+        "value": "#f4f8ff"
+      },
+      {
+        "selector": ".admin-release-detail .section-toggle-btn:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-item",
+        "property": "background",
+        "value": "#0b2036"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-button",
+        "property": "background",
+        "value": "#102a45"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-button",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-button:not(.collapsed)",
+        "property": "background",
+        "value": "#173553"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-button:not(.collapsed)",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-body",
+        "property": "background",
+        "value": "#0d243c"
+      },
+      {
+        "selector": ".admin-release-detail .accordion-body",
+        "property": "color",
+        "value": "#d5e6f6"
+      },
+      {
+        "selector": ".admin-release-detail .track-detail .album-items td:last-child",
+        "property": "color",
+        "value": "#f0f7ff"
+      },
+      {
+        "selector": ".admin-release-detail .release-history-panel .section-toggle-btn",
+        "property": "color",
+        "value": "#f4f8ff"
+      },
+      {
+        "selector": ".admin-release-detail .release-history-panel .section-toggle-btn:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".admin-release-detail .release-timeline-action",
+        "property": "color",
+        "value": "#eef7ff"
+      },
+      {
+        "selector": ".admin-release-detail .release-artists-table",
+        "property": "background",
+        "value": "rgba(8,25,43,.38)"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/earnings.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#0b1220!important"
+      },
+      {
+        "selector": ".earn-page",
+        "property": "color",
+        "value": "#d6e2ef"
+      },
+      {
+        "selector": ".earn-page-header h1",
+        "property": "color",
+        "value": "#f8fafc!important"
+      },
+      {
+        "selector": ".earn-period,.earn-download",
+        "property": "color",
+        "value": "#edf3fa"
+      },
+      {
+        "selector": ".earn-period,.earn-download",
+        "property": "background",
+        "value": "#111c2d"
+      },
+      {
+        "selector": ".earn-tabs",
+        "property": "background",
+        "value": "#111c2d"
+      },
+      {
+        "selector": ".earn-tab.is-active",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".earn-balance",
+        "property": "background",
+        "value": "linear-gradient(105deg,#162a42,#112037)"
+      },
+      {
+        "selector": ".earn-balance p",
+        "property": "color",
+        "value": "#dbe7f5"
+      },
+      {
+        "selector": ".earn-balance strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".earn-balance-date b",
+        "property": "color",
+        "value": "#f2f7fc"
+      },
+      {
+        "selector": ".earn-balance>a",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".earn-summary-grid>article,.earn-card",
+        "property": "background",
+        "value": "#141f30!important"
+      },
+      {
+        "selector": ".earn-green",
+        "property": "background",
+        "value": "#0f4a3c"
+      },
+      {
+        "selector": ".earn-orange",
+        "property": "color",
+        "value": "#ff914f"
+      },
+      {
+        "selector": ".earn-slate",
+        "property": "color",
+        "value": "#c0cce0"
+      },
+      {
+        "selector": ".earn-summary-grid p",
+        "property": "color",
+        "value": "#d5dfeb"
+      },
+      {
+        "selector": ".earn-summary-grid strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".earn-summary-grid small.down",
+        "property": "color",
+        "value": "#fb7891"
+      },
+      {
+        "selector": ".earn-card h2",
+        "property": "color",
+        "value": "#f8fafc!important"
+      },
+      {
+        "selector": ".earn-legend",
+        "property": "color",
+        "value": "#c6d2df"
+      },
+      {
+        "selector": ".earn-platform strong",
+        "property": "color",
+        "value": "#f2f6fb"
+      },
+      {
+        "selector": ".earn-platform>div span,.platform-meter",
+        "property": "background",
+        "value": "#293a51"
+      },
+      {
+        "selector": ".earn-platform b",
+        "property": "color",
+        "value": "#f5f8fc"
+      },
+      {
+        "selector": ".earn-detail th",
+        "property": "background",
+        "value": "#1e3047"
+      },
+      {
+        "selector": ".earn-detail td",
+        "property": "color",
+        "value": "#d6e0ec"
+      },
+      {
+        "selector": ".earn-detail td:last-child",
+        "property": "color",
+        "value": "#f7fafc"
+      },
+      {
+        "selector": ".earn-payment-row>span",
+        "property": "color",
+        "value": "#ff9c55"
+      },
+      {
+        "selector": ".earn-payment-row:nth-of-type(3)>span",
+        "property": "background",
+        "value": "#2a4056"
+      },
+      {
+        "selector": ".earn-payment-row strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".report-insight",
+        "property": "background",
+        "value": "linear-gradient(90deg,#522817,#1b2637)"
+      },
+      {
+        "selector": ".report-insight",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".report-insight>span",
+        "property": "color",
+        "value": "#ff8a55"
+      },
+      {
+        "selector": ".report-insight p",
+        "property": "color",
+        "value": "#ffd4c4"
+      },
+      {
+        "selector": ".report-filter-grid select,.report-search input",
+        "property": "background",
+        "value": "#0e1928"
+      },
+      {
+        "selector": ".report-filter-grid select,.report-search input",
+        "property": "color",
+        "value": "#edf3fa"
+      },
+      {
+        "selector": ".report-apply",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".report-export",
+        "property": "color",
+        "value": "#edf3fa"
+      },
+      {
+        "selector": ".report-summary",
+        "property": "background",
+        "value": "#132137"
+      },
+      {
+        "selector": ".report-summary-icon",
+        "property": "color",
+        "value": "#ff8350"
+      },
+      {
+        "selector": ".report-summary strong",
+        "property": "color",
+        "value": "#ff8150"
+      },
+      {
+        "selector": ".report-summary b",
+        "property": "color",
+        "value": "#f2f6fb"
+      },
+      {
+        "selector": ".report-table th",
+        "property": "background",
+        "value": "#1c3049"
+      },
+      {
+        "selector": ".report-table td",
+        "property": "color",
+        "value": "#dce7f3"
+      },
+      {
+        "selector": ".report-table td:last-child",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".report-pagination button,.report-pagination #report-page",
+        "property": "background",
+        "value": "#142238"
+      },
+      {
+        "selector": ".report-pagination button,.report-pagination #report-page",
+        "property": "color",
+        "value": "#e7f0fa"
+      },
+      {
+        "selector": ".report-pagination #report-page",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".report-platform-row strong",
+        "property": "color",
+        "value": "#edf4fb"
+      },
+      {
+        "selector": ".report-platform-row b",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app:has(.dashboard-welcome)",
+        "property": "background",
+        "value": "#0b1220!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .main-wrapper,.sf-app:has(.dashboard-welcome) .main-content",
+        "property": "background",
+        "value": "#0b1220!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .main-wrapper,.sf-app:has(.dashboard-welcome) .main-content",
+        "property": "color",
+        "value": "#eaf2fb"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-header h4",
+        "property": "color",
+        "value": "#f8fafc!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-period,.sf-app:has(.dashboard-welcome) .dashboard-secondary-btn",
+        "property": "background",
+        "value": "#142033!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-period,.sf-app:has(.dashboard-welcome) .dashboard-secondary-btn",
+        "property": "color",
+        "value": "#dbe7f4!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-kpi-card,.sf-app:has(.dashboard-welcome) .dashboard-panel",
+        "property": "background",
+        "value": "#142033!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-kpi-card h3,.sf-app:has(.dashboard-welcome) .dashboard-panel h5,.sf-app:has(.dashboard-welcome) .dashboard-song-table tbody td,.sf-app:has(.dashboard-welcome) .dashboard-song-table tbody strong,.sf-app:has(.dashboard-welcome) .release-health-copy strong",
+        "property": "color",
+        "value": "#f4f8fc!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-panel .table",
+        "property": "color",
+        "value": "#eaf2fb!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-action",
+        "property": "color",
+        "value": "#eaf2fb!important"
+      },
+      {
+        "selector": ".sf-app:has(.dashboard-welcome) .dashboard-cover,.sf-app:has(.dashboard-welcome) .release-health-row>img",
+        "property": "background",
+        "value": "#1e3048!important"
+      },
+      {
+        "selector": ".dashboard-eyebrow",
+        "property": "color",
+        "value": "#ff6a00"
+      },
+      {
+        "selector": ".dashboard-secondary-btn:hover",
+        "property": "color",
+        "value": "#ff6a00"
+      },
+      {
+        "selector": ".dashboard-welcome",
+        "property": "background",
+        "value": "linear-gradient(115deg,#161d35,#2e1b38 68%,#d96516)"
+      },
+      {
+        "selector": ".dashboard-welcome",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".dashboard-welcome h2",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".dashboard-welcome p",
+        "property": "color",
+        "value": "#d7ddec!important"
+      },
+      {
+        "selector": ".dashboard-welcome-icon",
+        "property": "color",
+        "value": "rgba(255,255,255,.15)"
+      },
+      {
+        "selector": ".kpi-song",
+        "property": "color",
+        "value": "#e11d48"
+      },
+      {
+        "selector": ".dashboard-status-pill i",
+        "property": "background",
+        "value": "#10b981"
+      },
+      {
+        "selector": ".release-health-icon.review",
+        "property": "color",
+        "value": "#d97706"
+      },
+      {
+        "selector": ".dashboard-panel-link",
+        "property": "color",
+        "value": "#ff6a00"
+      },
+      {
+        "selector": ".dashboard-action>span:first-child",
+        "property": "color",
+        "value": "#ea580c"
+      },
+      {
+        "selector": ".dashboard-action:hover strong",
+        "property": "color",
+        "value": "#ff6a00"
+      },
+      {
+        "selector": ".release-state.live i",
+        "property": "background",
+        "value": "#22c55e"
+      },
+      {
+        "selector": ".song-trend.down",
+        "property": "color",
+        "value": "#e11d48"
+      },
+      {
+        "selector": ".dashboard-upload-btn",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".dashboard-upload-btn:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".dashboard-create-btn:hover",
+        "property": "color",
+        "value": "#ff6a00"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/profile.blade.php",
+    "selectors": [
+      {
+        "selector": ".profile-page-heading p",
+        "property": "color",
+        "value": "#ff6a00!important"
+      },
+      {
+        "selector": ".profile-avatar",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".profile-edit-button",
+        "property": "color",
+        "value": "#e95713!important"
+      },
+      {
+        "selector": ".contact",
+        "property": "color",
+        "value": "#ea580c"
+      },
+      {
+        "selector": ".material-icons-outlined.waiting",
+        "property": "color",
+        "value": "#f59e0b!important"
+      },
+      {
+        "selector": ".profile-legacy-details summary>span:first-child",
+        "property": "color",
+        "value": "#ff6a00"
+      },
+      {
+        "selector": "body .main-content .profile-page-heading h4",
+        "property": "color",
+        "value": "#f8fafc!important"
+      },
+      {
+        "selector": ".profile-contract-row>span:first-child,.profile-contract-empty>span",
+        "property": "color",
+        "value": "#ea580c"
+      },
+      {
+        "selector": ".profile-contract-open",
+        "property": "color",
+        "value": "#e95713"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/analytic/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#0b1220!important"
+      },
+      {
+        "selector": ".analytics-page-header>div>span",
+        "property": "color",
+        "value": "#ff7131"
+      },
+      {
+        "selector": ".analytics-page-header h1",
+        "property": "color",
+        "value": "#f8fafc!important"
+      },
+      {
+        "selector": ".analytics-period-form",
+        "property": "background",
+        "value": "#151f2e"
+      },
+      {
+        "selector": ".analytics-period-form>span",
+        "property": "color",
+        "value": "#c5d2e0"
+      },
+      {
+        "selector": ".analytics-period-form select",
+        "property": "background",
+        "value": "#1d293a"
+      },
+      {
+        "selector": ".analytics-period-form select",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".analytics-period-form button",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".analytics-page",
+        "property": "color",
+        "value": "#d7e1ee"
+      },
+      {
+        "selector": ".analytics-data-note",
+        "property": "background",
+        "value": "#11233d"
+      },
+      {
+        "selector": ".analytics-summary-card,.analytics-card",
+        "property": "background",
+        "value": "#141e2d!important"
+      },
+      {
+        "selector": ".analytics-summary-icon.stream",
+        "property": "background",
+        "value": "#123f36"
+      },
+      {
+        "selector": ".analytics-summary-icon.income",
+        "property": "color",
+        "value": "#f87171"
+      },
+      {
+        "selector": ".analytics-summary-icon.platform",
+        "property": "background",
+        "value": "#153c52"
+      },
+      {
+        "selector": ".analytics-summary-card strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".analytics-summary-card em.down",
+        "property": "color",
+        "value": "#fb7185"
+      },
+      {
+        "selector": ".analytics-card h2",
+        "property": "color",
+        "value": "#f8fafc!important"
+      },
+      {
+        "selector": ".analytics-legend .green",
+        "property": "background",
+        "value": "#29c687"
+      },
+      {
+        "selector": ".analytics-rank>b,.analytics-country>b",
+        "property": "background",
+        "value": "#263851"
+      },
+      {
+        "selector": ".analytics-rank>b,.analytics-country>b",
+        "property": "color",
+        "value": "#d6e0eb"
+      },
+      {
+        "selector": ".analytics-rank strong,.analytics-country strong",
+        "property": "color",
+        "value": "#f3f6fa"
+      },
+      {
+        "selector": ".analytics-rank>div>span,.analytics-country>div>span",
+        "property": "background",
+        "value": "#293a51"
+      },
+      {
+        "selector": ".analytics-rank em,.analytics-country em",
+        "property": "color",
+        "value": "#eef4fa"
+      },
+      {
+        "selector": ".analytics-insight.featured",
+        "property": "background",
+        "value": "#261f22"
+      },
+      {
+        "selector": ".analytics-insight>span",
+        "property": "background",
+        "value": "#20334a"
+      },
+      {
+        "selector": ".analytics-insight.featured>span",
+        "property": "color",
+        "value": "#ff9f43"
+      },
+      {
+        "selector": ".analytics-insight small",
+        "property": "color",
+        "value": "#ff873b"
+      },
+      {
+        "selector": ".analytics-insight strong",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".analytics-performance-table td:nth-child(2)",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".analytics-performance-table td:nth-child(2) span",
+        "property": "background",
+        "value": "#2a2630"
+      },
+      {
+        "selector": ".analytics-performance-table td:nth-child(2) span",
+        "property": "color",
+        "value": "#fb8555"
+      },
+      {
+        "selector": ".analytics-release-link",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".analytics-release-link:hover",
+        "property": "color",
+        "value": "#ff925f"
+      },
+      {
+        "selector": ".analytics-release-link>span",
+        "property": "background",
+        "value": "#2a2630"
+      },
+      {
+        "selector": ".analytics-release-link>span",
+        "property": "color",
+        "value": "#fb8555"
+      },
+      {
+        "selector": ".analytics-pagination-links a:hover",
+        "property": "color",
+        "value": "#ff925f"
+      },
+      {
+        "selector": ".analytics-pagination-links .is-current",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/releases/create.blade.php",
+    "selectors": [
+      {
+        "selector": ".release-create-title-block .breadcrumb a",
+        "property": "color",
+        "value": "#ff7043"
+      },
+      {
+        "selector": ".release-create-title-block h1",
+        "property": "color",
+        "value": "#f7f9ff"
+      },
+      {
+        "selector": ".release-save-draft",
+        "property": "color",
+        "value": "#ff8a65!important"
+      },
+      {
+        "selector": ".release-save-draft:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-step-nav",
+        "property": "background",
+        "value": "rgba(18,35,57,.92)"
+      },
+      {
+        "selector": ".release-step-nav .step.active .step-trigger",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-step-nav .bs-stepper-circle",
+        "property": "background",
+        "value": "#0b1a2e"
+      },
+      {
+        "selector": ".release-step-nav .active .bs-stepper-circle",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-step-kicker",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-step-heading h2",
+        "property": "color",
+        "value": "#f8fbff"
+      },
+      {
+        "selector": ".release-cover-section>.form-label",
+        "property": "color",
+        "value": "#ecf4ff"
+      },
+      {
+        "selector": ".release-cover-section>.form-label span",
+        "property": "color",
+        "value": "#ff936f"
+      },
+      {
+        "selector": ".release-cover-upload",
+        "property": "background",
+        "value": "#0b1a2e"
+      },
+      {
+        "selector": ".release-upload-button",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-cover-guidelines",
+        "property": "background",
+        "value": "rgba(6,18,34,.38)"
+      },
+      {
+        "selector": ".release-guideline-icon",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-cover-guidelines h3",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-cover-guidelines li::marker",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-metadata-section",
+        "property": "background",
+        "value": "#101f34"
+      },
+      {
+        "selector": ".release-metadata-section h3",
+        "property": "color",
+        "value": "#f7faff"
+      },
+      {
+        "selector": ".release-metadata-section .form-label,.release-detail-card .form-label",
+        "property": "color",
+        "value": "#c4d6ed"
+      },
+      {
+        "selector": ".release-metadata-section .form-control,.release-metadata-section .form-select,.release-metadata-section .input-group-text,.release-detail-card .form-control",
+        "property": "background",
+        "value": "#0b182a!important"
+      },
+      {
+        "selector": ".release-metadata-section .form-control,.release-metadata-section .form-select,.release-metadata-section .input-group-text,.release-detail-card .form-control",
+        "property": "color",
+        "value": "#eef5ff!important"
+      },
+      {
+        "selector": ".release-metadata-section .track-placeholder",
+        "property": "background",
+        "value": "#0b182a!important"
+      },
+      {
+        "selector": ".release-metadata-section .track-placeholder",
+        "property": "color",
+        "value": "#dce9f9"
+      },
+      {
+        "selector": ".release-metadata-section .track-placeholder .material-icons-outlined",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-metadata-section .btn-outline-primary:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-step-footer span i",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-next-button",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-previous-button:hover",
+        "property": "color",
+        "value": "#ff9b7d!important"
+      },
+      {
+        "selector": ".release-detail-card,.release-tracks-card",
+        "property": "background",
+        "value": "#101f34"
+      },
+      {
+        "selector": ".release-detail-heading h2,.release-review-topbar h2,.release-tracks-heading h2",
+        "property": "color",
+        "value": "#f7faff"
+      },
+      {
+        "selector": ".release-heading-icon",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-status-choice",
+        "property": "background",
+        "value": "#0d1b2e"
+      },
+      {
+        "selector": ".release-status-choice>.form-label",
+        "property": "color",
+        "value": "#eff6ff"
+      },
+      {
+        "selector": ".release-radio-option",
+        "property": "background",
+        "value": "#10223a"
+      },
+      {
+        "selector": ".release-radio-option span",
+        "property": "color",
+        "value": "#eaf3ff"
+      },
+      {
+        "selector": ".release-required-label",
+        "property": "color",
+        "value": "#ff966f"
+      },
+      {
+        "selector": ".release-date-field",
+        "property": "background",
+        "value": "#0d1b2e"
+      },
+      {
+        "selector": ".release-detail-footer",
+        "property": "background",
+        "value": "rgba(7,18,31,.38)"
+      },
+      {
+        "selector": ".release-add-track",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-tracks-summary>div",
+        "property": "background",
+        "value": "#0b1a2e"
+      },
+      {
+        "selector": ".release-tracks-summary strong",
+        "property": "color",
+        "value": "#f2f7ff"
+      },
+      {
+        "selector": ".release-track-empty",
+        "property": "background",
+        "value": "rgba(11,26,46,.56)"
+      },
+      {
+        "selector": ".release-track-empty i",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-track-empty strong",
+        "property": "color",
+        "value": "#e5effb"
+      },
+      {
+        "selector": ".release-track-item",
+        "property": "background",
+        "value": "#0c1b2f"
+      },
+      {
+        "selector": ".release-track-main",
+        "property": "color",
+        "value": "#eaf3ff"
+      },
+      {
+        "selector": ".release-track-number",
+        "property": "color",
+        "value": "#ff906e"
+      },
+      {
+        "selector": ".release-track-name strong",
+        "property": "color",
+        "value": "#eff6ff"
+      },
+      {
+        "selector": ".release-track-actions button:hover",
+        "property": "background",
+        "value": "#294969"
+      },
+      {
+        "selector": ".release-track-actions button:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-track-actions .release-track-remove",
+        "property": "color",
+        "value": "#ff8b8b"
+      },
+      {
+        "selector": ".release-track-actions .release-track-remove:hover",
+        "property": "color",
+        "value": "#ff9d9d"
+      },
+      {
+        "selector": ".release-creation-page #step-4",
+        "property": "background",
+        "value": "#101f34"
+      },
+      {
+        "selector": ".release-creation-page #step-4 .alert",
+        "property": "color",
+        "value": "#ffd5ad"
+      },
+      {
+        "selector": ".release-creation-page #step-4 .album-items",
+        "property": "background",
+        "value": "#0b182a"
+      },
+      {
+        "selector": ".release-creation-page #step-4 .album-items",
+        "property": "color",
+        "value": "#e9f3ff"
+      },
+      {
+        "selector": ".release-creation-page #step-4 .album-items td",
+        "property": "color",
+        "value": "#d7e6f8"
+      },
+      {
+        "selector": ".release-review-footer",
+        "property": "background",
+        "value": "rgba(7,18,31,.38)"
+      },
+      {
+        "selector": ".release-submit-button",
+        "property": "background",
+        "value": "#26b66e!important"
+      },
+      {
+        "selector": ".release-submit-button",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-review-tracks",
+        "property": "background",
+        "value": "#0c1b2f"
+      },
+      {
+        "selector": ".release-review-tracks h3",
+        "property": "color",
+        "value": "#f5f9ff"
+      },
+      {
+        "selector": ".release-review-track-item",
+        "property": "background",
+        "value": "#101f34"
+      },
+      {
+        "selector": ".release-review-track-info strong",
+        "property": "color",
+        "value": "#edf5ff"
+      },
+      {
+        "selector": ".release-ipl-copy .form-label",
+        "property": "color",
+        "value": "#eaf3ff"
+      },
+      {
+        "selector": ".release-ipl-upload",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-upload-error-modal .modal-content",
+        "property": "background",
+        "value": "#122037"
+      },
+      {
+        "selector": ".release-upload-error-modal .modal-content",
+        "property": "color",
+        "value": "#edf5ff"
+      },
+      {
+        "selector": ".release-upload-error-icon",
+        "property": "color",
+        "value": "#ff7676"
+      },
+      {
+        "selector": ".release-upload-error-modal h5",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-upload-error-close",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": "#addTrack .modal-content",
+        "property": "background",
+        "value": "#101f34"
+      },
+      {
+        "selector": "#addTrack .modal-content",
+        "property": "color",
+        "value": "#eaf3ff"
+      },
+      {
+        "selector": "#addTrack .modal-body",
+        "property": "background",
+        "value": "#0d1b2e"
+      },
+      {
+        "selector": "#addTrack .form-label",
+        "property": "color",
+        "value": "#c7daf1"
+      },
+      {
+        "selector": "#addTrack .form-control,#addTrack .form-select,#addTrack .input-group-text",
+        "property": "background",
+        "value": "#091728!important"
+      },
+      {
+        "selector": "#addTrack .form-control,#addTrack .form-select,#addTrack .input-group-text",
+        "property": "color",
+        "value": "#edf5ff!important"
+      },
+      {
+        "selector": "#addTrack .track-placeholder",
+        "property": "background",
+        "value": "#0b1a2e!important"
+      },
+      {
+        "selector": "#addTrack .track-placeholder",
+        "property": "color",
+        "value": "#eaf3ff"
+      },
+      {
+        "selector": "#addTrack .track-placeholder .material-icons-outlined",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-add-artist-button",
+        "property": "background",
+        "value": "rgba(13,31,52,.56)!important"
+      },
+      {
+        "selector": ".release-add-artist-button strong",
+        "property": "color",
+        "value": "#dcecff"
+      },
+      {
+        "selector": ".release-add-artist-button:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-add-artist-button:hover>i",
+        "property": "color",
+        "value": "#ff916f"
+      },
+      {
+        "selector": ".release-inline-action",
+        "property": "background",
+        "value": "linear-gradient(110deg,rgba(13,31,52,.78),rgba(19,43,70,.7))!important"
+      },
+      {
+        "selector": ".release-inline-action",
+        "property": "color",
+        "value": "#c4daf3!important"
+      },
+      {
+        "selector": ".release-inline-action>i",
+        "property": "color",
+        "value": "#ff906e"
+      },
+      {
+        "selector": ".release-inline-action strong",
+        "property": "color",
+        "value": "#e5f0ff"
+      },
+      {
+        "selector": ".release-inline-action:hover>i",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-creation-page .btn-outline-danger",
+        "property": "color",
+        "value": "#ff9d9d!important"
+      },
+      {
+        "selector": ".release-creation-page .btn-outline-danger:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".release-creation-page .btn-outline-secondary",
+        "property": "background",
+        "value": "#0d2036!important"
+      },
+      {
+        "selector": ".release-creation-page .btn-outline-secondary:hover",
+        "property": "background",
+        "value": "#284766!important"
+      },
+      {
+        "selector": ".release-creation-page .btn-outline-secondary:hover",
+        "property": "color",
+        "value": "#fff!important"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/releases/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".release-summary article:nth-child(1)",
+        "property": "background",
+        "value": "#132641"
+      },
+      {
+        "selector": ".release-summary article:nth-child(2)",
+        "property": "background",
+        "value": "#12382f"
+      },
+      {
+        "selector": ".release-summary span",
+        "property": "background",
+        "value": "#20344d"
+      },
+      {
+        "selector": ".release-summary .release-live",
+        "property": "background",
+        "value": "#0d5946"
+      },
+      {
+        "selector": ".release-summary .release-attention",
+        "property": "color",
+        "value": "#ffc34d"
+      },
+      {
+        "selector": ".release-summary small",
+        "property": "color",
+        "value": "#c3d2e4"
+      },
+      {
+        "selector": ".release-summary strong",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".release-picker-dialog .modal-content",
+        "property": "background",
+        "value": "#0b1220"
+      },
+      {
+        "selector": ".release-picker-dialog .modal-content",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".release-picker-header .primaery-menu-close",
+        "property": "background",
+        "value": "#17263a"
+      },
+      {
+        "selector": ".release-picker-brand",
+        "property": "color",
+        "value": "#ff8050"
+      },
+      {
+        "selector": ".release-picker h4",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".release-picker .release-type",
+        "property": "background",
+        "value": "#111f33"
+      },
+      {
+        "selector": ".release-picker .release-type",
+        "property": "color",
+        "value": "#f4f8fc"
+      },
+      {
+        "selector": ".release-picker .release-type:hover",
+        "property": "background",
+        "value": "#152842"
+      },
+      {
+        "selector": ".release-picker .release-type:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-picker .release-type-icon",
+        "property": "background",
+        "value": "rgba(5,16,32,.22)"
+      },
+      {
+        "selector": ".release-picker .release-type-icon",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".release-picker .release-type-album .release-type-icon",
+        "property": "background",
+        "value": "#0b1627"
+      },
+      {
+        "selector": ".release-type-detail span",
+        "property": "background",
+        "value": "rgba(5,16,32,.18)"
+      },
+      {
+        "selector": ".release-type-single .release-type-cta",
+        "property": "color",
+        "value": "#ff7043"
+      },
+      {
+        "selector": ".release-picker-step:first-letter",
+        "property": "color",
+        "value": "#ff7043"
+      },
+      {
+        "selector": ".release-picker .release-type-album",
+        "property": "background",
+        "value": "#172c55"
+      },
+      {
+        "selector": ".release-picker-dialog .modal-content",
+        "property": "background",
+        "value": "linear-gradient(145deg,#081225 0%,#0a1629 46%,#0b1220 100%)"
+      },
+      {
+        "selector": ".release-picker-kicker i",
+        "property": "color",
+        "value": "#ff8a65"
+      },
+      {
+        "selector": ".release-picker-header .primaery-menu-close:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#0b1220 !important"
+      },
+      {
+        "selector": ".main-content h4",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".btn-group .split-bg-primary",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".nav-pills .nav-link",
+        "property": "background",
+        "value": "#111d2f"
+      },
+      {
+        "selector": ".nav-pills .nav-link.active",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".nav-pills .nav-link.active",
+        "property": "background",
+        "value": "#2b2224"
+      },
+      {
+        "selector": ".nav-pills .tab-icon",
+        "property": "color",
+        "value": "#ff7043"
+      },
+      {
+        "selector": ".tab-content",
+        "property": "background",
+        "value": "#111d2f"
+      },
+      {
+        "selector": ".tab-content .dataTables_filter input, .tab-content .dataTables_length select",
+        "property": "background",
+        "value": "#0b1220"
+      },
+      {
+        "selector": ".tab-content .dataTables_filter input, .tab-content .dataTables_length select",
+        "property": "color",
+        "value": "#edf4fb"
+      },
+      {
+        "selector": ".tab-content table.dataTable",
+        "property": "color",
+        "value": "#eaf2fb"
+      },
+      {
+        "selector": ".tab-content table.dataTable thead th",
+        "property": "background",
+        "value": "#1c3049"
+      },
+      {
+        "selector": ".tab-content table.dataTable tbody td",
+        "property": "color",
+        "value": "#eaf2fb"
+      },
+      {
+        "selector": ".tab-content table.dataTable tbody tr:hover td",
+        "property": "background",
+        "value": "#17263a"
+      },
+      {
+        "selector": ".tab-content .btn-outline-primary",
+        "property": "color",
+        "value": "#ff8050"
+      },
+      {
+        "selector": ".tab-content .btn-outline-primary:hover",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".tab-content .alert-danger",
+        "property": "color",
+        "value": "#fecdd3"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/releases/show.blade.php",
+    "selectors": [
+      {
+        "selector": ".customer-release-header h4",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".customer-release-detail .album-title-status h2",
+        "property": "color",
+        "value": "#f7fbff"
+      },
+      {
+        "selector": ".customer-release-detail .release-items-table td:last-child",
+        "property": "color",
+        "value": "#f3f8ff"
+      },
+      {
+        "selector": ".customer-release-detail .release-artists-table",
+        "property": "background",
+        "value": "rgba(8,25,43,.38)"
+      },
+      {
+        "selector": ".customer-release-detail .section-toggle-btn",
+        "property": "color",
+        "value": "#f4f8ff"
+      },
+      {
+        "selector": ".customer-release-detail .accordion-item",
+        "property": "background",
+        "value": "#0b2036"
+      },
+      {
+        "selector": ".customer-release-detail .accordion-button",
+        "property": "background",
+        "value": "#102a45"
+      },
+      {
+        "selector": ".customer-release-detail .accordion-button",
+        "property": "color",
+        "value": "#edf6ff"
+      },
+      {
+        "selector": ".customer-release-detail .accordion-button:not(.collapsed)",
+        "property": "background",
+        "value": "#173553"
+      },
+      {
+        "selector": ".customer-release-detail .accordion-button:not(.collapsed)",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/settlement/index.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#0b1220!important"
+      },
+      {
+        "selector": ".tx-header h1",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".tx-export",
+        "property": "color",
+        "value": "#eef5fd"
+      },
+      {
+        "selector": ".tx-page",
+        "property": "color",
+        "value": "#dbe7f4"
+      },
+      {
+        "selector": ".tx-summary",
+        "property": "background",
+        "value": "#132137"
+      },
+      {
+        "selector": ".tx-summary strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".tx-green",
+        "property": "background",
+        "value": "#123f36"
+      },
+      {
+        "selector": ".tx-orange",
+        "property": "color",
+        "value": "#ffc047"
+      },
+      {
+        "selector": ".tx-blue",
+        "property": "background",
+        "value": "#203c60"
+      },
+      {
+        "selector": ".tx-card",
+        "property": "background",
+        "value": "#141f30"
+      },
+      {
+        "selector": ".tx-card h2",
+        "property": "color",
+        "value": "#f6f9fd"
+      },
+      {
+        "selector": ".tx-steps i",
+        "property": "background",
+        "value": "#283b54"
+      },
+      {
+        "selector": ".tx-steps strong",
+        "property": "color",
+        "value": "#eef4fb"
+      },
+      {
+        "selector": ".tx-tools input,.tx-tools select",
+        "property": "background",
+        "value": "#0e1928"
+      },
+      {
+        "selector": ".tx-tools input,.tx-tools select",
+        "property": "color",
+        "value": "#edf3fa"
+      },
+      {
+        "selector": ".tx-table th",
+        "property": "background",
+        "value": "#1c3049"
+      },
+      {
+        "selector": ".tx-table td",
+        "property": "color",
+        "value": "#e0eaf5"
+      },
+      {
+        "selector": ".tx-table td:nth-child(2)",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".tx-badge.transferred",
+        "property": "background",
+        "value": "#123f36"
+      },
+      {
+        "selector": ".tx-badge.pending",
+        "property": "color",
+        "value": "#ffc44d"
+      },
+      {
+        "selector": ".tx-badge.carried_over",
+        "property": "background",
+        "value": "#203c63"
+      },
+      {
+        "selector": ".tx-detail",
+        "property": "color",
+        "value": "#d9e9fa"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/customer/settlement/show.blade.php",
+    "selectors": [
+      {
+        "selector": ".sf-app .main-wrapper .main-content",
+        "property": "background",
+        "value": "#0b1220!important"
+      },
+      {
+        "selector": ".sd-head h1",
+        "property": "color",
+        "value": "#f8fafc"
+      },
+      {
+        "selector": ".sd-page",
+        "property": "color",
+        "value": "#dbe7f4"
+      },
+      {
+        "selector": ".sd-hero,.sd-card",
+        "property": "background",
+        "value": "#141f30"
+      },
+      {
+        "selector": ".sd-hero>div:first-child>span",
+        "property": "color",
+        "value": "#ff8050"
+      },
+      {
+        "selector": ".sd-hero h2,.sd-card h2",
+        "property": "color",
+        "value": "#f7fafc"
+      },
+      {
+        "selector": ".sd-status",
+        "property": "background",
+        "value": "#123f36"
+      },
+      {
+        "selector": ".sd-total strong",
+        "property": "color",
+        "value": "#ff8150"
+      },
+      {
+        "selector": ".sd-card th",
+        "property": "background",
+        "value": "#1c3049"
+      },
+      {
+        "selector": ".sd-breakdown dd,.sd-bank dd",
+        "property": "color",
+        "value": "#f2f7fc"
+      },
+      {
+        "selector": ".sd-breakdown .final dd",
+        "property": "color",
+        "value": "#ff8150"
+      },
+      {
+        "selector": ".sd-download",
+        "property": "color",
+        "value": "#edf4fb"
+      },
+      {
+        "selector": ".sd-download>span:last-child",
+        "property": "color",
+        "value": "#ff8050"
+      }
+    ]
+  },
+  {
+    "file": "D:/xampp/htdocs/soundfresh/resources/views/layouts/topbar.blade.php",
+    "selectors": [
+      {
+        "selector": ".top-header",
+        "property": "background",
+        "value": "#20252a!important"
+      },
+      {
+        "selector": ".topbar-workspace",
+        "property": "color",
+        "value": "#dbe7f4"
+      },
+      {
+        "selector": ".topbar-workspace>span",
+        "property": "color",
+        "value": "#ff8050"
+      },
+      {
+        "selector": ".topbar-avatar",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".topbar-logout button",
+        "property": "color",
+        "value": "#c9d7e8!important"
+      },
+      {
+        "selector": ".topbar-logout button:hover",
+        "property": "color",
+        "value": "#fff!important"
+      },
+      {
+        "selector": ".impersonation-banner",
+        "property": "color",
+        "value": "#ffe4e4"
+      },
+      {
+        "selector": ".impersonation-banner__message .material-icons-outlined",
+        "property": "color",
+        "value": "#ffb0a8"
+      },
+      {
+        "selector": ".impersonation-banner__message strong",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".impersonation-banner__stop",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "selector": ".impersonation-banner__stop:hover",
+        "property": "color",
+        "value": "#fff"
+      }
+    ]
+  }
+]

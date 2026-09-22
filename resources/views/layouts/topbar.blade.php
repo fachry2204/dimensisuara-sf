@@ -6,6 +6,11 @@
         </div>
         <div class="topbar-spacer" aria-hidden="true"></div>
         <ul class="navbar-nav gap-1 nav-right-links align-items-center">
+            <li class="nav-item">
+                <button type="button" id="mode-switcher" class="nav-link theme-switcher" title="Gunakan tema terang" aria-label="Gunakan tema terang" aria-pressed="false">
+                    <i class="material-icons-outlined" aria-hidden="true">dark_mode</i>
+                </button>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" data-bs-auto-close="outside" data-bs-toggle="dropdown" href="javascript:;">
                     <i class="material-icons-outlined">notifications</i>

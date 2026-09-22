@@ -9,10 +9,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ URL::asset('favicon.ico') }}" type="image/png">
     <script>
-        // Theme switching is intentionally disabled while the interface is
-        // standardised. Always render the application in the dark theme.
-        localStorage.removeItem('theme');
-        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        // Apply saved theme before CSS loads to prevent a flash of wrong color.
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+        document.documentElement.setAttribute('data-bs-theme', theme);
     </script>
 
     @include('layouts.head-css')

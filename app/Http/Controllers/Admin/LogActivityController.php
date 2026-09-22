@@ -53,7 +53,7 @@ class LogActivityController extends Controller
         try {
             // Get records with certain status
             $query = LogActivity::query();
-            $recordsTotal = $query->get()->count();
+            $recordsTotal = $query->count();
 
             // Searching
             $query = $query
@@ -82,7 +82,7 @@ class LogActivityController extends Controller
             $query->orderBy($orderColumn, $orderDir);
 
             // Pagination
-            $recordsFiltered = $query->get()->count();
+            $recordsFiltered = $query->count();
 
             $data = $query
                 ->skip($request->input('start'))

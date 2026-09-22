@@ -48,7 +48,7 @@ Admin Roles and Permissions
         </div>
     </div> --}}
 
-    <div class="roles-summary"><article><i class="material-icons-outlined blue">admin_panel_settings</i><div><small>Total role</small><strong>{{ $roles->count() }}</strong><span>Role tersedia</span></div></article><article><i class="material-icons-outlined purple">verified_user</i><div><small>Admin</small><strong>{{ $admins->count() }}</strong><span>Akses administratif</span></div></article><article><i class="material-icons-outlined green">group</i><div><small>Pengguna</small><strong>{{ $users->count() }}</strong><span>Dapat ditugaskan</span></div></article></div>
+    <div class="roles-summary"><article><i class="material-icons-outlined blue">admin_panel_settings</i><div><small>Total role</small><strong>{{ $roles->count() }}</strong><span>Role tersedia</span></div></article><article><i class="material-icons-outlined purple">verified_user</i><div><small>Admin</small><strong>{{ count($admins) }}</strong><span>Akses administratif</span></div></article><article><i class="material-icons-outlined green">group</i><div><small>Pengguna</small><strong>{{ count($users) }}</strong><span>Dapat ditugaskan</span></div></article></div>
     <div class="mb-3 roles-panel-wrap">
         <div class="card roles-panel">
             <div class="card-header">

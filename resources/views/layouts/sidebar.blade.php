@@ -9,8 +9,10 @@
         </div>
         <div class="logo-name">
             <a href="{{ route('home') }}">
-                <img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" alt="SoundFresh Logo"
-                    class="py-3" style="max-width: 100%;">
+                <img src="{{ URL::asset('build/images/logo-putih.webp') }}" alt="SoundFresh Logo"
+                    class="sidebar-theme-logo sidebar-theme-logo-dark py-3">
+                <img src="{{ URL::asset('build/images/logo-oranges.webp') }}" alt="SoundFresh Logo"
+                    class="sidebar-theme-logo sidebar-theme-logo-light py-3">
             </a>
         </div>
         <div class="sidebar-close">

@@ -160,16 +160,22 @@
         </div>
     </div>
     <div class="col-12 track-information release-track-panel">
-        <h3 class="section-toggle-heading">
-            <button type="button" class="section-toggle-btn" data-bs-toggle="collapse"
-                data-bs-target="#track-info-collapse" aria-expanded="false" aria-controls="track-info-collapse">
-                Track Information
-                <span class="section-toggle-icon" aria-hidden="true"></span>
-            </button>
-        </h3>
-        <div id="track-info-collapse" class="collapse {{ ($type ?? '') === 'admin' ? 'show' : '' }}">
-            <div class="accordion" id="track-list">
-                @php $showSingleTrackDetail = ($type ?? '') === 'admin' && $release->type === 'single'; @endphp
+        @if($release->type !== 'single')
+            <h3 class="section-toggle-heading">
+                <button type="button" class="section-toggle-btn" data-bs-toggle="collapse"
+                    data-bs-target="#track-info-collapse" aria-expanded="{{ ($type ?? '') === 'admin' ? 'true' : 'false' }}" aria-controls="track-info-collapse">
+                    Track Information
+                    <span class="section-toggle-icon" aria-hidden="true"></span>
+                </button>
+            </h3>
+        @else
+            <h3 class="section-toggle-heading static-heading">
+                <span>Track Information</span>
+            </h3>
+        @endif
+        <div id="track-info-collapse" class="{{ $release->type === 'single' ? '' : 'collapse '.(($type ?? '') === 'admin' ? 'show' : '') }}">
+            <div class="accordion {{ $release->type === 'single' ? 'single-track-list' : '' }}" id="track-list">
+                @php $isSingle = $release->type === 'single'; @endphp
                 @foreach($release->tracks as $index => $track)
                     @php
                         $primaryartists = [];
@@ -183,11 +189,16 @@
                             }
                         }
                     @endphp
-                    <div class="accordion-item">
+                    <div class="accordion-item {{ $isSingle ? 'single-track-item' : '' }}">
                         <h2 class="accordion-header" id="flush-{{ $index }}">
-                            <button class="accordion-button {{ $showSingleTrackDetail ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapse-{{ $index }}" aria-expanded="{{ $showSingleTrackDetail ? 'true' : 'false' }}"
-                                aria-controls="collapse-{{ $index }}">
+                            <button class="accordion-button {{ $isSingle ? 'no-collapse' : 'collapsed' }}" type="button"
+                                @if(!$isSingle)
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapse-{{ $index }}" aria-expanded="false"
+                                    aria-controls="collapse-{{ $index }}"
+                                @else
+                                    aria-expanded="true"
+                                @endif>
                                 <div class="track-number">{{ $index + 1 }}</div>
                                 <div class=" d-flex flex-column w-100">
                                     <span class="track-title">{{ $track->title }}</span>
@@ -195,8 +206,8 @@
                                 </div>
                             </button>
                         </h2>
-                        <div id="collapse-{{ $index }}" class="accordion-collapse collapse {{ $showSingleTrackDetail ? 'show' : '' }}"
-                            aria-labelledby="flush-{{ $index }}" data-bs-parent="#track-list">
+                        <div id="collapse-{{ $index }}" class="accordion-collapse collapse {{ $isSingle ? 'show' : '' }}"
+                            aria-labelledby="flush-{{ $index }}" @if(!$isSingle) data-bs-parent="#track-list" @endif>
                             <div class="track-detail accordion-body">
                                 <div class="row">
                                     @if(($canDownload ?? true) && ($track->full_exists || $track->trimmed_exists))
@@ -475,6 +486,20 @@
 @push('css')
     <link href="{{ URL::asset('build/css/album.css') }}" rel="stylesheet" />
     <style>
+        .single-track-item .accordion-button.no-collapse::after {
+            display: none !important;
+        }
+        .single-track-item .accordion-button.no-collapse {
+            cursor: default !important;
+        }
+        .section-toggle-heading.static-heading {
+            padding: 18px 24px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--bs-heading-color, #f4f8ff);
+            display: flex;
+            align-items: center;
+        }
         .accordion-button::after {
             margin-left: 1em;
         }

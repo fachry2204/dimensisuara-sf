@@ -421,18 +421,21 @@
     .reporting-page-actions { display:flex; flex-wrap:wrap; gap:.7rem; }
     .reporting-page-actions .btn { display:inline-flex; align-items:center; gap:.38rem; border-radius:.48rem; padding:.48rem .72rem; font-size:.82rem; line-height:1.2; font-weight:700; }
     .reporting-page-actions .material-icons-outlined { font-size:16px; }
-    .reporting-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; margin-bottom:1.6rem; }
-    .reporting-summary-card { min-height:124px; display:flex; align-items:flex-start; gap:.85rem; padding:1rem 1.1rem; border:1px solid #285984; border-radius:.75rem; background:linear-gradient(135deg,rgba(17,52,83,.97),rgba(10,31,53,.97)); box-shadow:0 10px 26px rgba(0,0,0,.12); }
-    .reporting-summary-icon { flex:0 0 46px; height:46px; display:grid; place-items:center; border-radius:.75rem; font-size:24px; }
+    .reporting-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; margin-bottom:1.6rem; background:transparent; }
+    .reporting-summary-card { --reporting-accent:#60a5fa; position:relative; min-height:124px; display:flex; align-items:flex-start; gap:.85rem; padding:1rem 1.1rem; overflow:hidden; border:1px solid color-mix(in srgb,var(--reporting-accent) 55%,#334155); border-top:3px solid var(--reporting-accent); border-radius:.75rem; background:transparent; box-shadow:none; transition:transform .2s ease,border-color .2s ease; }
+    .reporting-summary-card::after { content:""; position:absolute; right:-26px; bottom:-32px; width:78px; height:78px; border:1px solid color-mix(in srgb,var(--reporting-accent) 42%,transparent); border-radius:50%; opacity:.55; transition:transform .25s ease,opacity .2s ease; pointer-events:none; }
+    .reporting-summary-card:hover { transform:translateY(-4px); border-color:var(--reporting-accent); }
+    .reporting-summary-card:hover::after { transform:scale(1.18); opacity:.9; }
+    .reporting-summary-icon { flex:0 0 46px; height:46px; display:grid; place-items:center; border:1px solid color-mix(in srgb,var(--reporting-accent) 45%,transparent); border-radius:.75rem; color:var(--reporting-accent); background:transparent; font-size:24px; transition:transform .2s ease; }
+    .reporting-summary-card:hover .reporting-summary-icon { transform:scale(1.08) rotate(-4deg); }
     .reporting-summary-icon .material-icons-outlined { font-size:25px; }
     .reporting-summary-card span,.reporting-summary-card small { display:block; color:#a7c7e8; font-size:.82rem; line-height:1.3; }
-    .reporting-summary-card strong { display:block; margin:.1rem 0 .2rem; color:#fff; font-size:1.72rem; line-height:1.05; }
-    .reporting-summary-card--batches .reporting-summary-icon { color:#69b5ff; background:rgba(39,128,221,.19); }
-    .reporting-summary-card--rows .reporting-summary-icon { color:#82c5ff; background:rgba(53,145,237,.18); }
-    .reporting-summary-card--completed .reporting-summary-icon { color:#5de6a5; background:rgba(25,180,112,.18); }
-    .reporting-summary-card--completed strong { color:#6fe9ac; }
-    .reporting-summary-card--attention .reporting-summary-icon { color:#ffc35c; background:rgba(210,143,19,.2); }
-    .reporting-summary-card--attention strong { color:#ffc45d; }
+    .reporting-summary-card strong { display:block; margin:.1rem 0 .2rem; color:var(--reporting-accent); font-size:1.72rem; line-height:1.05; }
+    .reporting-summary-card--batches { --reporting-accent:#60a5fa; }
+    .reporting-summary-card--rows { --reporting-accent:#a78bfa; }
+    .reporting-summary-card--completed { --reporting-accent:#34d399; }
+    .reporting-summary-card--attention { --reporting-accent:#fbbf24; }
+    @media (prefers-reduced-motion:reduce) { .reporting-summary-card,.reporting-summary-card::after,.reporting-summary-icon { transition:none!important; } .reporting-summary-card:hover,.reporting-summary-card:hover .reporting-summary-icon { transform:none!important; } }
     .reporting-tabs { gap:.35rem; margin-bottom:1rem; border-bottom:1px solid #2a5a85; }
     .reporting-tabs .nav-link { border-radius:.65rem .65rem 0 0; color:#bed8f2; padding:.78rem 1.15rem; }
     .reporting-tabs .nav-link.active { color:#fff; background:#173e67; border:1px solid #3981bd; border-bottom-color:#173e67; }
