@@ -13,7 +13,9 @@
     @php($maintenanceTab = $settingsTab === 'maintenance')
     @php($legacyTab = $settingsTab === 'legacy')
     @php($driveTab = $settingsTab === 'google-drive')
-    @php($generalTab = !$contractTab && !$companyTab && !$maintenanceTab && !$legacyTab && !$driveTab)
+    @php($emailNotificationTab = $settingsTab === 'notifications-email')
+    @php($whatsappNotificationTab = $settingsTab === 'notifications-whatsapp')
+    @php($generalTab = !$contractTab && !$companyTab && !$maintenanceTab && !$legacyTab && !$driveTab && !$emailNotificationTab && !$whatsappNotificationTab)
     <ul class="nav nav-pills gap-2 mb-4" role="tablist" aria-label="Setting System">
         <li class="nav-item"><button class="nav-link {{ $generalTab ? 'active' : '' }}" id="system-general-tab" data-bs-toggle="pill" data-bs-target="#system-general" type="button" role="tab" aria-controls="system-general" aria-selected="{{ $generalTab ? 'true' : 'false' }}">Pengaturan Umum</button></li>
         <li class="nav-item"><button class="nav-link {{ $maintenanceTab ? 'active' : '' }}" id="system-maintenance-tab" data-bs-toggle="pill" data-bs-target="#system-maintenance" type="button" role="tab" aria-controls="system-maintenance" aria-selected="{{ $maintenanceTab ? 'true' : 'false' }}">Maintenance</button></li>
@@ -21,6 +23,8 @@
         <li class="nav-item"><button class="nav-link {{ $contractTab ? 'active' : '' }}" id="system-contract-tab" data-bs-toggle="pill" data-bs-target="#system-contract" type="button" role="tab" aria-controls="system-contract" aria-selected="{{ $contractTab ? 'true' : 'false' }}">Contract</button></li>
         <li class="nav-item"><button class="nav-link {{ $legacyTab ? 'active' : '' }}" id="system-legacy-tab" data-bs-toggle="pill" data-bs-target="#system-legacy" type="button" role="tab" aria-controls="system-legacy" aria-selected="{{ $legacyTab ? 'true' : 'false' }}">Import Data Lama</button></li>
         <li class="nav-item"><button class="nav-link {{ $driveTab ? 'active' : '' }}" id="system-drive-tab" data-bs-toggle="pill" data-bs-target="#system-drive" type="button" role="tab" aria-controls="system-drive" aria-selected="{{ $driveTab ? 'true' : 'false' }}">Setting Google Drive</button></li>
+        <li class="nav-item"><button class="nav-link {{ $emailNotificationTab ? 'active' : '' }}" id="system-notifications-email-tab" data-bs-toggle="pill" data-bs-target="#system-notifications-email" type="button" role="tab" aria-controls="system-notifications-email" aria-selected="{{ $emailNotificationTab ? 'true' : 'false' }}">Notifikasi Email</button></li>
+        <li class="nav-item"><button class="nav-link {{ $whatsappNotificationTab ? 'active' : '' }}" id="system-notifications-whatsapp-tab" data-bs-toggle="pill" data-bs-target="#system-notifications-whatsapp" type="button" role="tab" aria-controls="system-notifications-whatsapp" aria-selected="{{ $whatsappNotificationTab ? 'true' : 'false' }}">Notifikasi WhatsApp</button></li>
     </ul>
     <div class="tab-content border-0 bg-transparent p-0">
     <div class="tab-pane fade {{ $generalTab ? 'show active' : '' }}" id="system-general" role="tabpanel" aria-labelledby="system-general-tab">
@@ -119,6 +123,11 @@
     <div class="tab-pane fade {{ $legacyTab ? 'show active' : '' }}" id="system-legacy" role="tabpanel" aria-labelledby="system-legacy-tab">
         @include('admin.system-settings.legacy')
     </div>
+    @foreach(['email'=>$emailNotificationTab,'whatsapp'=>$whatsappNotificationTab] as $notificationChannel=>$notificationActive)
+    <div class="tab-pane fade {{ $notificationActive ? 'show active' : '' }}" id="system-notifications-{{ $notificationChannel }}" role="tabpanel" aria-labelledby="system-notifications-{{ $notificationChannel }}-tab">
+        @include('admin.system-settings.notifications', ['channel'=>$notificationChannel])
+    </div>
+    @endforeach
     </div>
 </div>
 <script>

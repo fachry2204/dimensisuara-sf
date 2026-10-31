@@ -1851,3 +1851,66 @@ html[data-bs-theme="light"] .select2-container--default .select2-results__option
     background: #fef2ee !important;
     color: #9a3412 !important;
 }
+
+/* Per-release analytics: every surface must switch with the active theme. */
+html[data-bs-theme="light"] body.sf-app .release-statistics-page {
+    --release-tooltip-bg: #ffffff;
+    --release-tooltip-text: #0f172a;
+    --release-tooltip-muted: #475569;
+    --release-tooltip-border: #cbd5e1;
+}
+html[data-bs-theme="light"] body.sf-app .release-stat-hero {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-kpis article, .release-stat-panel, .release-filter-panel, .release-insight-panel) {
+    background: #ffffff !important;
+    border-color: #dbe3ee !important;
+    color: #334155 !important;
+    box-shadow: 0 4px 14px rgba(15,23,42,.035) !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-kpis strong, h2, .release-insight-grid strong, .release-stat-empty strong, .platform-name) {
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-kpis small, .release-stat-kpis em, .release-insight-period, .release-insight-grid small, .release-insight-grid p, .release-insight-empty, .release-stat-empty, .release-stat-panel p, .release-platform-table-wrap th, .release-platform-table-wrap td, .release-platform-table-wrap td b) {
+    color: #475569 !important;
+}
+html[data-bs-theme="light"] body.sf-app :is(.release-statistics-page, .release-stat-hero) .release-stat-eyebrow {
+    background: transparent !important;
+    color: var(--sf-accent, #6d28d9) !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-panel header, .release-insight-panel header, .release-insight-grid article, .release-platform-table-wrap td) {
+    border-color: #e2e8f0 !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-filter-heading, .release-filter-panel label, .release-chart-period-form, .release-chart-period-form select, .release-stat-panel header > span) {
+    background: transparent !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-filter-panel select, .release-filter-panel input, .release-chart-period-form select option) {
+    color-scheme: light;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page .release-stat-scope {
+    background: #eff6ff !important;
+    border-color: #bfdbfe !important;
+    color: #334155 !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page .release-stat-scope :is(strong, small) { color: #334155 !important; }
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-icon.streams, .insight-icon.platform, .platform-name i, .release-stat-empty i) {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-icon.revenue, .insight-icon.peak) {
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-stat-icon.tracks, .insight-icon.latest) {
+    background: var(--sf-accent-soft, #f5f3ff) !important;
+    color: var(--sf-accent, #6d28d9) !important;
+}
+html[data-bs-theme="light"] body.sf-app .release-statistics-page .release-stat-icon i { color: inherit !important; background: transparent !important; }
+html[data-bs-theme="light"] body.sf-app .release-statistics-page :is(.release-filter-heading i, .release-chart-period-form i, .release-insight-empty i) { color: var(--sf-accent, #6d28d9) !important; }

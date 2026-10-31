@@ -159,6 +159,7 @@
 @push('css')
 <style>
 #release-platform-month-chart{height:300px;padding:18px 12px 14px}.release-chart-period-form{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid #385c84;border-radius:8px}.release-chart-period-form i{color:#9fc5ea;font-size:15px}.release-chart-period-form select{border:0;outline:0;background:transparent;color:#9fc5ea;font-size:.66rem;font-weight:700;cursor:pointer}.release-chart-period-form select option{background:#10243b;color:#eaf5ff}
+.release-chart-tooltip{min-width:160px;padding:10px 12px;background:var(--release-tooltip-bg,#101d2f);color:var(--release-tooltip-text,#eaf4ff);border:1px solid var(--release-tooltip-border,#3a6089);border-radius:8px;font:600 12px system-ui}.release-chart-tooltip small,.release-chart-tooltip>span{display:block;color:var(--release-tooltip-muted,#9fc5ea)}.release-chart-tooltip small{margin-bottom:5px;font-size:10px}.release-chart-tooltip strong{display:flex;align-items:center;gap:6px}.release-chart-tooltip strong i{width:8px;height:8px;border-radius:50%;display:inline-block}.release-chart-tooltip>span{margin-top:5px}
 .release-insight-panel{overflow:hidden;border:1px solid #365d86;border-radius:14px;background:linear-gradient(110deg,rgba(15,40,66,.96),rgba(25,34,57,.94))}.release-insight-panel header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;border-bottom:1px solid rgba(86,128,170,.35)}.release-insight-panel h2{margin:3px 0 0;color:#f3f8ff;font-size:1rem;font-weight:800}.release-insight-period{color:#88add2;font-size:.68rem}.release-insight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}.release-insight-grid article{display:flex;gap:10px;min-height:98px;padding:16px 18px;border-right:1px solid rgba(86,128,170,.3)}.release-insight-grid article:last-child{border-right:0}.insight-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:10px;font-size:20px}.insight-icon.platform{background:rgba(91,162,255,.15);color:#7bb6ff}.insight-icon.peak{background:rgba(73,219,155,.14);color:#66e4ac}.insight-icon.latest{background:rgba(255,152,91,.15);color:#ffa377}.release-insight-grid small{display:block;color:#91b4d6;font-size:.66rem}.release-insight-grid strong{display:block;margin-top:2px;color:#f4f9ff;font-size:.86rem}.release-insight-grid p{margin:4px 0 0;color:#91afd0;font-size:.68rem;line-height:1.42}.release-insight-empty{display:flex;align-items:center;gap:8px;padding:17px 18px;color:#94b4d3;font-size:.74rem}.release-insight-empty i{color:#7cb9f5;font-size:19px}
 .release-filter-panel{display:grid;grid-template-columns:auto minmax(170px,1fr) minmax(145px,.7fr) minmax(135px,.6fr) auto;align-items:end;gap:11px;padding:14px 16px;border:1px solid #31577e;border-radius:13px;background:linear-gradient(110deg,#0e243d,#0c1e33)}.release-filter-heading{display:flex;align-items:center;gap:6px;min-height:37px;color:#c5def7;font-size:.76rem;font-weight:800;white-space:nowrap}.release-filter-heading i{color:#70b5ff;font-size:18px}.release-filter-panel label{display:grid;gap:5px;color:#91b5d7;font-size:.65rem;font-weight:700}.release-filter-panel select,.release-filter-panel input{width:100%;height:36px;padding:0 10px;border:1px solid #395f87;border-radius:8px;background:#091a2d;color:#eaf5ff;font-size:.74rem;outline:none}.release-filter-panel select:focus,.release-filter-panel input:focus{border-color:#6baff6;box-shadow:0 0 0 3px rgba(92,167,255,.13)}.release-filter-actions{display:flex;align-items:center;gap:9px;min-height:36px}.release-filter-actions a{color:#94b9dc;font-size:.7rem;font-weight:700;text-decoration:none}.release-filter-actions button{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 11px;border:0;border-radius:8px;background:#ff7146;color:#fff;font-size:.7rem;font-weight:800}.release-filter-actions button i{font-size:15px}
 @media(max-width:900px){.release-filter-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.release-filter-heading,.release-filter-actions{grid-column:1/-1}}@media(max-width:800px){.release-insight-grid{grid-template-columns:1fr}.release-insight-grid article{min-height:auto;border-right:0;border-bottom:1px solid rgba(86,128,170,.3)}.release-insight-grid article:last-child{border-bottom:0}}@media(max-width:620px){.release-filter-panel{grid-template-columns:1fr}.release-filter-heading,.release-filter-actions{grid-column:auto}.release-insight-panel header{align-items:flex-start;flex-direction:column;gap:5px}}
@@ -172,18 +173,20 @@
     if (platformMonthChart) {
         const platformMonths = @json($platformPeriodLabels);
         const platformNames = @json($platformNames);
-        const tooltipColors = ['#6faeff', '#5be3aa', '#ff9c73'];
+        const chartTheme = () => document.documentElement.dataset.bsTheme === 'light'
+            ? {text:'#475569',grid:'#e2e8f0',colors:['#2563eb','#059669','#c2410c']}
+            : {text:'#8faecc',grid:'rgba(89,128,166,.2)',colors:['#6faeff','#5be3aa','#ff9c73']};
         const escapeTooltipText = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
-        new ApexCharts(platformMonthChart, {
+        const releasePlatformChart = new ApexCharts(platformMonthChart, {
             series: [
                 { name: 'Peringkat 1', data: @json($monthlyPlatformGroups->map(fn ($platforms) => (int) data_get($platforms->get(0), 'streams', 0))->values()) },
                 { name: 'Peringkat 2', data: @json($monthlyPlatformGroups->map(fn ($platforms) => (int) data_get($platforms->get(1), 'streams', 0))->values()) },
                 { name: 'Peringkat 3', data: @json($monthlyPlatformGroups->map(fn ($platforms) => (int) data_get($platforms->get(2), 'streams', 0))->values()) }
             ],
-            chart: { type: 'bar', height: 224, toolbar: { show: false }, background: 'transparent', foreColor: '#8faecc' },
-            colors: ['#6faeff', '#5be3aa', '#ff9c73'],
+            chart: { type: 'bar', height: 224, toolbar: { show: false }, background: 'transparent', foreColor: chartTheme().text },
+            colors: chartTheme().colors,
             plotOptions: { bar: { columnWidth: '66%', borderRadius: 3 } },
-            grid: { borderColor: 'rgba(89,128,166,.2)', strokeDashArray: 4, padding: { left: 2, right: 2 } },
+            grid: { borderColor: chartTheme().grid, strokeDashArray: 4, padding: { left: 2, right: 2 } },
             dataLabels: { enabled: false },
             xaxis: { categories: platformMonths, axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { fontSize: '9px' } } },
             yaxis: { labels: { formatter: value => Number(value).toLocaleString('id-ID'), style: { fontSize: '9px' } } },
@@ -192,11 +195,17 @@
                     const platform = platformNames[seriesIndex]?.[dataPointIndex] || 'Platform tidak tersedia';
                     const streams = Number(series[seriesIndex]?.[dataPointIndex] || 0).toLocaleString('id-ID');
                     const month = platformMonths[dataPointIndex] || '';
-                    return `<div style="min-width:160px;padding:10px 12px;background:#101d2f;color:#eaf4ff;border:1px solid #3a6089;border-radius:8px;font:600 12px system-ui"><span style="display:block;margin-bottom:5px;color:#8fafcf;font-size:10px">${escapeTooltipText(month)}</span><strong style="display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:${tooltipColors[seriesIndex]};display:inline-block"></i>${escapeTooltipText(platform)}</strong><span style="display:block;margin-top:5px;color:#9fc5ea">${streams} stream</span></div>`;
+                    return `<div class="release-chart-tooltip"><small>${escapeTooltipText(month)}</small><strong><i style="background:${chartTheme().colors[seriesIndex]}"></i>${escapeTooltipText(platform)}</strong><span>${streams} stream</span></div>`;
                 }
             },
             legend: { show: false }
-        }).render();
+        });
+        releasePlatformChart.render().then(() => {
+            new MutationObserver(() => {
+                const theme = chartTheme();
+                releasePlatformChart.updateOptions({chart:{foreColor:theme.text},colors:theme.colors,grid:{borderColor:theme.grid}},false,false);
+            }).observe(document.documentElement,{attributes:true,attributeFilter:['data-bs-theme']});
+        });
     }
 </script>
 @endpush

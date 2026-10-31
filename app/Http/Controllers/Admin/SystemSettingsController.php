@@ -15,10 +15,18 @@ class SystemSettingsController extends Controller
     {
         $templates = app(\App\Services\AggregatorContractTemplates::class);
         $driveReady = \Illuminate\Support\Facades\Schema::hasTable('drive_transfers');
+        $notificationTemplates = app(\App\Services\StatusNotificationTemplates::class);
+        $notificationEvents = $notificationTemplates->events();
+        $requestedEvent = request('notification_event','release.released');
+        $notificationEvent = is_string($requestedEvent) && isset($notificationEvents[$requestedEvent]) ? $requestedEvent : 'release.released';
+        $notificationsReady = \Illuminate\Support\Facades\Schema::hasTable('status_notification_deliveries');
         $importsReady = \App\Models\LegacyImportRun::schemaReady();
         $importRuns = $importsReady ? \App\Models\LegacyImportRun::latest('id')->limit(20)->get() : collect();
         $selectedImport = $importsReady && request('import') ? \App\Models\LegacyImportRun::find(request('import')) : $importRuns->first();
         return view('admin.system-settings.index', [
+            'notificationEvents'=>$notificationEvents,'notificationEvent'=>$notificationEvent,'notificationsReady'=>$notificationsReady,
+            'notificationConfigurations'=>['email'=>$notificationTemplates->configuration('email'),'whatsapp'=>$notificationTemplates->configuration('whatsapp')],
+            'notificationHistory'=>$notificationsReady ? \App\Models\StatusNotificationDelivery::select(['id','event','channel','user_id','status','attempts','error','sent_at','updated_at'])->latest('id')->limit(40)->get()->groupBy('channel') : collect(),
             'driveReady'=>$driveReady,
             'driveStats'=>$driveReady ? \Illuminate\Support\Facades\DB::table('drive_transfers')->selectRaw('status, COUNT(*) AS total, SUM(size) AS bytes')->groupBy('status')->get()->keyBy('status') : collect(),
             'driveHistory'=>$driveReady ? \Illuminate\Support\Facades\DB::table('drive_transfers')->orderByDesc('updated_at')->limit(30)->get() : collect(),

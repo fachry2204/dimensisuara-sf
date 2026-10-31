@@ -30,6 +30,11 @@ return [
 
     'connections' => [
 
+        'status-notifications' => [
+            'driver'=>'database', 'connection'=>null, 'table'=>'jobs',
+            'queue'=>'default', 'retry_after'=>120, 'after_commit'=>true,
+        ],
+
         'drive-archive' => [
             'driver' => 'database', 'connection' => null, 'table' => 'jobs',
             'queue' => 'drive-archive', 'retry_after' => 960, 'after_commit' => true,

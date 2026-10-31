@@ -343,6 +343,9 @@ Route::middleware(['auth','verified'])->group(function () {
 
         // System settings: restricted to server administrators.
         Route::prefix('system-settings')->middleware(['can:manage-automation'])->group(function () {
+            Route::post('status-notifications/{channel}', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'save'])->whereIn('channel',['email','whatsapp'])->name('admin.system-settings.notifications.save');
+            Route::match(['get','post'],'status-notifications/{channel}/preview', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'preview'])->whereIn('channel',['email','whatsapp'])->name('admin.system-settings.notifications.preview');
+            Route::post('status-notifications/delivery/{delivery}/retry', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'retry'])->whereNumber('delivery')->middleware('throttle:5,1')->name('admin.system-settings.notifications.retry');
             Route::post('google-drive', [\App\Http\Controllers\Admin\GoogleDriveSettingsController::class, 'save'])->name('admin.system-settings.drive.save');
             Route::post('google-drive/test', [\App\Http\Controllers\Admin\GoogleDriveSettingsController::class, 'test'])->middleware('throttle:5,1')->name('admin.system-settings.drive.test');
             Route::post('google-drive/start', [\App\Http\Controllers\Admin\GoogleDriveSettingsController::class, 'start'])->middleware('throttle:5,1')->name('admin.system-settings.drive.start');

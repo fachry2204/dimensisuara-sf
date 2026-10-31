@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        \App\Models\Release::observe(\App\Observers\StatusNotificationObserver::class);
+        \App\Models\User\Profile::observe(\App\Observers\StatusNotificationObserver::class);
+        \App\Models\User\User::observe(\App\Observers\StatusNotificationObserver::class);
         // Composer and installation commands must boot before a database exists.
         // Runtime requests and operational commands still load database settings.
         if ($this->shouldApplyDatabaseSettings()) {

@@ -36,7 +36,11 @@ class Submitted extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['mail', DatabaseChannel::class, \App\Services\WhatsAppService::class];
+        if (!\Illuminate\Support\Facades\Schema::hasTable('status_notification_deliveries')) {
+            return ['mail', DatabaseChannel::class, \App\Services\WhatsAppService::class];
+        }
+        // Email/WhatsApp status delivery is handled once by the model observer.
+        return [DatabaseChannel::class];
     }
 
     public function toDatabase(object $notifiable): array
@@ -47,7 +51,7 @@ class Submitted extends Notification implements ShouldQueue
             'route'     => [
                 'name' => 'releases.show',
                 'id'    => $this->release->id,
-                'image' => $this->release->thumbnail->id
+                'image' => $this->release->thumbnail?->id
             ]
         ];
     }
