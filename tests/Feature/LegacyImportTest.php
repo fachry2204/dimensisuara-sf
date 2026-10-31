@@ -47,7 +47,7 @@ class LegacyImportTest extends TestCase
         parent::tearDown();
     }
 
-    private function data(): array
+    protected function data(): array
     {
         $d = array_fill_keys(DimensiImporter::TABLES, []);
         $u = array_fill_keys(explode(' ', 'id role email password_hash password full_name username created_at updated_at country account_type type status phone company_name address subdistrict district city province postal_code bank_name bank_account_name bank_account_holder bank_account_number nik aggregator_percentage publishing_percentage block_reason rejection_reason'), null);

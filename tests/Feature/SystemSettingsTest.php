@@ -56,6 +56,36 @@ class SystemSettingsTest extends TestCase
         $this->actingAs($user);
     }
 
+    public function test_legacy_import_tab_renders_with_database_history_and_private_sql_selection(): void
+    {
+        (require base_path('database/migrations/2026_10_31_100000_create_legacy_import_runs.php'))->up();
+        $run = \App\Models\LegacyImportRun::create(['sql_path'=>'/private/inbox/test.sql', 'sql_sha256'=>str_repeat('a',64), 'status'=>'trial_ready', 'stats'=>['users.imported'=>2]]);
+        $this->signIn();
+        $this->get(route('admin.system-settings.index', ['tab'=>'legacy','import'=>$run->id]))
+            ->assertOk()->assertSee('Import Data Lama')->assertSee('Periksa SQL Lama')->assertSee('Import ke Database')
+            ->assertSee('system-legacy')->assertSee('queue:work legacy-import')->assertDontSee('/private/inbox/test.sql');
+    }
+
+    public function test_drive_settings_require_successful_connection_test_before_enabling(): void
+    {
+        (require base_path('database/migrations/2026_10_31_110000_create_drive_transfers_table.php'))->up();
+        $values = ['section'=>'google-drive','drive_enabled'=>0,'drive_remote'=>'gdrive','drive_folder'=>'DimensiSuara','drive_binary'=>'rclone','drive_config'=>''];
+        $this->signIn(false);
+        $this->post(route('admin.system-settings.drive.save'),$values)->assertForbidden();
+        $this->signIn();
+        $this->post(route('admin.system-settings.drive.save'),array_replace($values,['drive_enabled'=>1]))->assertSessionHasErrors('drive_enabled');
+        $this->post(route('admin.system-settings.drive.save'),$values)->assertRedirect();
+        $client = \Mockery::mock(\App\Services\RcloneDrive::class);
+        $client->shouldReceive('testConnection')->once();
+        $this->app->instance(\App\Services\RcloneDrive::class,$client);
+        $this->post(route('admin.system-settings.drive.test'))->assertRedirect();
+        $this->post(route('admin.system-settings.drive.save'),array_replace($values,['drive_enabled'=>1]))->assertRedirect();
+        $this->assertTrue(app(SystemSettings::class)->get('drive_enabled'));
+        $this->get(route('admin.system-settings.index',['tab'=>'google-drive']))->assertOk()->assertSee('Setting Google Drive')->assertSee('Tes Koneksi')->assertSee('drive-archive');
+        \Illuminate\Support\Facades\DB::table('drive_transfers')->insert(['file_id'=>1,'local_identifier'=>'old.wav','verified_at'=>now()]);
+        $this->post(route('admin.system-settings.drive.save'),array_replace($values,['drive_remote'=>'changed']))->assertSessionHasErrors('drive_remote');
+    }
+
     public function test_saved_form_values_roundtrip_through_database_without_a_settings_file(): void
     {
         $values = [

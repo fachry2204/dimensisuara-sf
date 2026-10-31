@@ -16,6 +16,13 @@ class SystemSettings
     public function __construct()
     {
         $this->defaults = [
+            'drive_enabled' => false,
+            'drive_remote' => 'gdrive',
+            'drive_folder' => 'DimensiSuara',
+            'drive_binary' => 'rclone',
+            'drive_config' => '',
+            'drive_connection_status' => null,
+            'drive_checked_at' => null,
             'app_name' => 'SoundFresh',
             'logo' => null,
             'favicon' => null,

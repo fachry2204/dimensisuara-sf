@@ -30,6 +30,20 @@ return [
 
     'connections' => [
 
+        'drive-archive' => [
+            'driver' => 'database', 'connection' => null, 'table' => 'jobs',
+            'queue' => 'drive-archive', 'retry_after' => 960, 'after_commit' => true,
+        ],
+
+        'legacy-import' => [
+            'driver' => 'database',
+            'connection' => null,
+            'table' => 'jobs',
+            'queue' => 'legacy-import',
+            'retry_after' => 960,
+            'after_commit' => true,
+        ],
+
         'sync' => [
             'driver' => 'sync',
         ],

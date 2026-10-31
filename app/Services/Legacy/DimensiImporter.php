@@ -78,7 +78,8 @@ class DimensiImporter
             $this->record('users', $r, null, 'invalid_email');
             return;
         }
-        if (DB::table('users')->whereRaw('LOWER(email) = ?', [$email])->exists()) {
+        if (DB::table('users')->whereRaw('LOWER(email) = ?', [$email])->exists()
+            || (\Illuminate\Support\Facades\Schema::hasTable('user_admin') && DB::table('user_admin')->whereRaw('LOWER(email) = ?', [$email])->exists())) {
             $this->record('users', $r, null, 'email_conflict_skipped');
             return;
         }

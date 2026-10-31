@@ -14,7 +14,17 @@ class SystemSettingsController extends Controller
     public function index(SystemSettings $settings)
     {
         $templates = app(\App\Services\AggregatorContractTemplates::class);
+        $driveReady = \Illuminate\Support\Facades\Schema::hasTable('drive_transfers');
+        $importsReady = \Illuminate\Support\Facades\Schema::hasTable('legacy_import_runs');
+        $importRuns = $importsReady ? \App\Models\LegacyImportRun::latest('id')->limit(20)->get() : collect();
+        $selectedImport = $importsReady && request('import') ? \App\Models\LegacyImportRun::find(request('import')) : $importRuns->first();
         return view('admin.system-settings.index', [
+            'driveReady'=>$driveReady,
+            'driveStats'=>$driveReady ? \Illuminate\Support\Facades\DB::table('drive_transfers')->selectRaw('status, COUNT(*) AS total, SUM(size) AS bytes')->groupBy('status')->get()->keyBy('status') : collect(),
+            'driveHistory'=>$driveReady ? \Illuminate\Support\Facades\DB::table('drive_transfers')->orderByDesc('updated_at')->limit(30)->get() : collect(),
+            'importsReady' => $importsReady, 'importRuns' => $importRuns, 'selectedImport' => $selectedImport,
+            'importMediaCounts' => $selectedImport ? \Illuminate\Support\Facades\DB::table('legacy_import_media_results')->where('run_id', $selectedImport->id)->selectRaw('status, COUNT(*) AS total')->groupBy('status')->pluck('total', 'status') : collect(),
+            'importMediaIssues' => $selectedImport ? \Illuminate\Support\Facades\DB::table('legacy_import_media_results')->where('run_id', $selectedImport->id)->where('status', 'issue')->orderBy('id')->paginate(25, ['*'], 'issues_page')->withQueryString() : null,
             'missingBranding' => collect(['logo'=>'Logo', 'favicon'=>'Favicon'])->filter(fn ($label, $key) => $settings->get($key) && !app(\App\Services\BrandingAssets::class)->path($settings->get($key)))->values()->all(),
             'settings' => $settings->publicValues(),
             'contractDrafts' => ['personal' => $templates->get(false), 'company' => $templates->get(true)],

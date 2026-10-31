@@ -14,9 +14,10 @@ class LandingController extends Controller
             ->whereRaw('COALESCE(finalreleaseddate, releaseddate) <= ?', [today()->toDateString()]);
     }
 
-    private function artwork(Release $release): ?string
+    private function artwork(Release $release): string|\App\Models\File|null
     {
         foreach ([$release->thumbnail, $release->cover] as $file) {
+            if ($file && $file->disk === 'rclone' && in_array($file->mime_type, ['image/jpeg','image/png','image/webp'],true)) return $file;
             if (!$file || $file->disk !== 'local' || !$file->identifier) continue;
             $root = realpath(Storage::disk('local')->path(''));
             $path = realpath(Storage::disk('local')->path($file->identifier));
@@ -44,11 +45,12 @@ class LandingController extends Controller
         ]);
     }
 
-    public function cover(int $release)
+    public function cover(int $release, \Illuminate\Http\Request $request)
     {
         $item = $this->catalogue()->with(['cover', 'thumbnail'])->findOrFail($release);
         $path = $this->artwork($item);
         abort_unless($path, 404);
+        if ($path instanceof \App\Models\File) return app(\App\Services\RcloneDrive::class)->response($path,$request,true);
         return response()->file($path, ['Cache-Control' => 'public, max-age=3600', 'X-Content-Type-Options' => 'nosniff']);
     }
 }

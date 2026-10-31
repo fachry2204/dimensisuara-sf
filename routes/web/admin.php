@@ -343,6 +343,11 @@ Route::middleware(['auth','verified'])->group(function () {
 
         // System settings: restricted to server administrators.
         Route::prefix('system-settings')->middleware(['can:manage-automation'])->group(function () {
+            Route::post('google-drive', [\App\Http\Controllers\Admin\GoogleDriveSettingsController::class, 'save'])->name('admin.system-settings.drive.save');
+            Route::post('google-drive/test', [\App\Http\Controllers\Admin\GoogleDriveSettingsController::class, 'test'])->middleware('throttle:5,1')->name('admin.system-settings.drive.test');
+            Route::post('google-drive/start', [\App\Http\Controllers\Admin\GoogleDriveSettingsController::class, 'start'])->middleware('throttle:5,1')->name('admin.system-settings.drive.start');
+            Route::post('legacy-import', [\App\Http\Controllers\Admin\LegacyImportController::class, 'store'])->middleware('throttle:10,1')->name('admin.system-settings.legacy.store');
+            Route::post('legacy-import/{run}/{action}', [\App\Http\Controllers\Admin\LegacyImportController::class, 'action'])->whereNumber('run')->whereIn('action', ['trial', 'apply', 'media'])->middleware('throttle:10,1')->name('admin.system-settings.legacy.action');
             Route::get('/', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('admin.system-settings.index');
             Route::get('company-signature', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'companySignature'])->name('admin.system-settings.company-signature');
             Route::get('maintenance-preview', function (\App\Services\SystemSettings $settings) {

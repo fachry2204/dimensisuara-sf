@@ -11,14 +11,19 @@
     @php($contractTab = in_array($settingsTab, ['contracts', 'contract_prefix'], true))
     @php($companyTab = $settingsTab === 'company')
     @php($maintenanceTab = $settingsTab === 'maintenance')
+    @php($legacyTab = $settingsTab === 'legacy')
+    @php($driveTab = $settingsTab === 'google-drive')
+    @php($generalTab = !$contractTab && !$companyTab && !$maintenanceTab && !$legacyTab && !$driveTab)
     <ul class="nav nav-pills gap-2 mb-4" role="tablist" aria-label="Setting System">
-        <li class="nav-item"><button class="nav-link {{ !$contractTab && !$companyTab && !$maintenanceTab ? 'active' : '' }}" id="system-general-tab" data-bs-toggle="pill" data-bs-target="#system-general" type="button" role="tab" aria-controls="system-general" aria-selected="{{ !$contractTab && !$companyTab && !$maintenanceTab ? 'true' : 'false' }}">Pengaturan Umum</button></li>
+        <li class="nav-item"><button class="nav-link {{ $generalTab ? 'active' : '' }}" id="system-general-tab" data-bs-toggle="pill" data-bs-target="#system-general" type="button" role="tab" aria-controls="system-general" aria-selected="{{ $generalTab ? 'true' : 'false' }}">Pengaturan Umum</button></li>
         <li class="nav-item"><button class="nav-link {{ $maintenanceTab ? 'active' : '' }}" id="system-maintenance-tab" data-bs-toggle="pill" data-bs-target="#system-maintenance" type="button" role="tab" aria-controls="system-maintenance" aria-selected="{{ $maintenanceTab ? 'true' : 'false' }}">Maintenance</button></li>
         <li class="nav-item"><button class="nav-link {{ $companyTab ? 'active' : '' }}" id="system-company-tab" data-bs-toggle="pill" data-bs-target="#system-company" type="button" role="tab" aria-controls="system-company" aria-selected="{{ $companyTab ? 'true' : 'false' }}">Nama Perusahaan</button></li>
         <li class="nav-item"><button class="nav-link {{ $contractTab ? 'active' : '' }}" id="system-contract-tab" data-bs-toggle="pill" data-bs-target="#system-contract" type="button" role="tab" aria-controls="system-contract" aria-selected="{{ $contractTab ? 'true' : 'false' }}">Contract</button></li>
+        <li class="nav-item"><button class="nav-link {{ $legacyTab ? 'active' : '' }}" id="system-legacy-tab" data-bs-toggle="pill" data-bs-target="#system-legacy" type="button" role="tab" aria-controls="system-legacy" aria-selected="{{ $legacyTab ? 'true' : 'false' }}">Import Data Lama</button></li>
+        <li class="nav-item"><button class="nav-link {{ $driveTab ? 'active' : '' }}" id="system-drive-tab" data-bs-toggle="pill" data-bs-target="#system-drive" type="button" role="tab" aria-controls="system-drive" aria-selected="{{ $driveTab ? 'true' : 'false' }}">Setting Google Drive</button></li>
     </ul>
     <div class="tab-content border-0 bg-transparent p-0">
-    <div class="tab-pane fade {{ !$contractTab && !$companyTab && !$maintenanceTab ? 'show active' : '' }}" id="system-general" role="tabpanel" aria-labelledby="system-general-tab">
+    <div class="tab-pane fade {{ $generalTab ? 'show active' : '' }}" id="system-general" role="tabpanel" aria-labelledby="system-general-tab">
     @include('admin.system-settings.colors')
     <div class="card mb-4"><div class="card-body p-4">
         <h5 class="d-flex align-items-center gap-2"><span class="material-icons-outlined">palette</span> Identitas Aplikasi</h5>
@@ -107,6 +112,12 @@
     </div>
     <div class="tab-pane fade {{ $maintenanceTab ? 'show active' : '' }}" id="system-maintenance" role="tabpanel" aria-labelledby="system-maintenance-tab">
         @include('admin.system-settings.maintenance')
+    </div>
+    <div class="tab-pane fade {{ $driveTab ? 'show active' : '' }}" id="system-drive" role="tabpanel" aria-labelledby="system-drive-tab">
+        @include('admin.system-settings.google-drive')
+    </div>
+    <div class="tab-pane fade {{ $legacyTab ? 'show active' : '' }}" id="system-legacy" role="tabpanel" aria-labelledby="system-legacy-tab">
+        @include('admin.system-settings.legacy')
     </div>
     </div>
 </div>

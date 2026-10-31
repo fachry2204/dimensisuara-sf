@@ -70,6 +70,8 @@ class FileController extends Controller
             'X-Content-Type-Options' => 'nosniff',
         ];
 
+        if ($file->disk === 'rclone') return app(\App\Services\RcloneDrive::class)->response($file, $request);
+
         $identifier = (string) $file->identifier;
 
         if ($identifier === '') {

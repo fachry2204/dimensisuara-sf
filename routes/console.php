@@ -8,6 +8,7 @@ use App\Jobs\Reporting\ReportingRecheck;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::job(new ClearUnusedReleases)->daily();
+Schedule::command('drive:archive-released')->everyFiveMinutes()->withoutOverlapping();
 Schedule::job(new BackupTrackFiles)->daily()->withoutOverlapping();
 Schedule::job(new ClearTemporaryFiles)->hourly();
 Schedule::job(new ClearFileCache)->hourly();

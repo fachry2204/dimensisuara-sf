@@ -23,6 +23,8 @@ class TrackFileBackupService
     public function eligibleFiles()
     {
         return File::query()
+            ->when(app(SystemSettings::class)->get('drive_enabled'), fn ($q) => $q->whereRaw('1 = 0'))
+            ->where('disk', 'local')
             ->whereIn('type', ['full', 'trimmed'])
             ->whereNotNull('identifier')
             ->where('identifier', '!=', '')
@@ -38,6 +40,22 @@ class TrackFileBackupService
 
     public function backup(File $file): bool
     {
+        $db = \Illuminate\Support\Facades\DB::connection();
+        $mysql = $db->getDriverName() === 'mysql';
+        $lock = 'drive_file_'.$file->id;
+        if ($mysql && !(int) $db->selectOne('SELECT GET_LOCK(?, 0) AS acquired', [$lock])->acquired) return false;
+        try {
+            app(SystemSettings::class)->refresh();
+            $file->refresh();
+            return $this->backupLocked($file);
+        } finally {
+            if ($mysql) $db->select('SELECT RELEASE_LOCK(?)', [$lock]);
+        }
+    }
+
+    private function backupLocked(File $file): bool
+    {
+        if (app(SystemSettings::class)->get('drive_enabled') || $file->disk !== 'local') return false;
         if (! in_array($file->type, ['full', 'trimmed'], true)) {
             return false;
         }
