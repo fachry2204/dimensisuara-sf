@@ -485,6 +485,45 @@ class AggregatorContractTest extends TestCase
         $this->assertSame($formatted, app(AggregatorContractTemplates::class)->formatSignatureLayout($formatted));
     }
 
+    public function test_footer_identity_is_saved_encrypted_and_frozen_with_the_contract(): void
+    {
+        $settings = app(SystemSettings::class);
+        $settings->save([
+            'app_name'=>'Sistem Kontrak', 'company_name'=>'PT Musik & Karya',
+            'company_address'=>'Jalan Musik 42, Bogor', 'company_email'=>'kontrak@example.test',
+            'company_phone'=>'081234567890',
+        ]);
+        $contract = $this->generate();
+        $layout = app(\App\Services\ContractPdfLayout::class);
+        $snapshot = $contract->generated_html;
+        $data = $layout->pageData($snapshot);
+        $this->assertSame('SISTEM KONTRAK',$data['system']);
+        $this->assertSame('PT Musik & Karya',$data['company']);
+        $this->assertSame($contract->docnum,$data['number']);
+        $this->assertStringContainsString('kontrak@example.test',implode(' ',array_column($data['rows'],'text')));
+        $this->assertStringNotContainsString('kontrak@example.test',DB::table('contracts')->value('generated_html'));
+
+        $settings->save(['app_name'=>'Nama Baru','company_name'=>'PT Baru','company_email'=>'baru@example.test']);
+        $this->assertSame($snapshot,$contract->fresh()->generated_html);
+        $this->assertSame($snapshot,$layout->decorate($snapshot));
+        $this->assertSame($data,$layout->pageData($contract->fresh()->generated_html));
+        $this->assertStringStartsWith('%PDF-',ContractService::generateAggregatorPdf($contract->fresh(),false));
+    }
+
+    public function test_long_contact_details_wrap_without_losing_content_or_changing_clauses(): void
+    {
+        $address = str_repeat('Alamat perusahaan panjang di Bogor ',12);
+        app(SystemSettings::class)->save(['company_address'=>$address]);
+        $layout = app(\App\Services\ContractPdfLayout::class);
+        $html = $layout->decorate('<html><body><p>Isi pasal &amp; ketentuan asli.</p></body></html>');
+        $data = $layout->pageData($html);
+        $this->assertGreaterThan(3,count($data['rows']));
+        $this->assertGreaterThan(42,$data['height']);
+        $this->assertStringContainsString(trim($address),implode(' ',array_column($data['rows'],'text')));
+        $this->assertStringContainsString('Isi pasal &amp; ketentuan asli.',$html);
+        $this->assertSame($html,$layout->decorate($html));
+    }
+
     public function test_invalid_prefix_does_not_change_saved_prefix(): void
     {
         foreach (['', 'BAD/CODE', '<script>', str_repeat('A',51)] as $prefix) {

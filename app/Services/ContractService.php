@@ -163,6 +163,7 @@ class ContractService
         $html = $contract->generated_html ?: self::renderAggregatorHtml($contract, false);
         $date = self::prettyDate(($contract->contract_date ?? $contract->created_at ?? now())->format('Y-m-d'));
         $html = app(AggregatorContractTemplates::class)->formatSignatureLayout($html, $date);
+        $html = app(ContractPdfLayout::class)->decorate($html,self::aggregatorSummary($contract));
         return self::prepareDomPdf($contract->id, $html, true, true, $stream);
     }
 
@@ -229,7 +230,18 @@ class ContractService
         $html = self::injectImages($images, $html);
 
         // Generate pdf
-        return $html;
+        return app(ContractPdfLayout::class)->decorate($html,self::aggregatorSummary($contract));
+    }
+
+    private static function aggregatorSummary(Contract $contract): array
+    {
+        return [
+            'number'=>$contract->docnum ?: self::prettyDocNum($contract->type,$contract->number,$contract->month,$contract->year),
+            'date'=>self::prettyDate(($contract->contract_date ?? $contract->created_at ?? now())->format('Y-m-d')),
+            'client'=>$contract->profile->is_company ? $contract->profile->companyname : $contract->profile->full_name,
+            'user_rate'=>$contract->user_percentage ?? (int) $contract->profile->aggregator_rate,
+            'system_rate'=>$contract->system_percentage ?? (100-(int) $contract->profile->aggregator_rate),
+        ];
     }
 
     public static function generatePublishingContractPdf(Contract $contract, $stream = true)
@@ -726,15 +738,20 @@ class ContractService
 
     private static function prepareDomPdf($name, $html, $header, $footer, $stream = true)
     {
+        $layout=app(ContractPdfLayout::class);
+        if ($header && $footer) $html=$layout->decorate($html);
+        $hasPrintLayout=$layout->decorated($html);
+        $footerHeight=$layout->footerHeight($html);
+        $pageData=$hasPrintLayout ? $layout->pageData($html) : [];
         $headerLogo = resource_path('images/logo-soundfresh-vertical.png');
         $brandingLogo = app(BrandingAssets::class)->path(app(SystemSettings::class)->get('logo'));
-        if ($header && $brandingLogo) {
+        if ($header && !$hasPrintLayout && $brandingLogo) {
             $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
             $headerLogo = $manager->read($brandingLogo)->toPng()->toDataUri();
         }
         $logoWidth = 70;
         $logoHeight = 70;
-        if ($header) {
+        if ($header && !$hasPrintLayout) {
             $dimensions = getimagesize($headerLogo);
             if ($dimensions && $dimensions[0] > 0 && $dimensions[1] > 0) {
                 $scale = min(100 / $dimensions[0], 70 / $dimensions[1]);
@@ -753,20 +770,23 @@ class ContractService
 
         // Add header and footer
         $canvas = $dompdf->getCanvas();
-        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($header, $footer, $headerLogo, $logoWidth, $logoHeight) {
+        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($header, $footer, $headerLogo, $logoWidth, $logoHeight, $hasPrintLayout, $footerHeight, $layout, $pageData) {
+
+            if ($hasPrintLayout) $layout->drawPage($canvas,$fontMetrics,$pageData,$header,$footer);
 
             if ($footer) {
                 $text = "Halaman $pageNumber dari $pageCount";
                 $font_bold = $fontMetrics->getFont('helvetica', 'bold');
                 $pageWidth = $canvas->get_width();
                 $pageHeight = $canvas->get_height();
-                $size = 10;
+                $size = $hasPrintLayout ? 7.5 : 10;
                 $width = $fontMetrics->getTextWidth($text, $font_bold, $size);
-                $x = ($pageWidth - $width) / 2;
-                $canvas->text($x, $pageHeight - 30, $text, $font_bold, $size);
+                $x = $hasPrintLayout ? $pageWidth-ContractPdfLayout::SIDE_MARGIN-$width : ($pageWidth-$width)/2;
+                $y = $hasPrintLayout ? $pageHeight-$footerHeight-22 : $pageHeight-30;
+                $canvas->text($x,$y,$text,$font_bold,$size,[.28,.33,.41]);
             }
 
-            if ($header) {
+            if ($header && !$hasPrintLayout) {
                 $canvas->image($headerLogo, 525 - $logoWidth, 15 + (70 - $logoHeight) / 2, $logoWidth, $logoHeight);
             }
 

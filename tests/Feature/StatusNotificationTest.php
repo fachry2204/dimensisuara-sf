@@ -31,6 +31,11 @@ class StatusNotificationTest extends TestCase
             });
         }
         (require base_path('database/migrations/2026_10_31_120000_create_status_notification_deliveries.php'))->up();
+        Schema::create('tracks',function ($table) { $table->id(); $table->string('isrc')->nullable(); });
+        Schema::create('release_track',function ($table) {
+            $table->unsignedBigInteger('release_id'); $table->unsignedBigInteger('track_id');
+            $table->unsignedInteger('track_order'); $table->timestamps();
+        });
         $this->app->forgetInstance(SystemSettings::class);
         app(SystemSettings::class)->save(['smtp_enabled'=>true,'app_name'=>'Test Music']);
         Bus::fake(); Mail::fake(); Http::preventStrayRequests(); $this->withoutVite();
@@ -173,6 +178,46 @@ class StatusNotificationTest extends TestCase
         $this->post($preview,array_replace($form,['body'=>'Halo {nama} <script>alert(1)</script>']))->assertOk()->assertSee('Kreator Contoh')->assertSee('&lt;script&gt;',false)->assertDontSee('<script>alert(1)</script>',false);
         $this->get(route('admin.system-settings.index',['tab'=>'notifications-email']))->assertOk()->assertSee('Notifikasi Email')->assertSee('Notifikasi WhatsApp')->assertSee('Pratinjau Perubahan')->assertSee('value="release.released" selected',false);
         Mail::assertNothingSent();Http::assertNothingSent();
+    }
+
+    public function test_isrc_placeholder_can_be_saved_and_previewed_for_both_channels(): void
+    {
+        $this->signIn();
+        app(SystemSettings::class)->save(['whatsapp_token'=>'fake-test-token','whatsapp_provider'=>'fonnte']);
+        foreach (['email','whatsapp'] as $channel) {
+            $form = array_replace($this->form(),['section'=>'notifications-'.$channel,'body'=>'UPC: {upc}\nISRC: {isrc}']);
+            $this->post(route('admin.system-settings.notifications.save',$channel),$form)->assertSessionHasNoErrors()->assertRedirect();
+            $this->assertSame($form['body'],app(StatusNotificationTemplates::class)->configuration($channel)['templates']['release.released']['body']);
+            $this->post(route('admin.system-settings.notifications.preview',$channel),$form)->assertOk()->assertSee('IDA1B2600001')->assertDontSee('{isrc}');
+        }
+        Mail::assertNothingSent(); Http::assertNothingSent();
+    }
+
+    public function test_release_notifications_capture_all_track_isrc_codes_in_order_and_keep_the_snapshot(): void
+    {
+        foreach (['email','whatsapp'] as $channel) {
+            $config = app(StatusNotificationTemplates::class)->configuration($channel);
+            $config['enabled'] = true;
+            $config['templates']['release.released']['body'] = 'ISRC: {isrc}';
+            app(SystemSettings::class)->save(['status_notifications_'.$channel=>$config]);
+        }
+        $release = $this->release($this->profile());
+        $pending = StatusNotificationDelivery::where('event','release.pending')->first();
+        $this->assertSame('Belum tersedia',$pending->payload['message']['context']['isrc']);
+        foreach ([2=>'IDA1B2600002',1=>'IDA1B2600001',3=>'IDA1B2600001',4=>' ',5=>null] as $order=>$isrc) {
+            $id = DB::table('tracks')->insertGetId(['isrc'=>$isrc]);
+            DB::table('release_track')->insert(['release_id'=>$release->id,'track_id'=>$id,'track_order'=>$order]);
+        }
+        $release->status = 'released'; $release->save();
+        $rows = StatusNotificationDelivery::where('event','release.released')->get();
+        $this->assertCount(2,$rows);
+        DB::table('tracks')->update(['isrc'=>'CHANGED']);
+        foreach ($rows as $row) {
+            $message = $row->fresh()->payload['message'];
+            $this->assertSame('IDA1B2600001, IDA1B2600002',$message['context']['isrc']);
+            $this->assertSame('ISRC: IDA1B2600001, IDA1B2600002',$message['body']);
+            $this->assertStringContainsString('ISRC: IDA1B2600001, IDA1B2600002',$message['whatsapp']);
+        }
     }
 
     public function test_manual_retry_requires_provider_review_and_never_resends_sent_rows(): void

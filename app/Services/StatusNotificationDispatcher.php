@@ -40,10 +40,13 @@ class StatusNotificationDispatcher
         $artists = $release?->primaryartists ?? [];
         if (is_string($artists)) $artists = json_decode($artists,true) ?: [];
         $date = $release?->finalreleaseddate ?: ($release?->releaseon ?: $release?->releaseddate);
+        $isrc = $release ? $release->tracks()->pluck('tracks.isrc')
+            ->map(fn ($code) => trim((string) $code))->filter()->unique()->join(', ') : '';
         $context = ['nama'=>$user->name,'aplikasi'=>app_name(),'status'=>$templates->events()[$event]['status'],
             'status_sebelumnya'=>$templates->events()[$previous]['status'] ?? '—',
             'judul_rilis'=>$release?->title ?? '', 'artis'=>collect($artists)->map(fn ($artist) => is_string($artist) ? $artist : data_get($artist,'name'))->filter()->join(', '),
             'upc'=>$release?->upc ?: 'Belum tersedia',
+            'isrc'=>$isrc !== '' ? $isrc : 'Belum tersedia',
             'tanggal_rilis'=>$date ? \Carbon\Carbon::parse($date)->locale('id')->translatedFormat('d F Y') : 'Belum dijadwalkan',
             'alasan'=>$source->reason ?: 'Tidak ada catatan tambahan.',
             'tautan'=>$release ? route('releases.show',$release->id) : route('profile')];

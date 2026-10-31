@@ -6,6 +6,7 @@ use App\Models\File;
 use App\Models\LegacyImportRun;
 use App\Models\Release;
 use App\Models\Track;
+use App\Models\User\Profile;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,19 @@ use RuntimeException;
 
 class LegacyMediaImporter
 {
+    public static function userDocuments(array $row): array
+    {
+        $company = ($row['account_type'] ?? '') === 'COMPANY' || ($row['type'] ?? '') === 'Perusahaan';
+        return [
+            'ktp_doc_path'=>['ktp',$row['ktp_doc_path'] ?? null],
+            'npwp_doc_path'=>[$company ? 'npwpcompany' : 'npwppersonal',$row['npwp_doc_path'] ?? null],
+            'nib_doc_path'=>['nibcompany',$row['nib_doc_path'] ?? null],
+            'kemenkumham_doc_path'=>['establishment',$row['kemenkumham_doc_path'] ?? null],
+            'signature_doc_path'=>['signature',$row['signature_doc_path'] ?? null],
+            'contract_doc_path'=>['legacy_contract',$row['contract_doc_path'] ?? null],
+        ];
+    }
+
     /** One source record per job bounds memory and allows progress/retry between WAV files. */
     public function importRecord(LegacyImportRun $run, object $record): void
     {
@@ -20,16 +34,21 @@ class LegacyMediaImporter
         if (!is_array($row)) {
             throw new RuntimeException('Arsip pemetaan media tidak valid.');
         }
-        $fields = $record->entity === 'releases'
+        $fields = $record->entity === 'users' ? self::userDocuments($row) : ($record->entity === 'releases'
             ? ['cover_art' => ['cover', ($row['cover_art'] ?? null) ?: ($row['cover_url'] ?? null)]]
-            : ['audio_file' => ['full', $row['audio_file'] ?? null], 'audio_clip' => ['trimmed', $row['audio_clip'] ?? null], 'ipl_file' => ['ipl', $row['ipl_file'] ?? null]];
+            : ['audio_file' => ['full', $row['audio_file'] ?? null], 'audio_clip' => ['trimmed', $row['audio_clip'] ?? null], 'ipl_file' => ['ipl', $row['ipl_file'] ?? null]]);
         foreach ($fields as $field => [$type, $reference]) {
             if (!$reference) {
                 continue;
             }
             $key = ['run_id' => $run->id, 'record_id' => $record->id, 'field' => $field];
             try {
-                $owner = $record->entity === 'releases' ? Release::find($record->target_id) : Track::find($record->target_id);
+                $owner = match ($record->entity) {
+                    'users'=>Profile::where('userid',$record->target_id)->first(),
+                    'releases'=>Release::find($record->target_id),
+                    'tracks'=>Track::find($record->target_id),
+                    default=>null,
+                };
                 // IPL is a release document in the new schema.
                 if ($type === 'ipl' && $owner) {
                     $owner = $owner->releases()->first();
@@ -43,12 +62,19 @@ class LegacyMediaImporter
                 $allowed = match ($type) {
                     'cover' => in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) && @getimagesize($source),
                     'ipl' => $extension === 'pdf' && $mime === 'application/pdf',
+                    'ktp', 'npwppersonal', 'npwpcompany', 'nibcompany', 'establishment', 'signature' =>
+                        ($extension === 'pdf' && $mime === 'application/pdf')
+                        || (in_array($mime,['image/jpeg','image/png','image/webp'],true) && @getimagesize($source)),
+                    'legacy_contract'=>($extension === 'pdf' && $mime === 'application/pdf')
+                        || (in_array($mime,['image/jpeg','image/png','image/webp'],true) && @getimagesize($source))
+                        || $this->isDocx($source,$extension,$mime),
                     'full', 'trimmed' => in_array($extension, ['wav', 'flac', 'mp3', 'm4a', 'ogg'], true) && in_array($mime, ['audio/x-wav', 'audio/wav', 'audio/vnd.wave', 'audio/x-flac', 'audio/flac', 'audio/mpeg', 'audio/mp4', 'audio/ogg', 'application/ogg'], true),
                     default => false,
                 };
                 if (!$allowed) {
                     throw new RuntimeException('Format file tidak sesuai jenis media.');
                 }
+                if ($type === 'legacy_contract' && $extension === 'docx') $mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
                 $hash = hash_file('sha256', $source);
                 if (!$hash) {
                     throw new RuntimeException('Checksum sumber tidak dapat dibaca.');
@@ -80,7 +106,8 @@ class LegacyMediaImporter
                         }
                     }
                     // Each owner gets its own physical file: deleting one release must not break another.
-                    $ownedIdentifier = 'legacy-media/'.($owner instanceof Release ? 'releases' : 'tracks').'/'.$owner->id.'/'.$type.'-'.$hash.'.'.$extension;
+                    $ownerFolder = $owner instanceof Profile ? 'profiles' : ($owner instanceof Release ? 'releases' : 'tracks');
+                    $ownedIdentifier = 'legacy-media/'.$ownerFolder.'/'.$owner->id.'/'.$type.'-'.$hash.'.'.$extension;
                     if (!$disk->exists($ownedIdentifier) && !$disk->copy($identifier, $ownedIdentifier)) {
                         throw new RuntimeException('Tidak dapat menyimpan file untuk pemilik media.');
                     }
@@ -91,7 +118,7 @@ class LegacyMediaImporter
                         'disk' => 'local', 'identifier' => $ownedIdentifier,
                         'original_name' => basename($source), 'mime_type' => $mime,
                         'size' => filesize($source), 'uploaded_at' => now(), 'type' => $type,
-                        'owner_id' => $owner->id, 'owner_type' => $owner->getMorphClass(), 'profileid' => $owner->profileid,
+                        'owner_id' => $owner->id, 'owner_type' => $owner->getMorphClass(), 'profileid' => $owner instanceof Profile ? $owner->id : $owner->profileid,
                     ]);
                     $disk->delete($identifier);
                 }
@@ -108,5 +135,15 @@ class LegacyMediaImporter
                 DB::table('legacy_import_media_results')->updateOrInsert($key, ['status' => 'issue', 'message' => $e->getMessage(), 'file_id' => null, 'sha256' => null, 'created_at' => now(), 'updated_at' => now()]);
             }
         }
+    }
+
+    private function isDocx(string $source, string $extension, string $mime): bool
+    {
+        if ($extension !== 'docx' || !in_array($mime,['application/zip','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],true)) return false;
+        $zip = new \ZipArchive;
+        if ($zip->open($source) !== true) return false;
+        try {
+            return $zip->locateName('[Content_Types].xml') !== false && $zip->locateName('word/document.xml') !== false;
+        } finally { $zip->close(); }
     }
 }

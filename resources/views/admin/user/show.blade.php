@@ -97,7 +97,7 @@ View User
             </div>
         <div class="row g-3 justify-content-center">
             @if ($user->profile->identities->count() > 0)
-                @foreach ($required as $req)
+                @foreach ($user->profile->identities->pluck('type')->unique() as $req)
                     @php
                         $identity = $user->profile->identities->where('type', $req)->first();
                     @endphp
@@ -113,7 +113,7 @@ View User
                                         </div>
                                     </div>
                                     </div>
-                                    <div class="identity-document-meta"><span>{{ $identitymap[$identity->type] }}</span><i class="material-icons-outlined">open_in_new</i></div>
+                                    <div class="identity-document-meta"><span>{{ $identitymap[$identity->type] ?? ($identity->type === 'legacy_contract' ? 'Kontrak dari website lama' : $identity->type) }}</span><i class="material-icons-outlined">open_in_new</i></div>
                                 </a>
                             </div>
                         @else
@@ -124,7 +124,7 @@ View User
                                             <i class="material-icons-outlined" style="margin: auto; font-size: 6.5rem">file_present</i>
                                         </div>
                                     </div>
-                                    <div class="identity-document-meta"><span>{{ $identitymap[$identity->type] }}</span><i class="material-icons-outlined">open_in_new</i></div>
+                                    <div class="identity-document-meta"><span>{{ $identitymap[$identity->type] ?? ($identity->type === 'legacy_contract' ? 'Kontrak dari website lama' : $identity->type) }}</span><i class="material-icons-outlined">open_in_new</i></div>
                                 </a>
                             </div>
                         @endif

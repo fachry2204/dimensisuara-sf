@@ -68,7 +68,7 @@ class RunLegacyImport implements ShouldQueue
             if ($this->phase === 'apply') {
                 // Map this run to the exact input IDs, including rows already imported by CLI
                 // or by another dump with identical rows and a different file checksum.
-                foreach (['releases', 'tracks'] as $entity) {
+                foreach (['users', 'releases', 'tracks'] as $entity) {
                     foreach (array_chunk(array_keys($data[$entity]), 500) as $ids) {
                         $records = DB::table('legacy_import_records')->where('source', 'dimensisuara_legacy')
                             ->where('entity', $entity)->where('status', 'imported')->whereIn('legacy_id', $ids)->pluck('id');
@@ -79,7 +79,7 @@ class RunLegacyImport implements ShouldQueue
             if ($this->phase === 'apply') $connection->commit();
             else $connection->rollBack();
             if ($this->phase === 'trial' && $run->media_root) {
-                foreach (['releases' => ['cover_art', 'cover_url'], 'tracks' => ['audio_file', 'audio_clip', 'ipl_file']] as $table => $fields) {
+                foreach (['users'=>array_keys(LegacyMediaImporter::userDocuments([])), 'releases' => ['cover_art', 'cover_url'], 'tracks' => ['audio_file', 'audio_clip', 'ipl_file']] as $table => $fields) {
                     foreach ($data[$table] as $row) {
                         if ($table === 'releases') $row['cover_url'] = empty($row['cover_art']) ? ($row['cover_url'] ?? null) : null;
                         foreach ($fields as $field) {
@@ -108,9 +108,10 @@ class RunLegacyImport implements ShouldQueue
     private function media(LegacyImportRun $run): void
     {
         app(ImportPaths::class)->mediaRoot($run->media_root ?? '');
+        if ((int) $run->media_cursor === 0) $this->attachUserDocuments($run);
         $record = DB::table('legacy_import_records')->where('source', 'dimensisuara_legacy')
             ->whereIn('id', DB::table('legacy_import_run_records')->where('run_id', $run->id)->select('record_id'))->where('status', 'imported')
-            ->whereIn('entity', ['releases', 'tracks'])->where('id', '>', $run->media_cursor)->orderBy('id')->first();
+            ->whereIn('entity', ['users', 'releases', 'tracks'])->where('id', '>', $run->media_cursor)->orderBy('id')->first();
         if (!$record) {
             $hasIssues = DB::table('legacy_import_media_results')->where('run_id', $run->id)->where('status', 'issue')->exists();
             $run->update(['status' => $hasIssues ? 'media_issues' : 'complete', 'finished_at' => now()]);
@@ -119,6 +120,30 @@ class RunLegacyImport implements ShouldQueue
         app(LegacyMediaImporter::class)->importRecord($run, $record);
         $run->update(['media_cursor' => $record->id, 'media_processed' => $run->media_processed + 1]);
         self::dispatch($run->id, 'media');
+    }
+
+    /** Older runs linked only catalogue rows. Recover exact user mappings from their original dump. */
+    private function attachUserDocuments(LegacyImportRun $run): void
+    {
+        $linked = DB::table('legacy_import_records')->where('entity','users')
+            ->whereIn('id',DB::table('legacy_import_run_records')->where('run_id',$run->id)->select('record_id'))->exists();
+        if ($linked) return;
+        $path = app(ImportPaths::class)->inside($run->sql_path,config('legacy-import.inbox'));
+        if (!hash_equals($run->sql_sha256,hash_file('sha256',$path))) {
+            throw new RuntimeException('SQL berubah sejak dipilih. Buat pemeriksaan baru untuk melengkapi dokumen.');
+        }
+        $data = (new SqlDumpReader)->read($path,['users']);
+        $ids = [];
+        foreach ($data['users'] as $row) {
+            $record = DB::table('legacy_import_records')->where(['source'=>'dimensisuara_legacy','entity'=>'users','legacy_id'=>$row['id'],'status'=>'imported'])->first();
+            if (!$record) continue;
+            $original = unserialize(\Illuminate\Support\Facades\Crypt::decryptString($record->payload),['allowed_classes'=>false]);
+            if ($original !== $row) throw new RuntimeException('Data pengguna SQL berbeda dari arsip impor. Dokumen tidak ditautkan.');
+            $ids[] = $record->id;
+        }
+        DB::transaction(function () use ($ids,$run) {
+            foreach ($ids as $id) DB::table('legacy_import_run_records')->updateOrInsert(['run_id'=>$run->id,'record_id'=>$id]);
+        });
     }
 
     public function failed(?Throwable $exception): void

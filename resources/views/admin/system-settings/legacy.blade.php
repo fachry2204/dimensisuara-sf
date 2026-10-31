@@ -1,6 +1,6 @@
 <div class="card mb-4"><div class="card-body p-4">
     <h4>Import Data Lama</h4>
-    <p class="text-secondary">Pindahkan pelanggan, rilis, lagu, sampul, audio, dan dokumen IPL dari website Dimensi lama. File sumber tetap berada di website lama; salinannya disimpan privat di aplikasi ini.</p>
+    <p class="text-secondary">Pindahkan pelanggan, rilis, lagu, sampul, audio, dokumen identitas klien, kontrak lama, dan dokumen IPL dari website Dimensi lama. File sumber tetap berada di website lama; salinannya disimpan privat di aplikasi ini.</p>
     @if(!$importsReady)
         <div class="alert alert-warning" role="alert"><strong>Tabel impor belum siap.</strong> Form unggah tersedia di bawah, tetapi belum dapat digunakan. Di terminal hosting, jalankan <code>php artisan migrate --force</code> dari folder aplikasi, lalu muat ulang halaman ini. Pada tab Artisan Laravel Toolkit Plesk, cukup masukkan <code>migrate --force</code> karena awalan <code>php artisan</code> sudah disediakan.</div>
     @endif
@@ -15,7 +15,7 @@
             <button class="btn btn-primary" type="submit"><span class="material-icons-outlined align-middle me-1" aria-hidden="true">fact_check</span>Periksa SQL Lama</button>
             </fieldset>
         </form>
-        <details class="mt-4"><summary>Persiapan hosting dan worker impor</summary>
+        <p class="form-text mt-3">Untuk melengkapi KTP, NPWP, NIB, SK Kemenkumham, tanda tangan, dan kontrak klien dari impor sebelumnya, buka hasil impor lalu jalankan kembali Salin Media dengan folder sumber yang benar. Profil dan rilisan tidak dibuat ulang; dokumen yang berbeda tidak ditimpa.</p><details class="mt-4"><summary>Persiapan hosting dan worker impor</summary>
             <p class="mt-2">Worker khusus ini harus aktif agar pemeriksaan, impor, dan penyalinan WAV berjalan. Gunakan PHP CLI yang sama dengan aplikasi.</p>
             <pre class="border rounded p-3 text-wrap"><code>php artisan queue:work legacy-import --queue=legacy-import --timeout=900 --tries=1</code></pre>
             <p>Jika menggunakan Scheduled Tasks Plesk, jalankan setiap menit dari folder aplikasi:</p>
@@ -45,15 +45,15 @@
     @if(in_array($selectedImport->status, ['imported', 'media_failed', 'media_issues', 'complete'], true))
         <form class="mt-3" method="POST" action="{{ route('admin.system-settings.legacy.action', [$selectedImport->id, 'media']) }}">@csrf<input type="hidden" name="section" value="legacy">
             <label class="form-label" for="legacy-retry-root">Folder utama media website lama</label><input class="form-control mb-2" id="legacy-retry-root" name="media_root" value="{{ $selectedImport->media_root }}" required>
-            <p class="form-text">Sampul dan audio dipasangkan melalui ID sumber yang sudah dipetakan. WAV disalin utuh dan checksum diverifikasi. Media tujuan yang berbeda tidak ditimpa. Setelah memperbaiki folder atau file hilang, Anda dapat mengulang penyalinan.</p>
-            <button class="btn btn-primary" type="submit">{{ $selectedImport->status === 'imported' ? 'Salin Gambar, Audio & IPL' : 'Periksa dan Ulangi Media' }}</button>
+            <p class="form-text">Dokumen klien, sampul, dan audio dipasangkan melalui ID sumber yang sudah dipetakan. WAV disalin utuh dan checksum diverifikasi. Media tujuan yang berbeda tidak ditimpa. Setelah memperbaiki folder atau file hilang, Anda dapat mengulang penyalinan.</p>
+            <button class="btn btn-primary" type="submit">{{ $selectedImport->status === 'imported' ? 'Salin Dokumen, Gambar, Audio & IPL' : 'Periksa dan Ulangi Media' }}</button>
         </form>
     @endif
-    <div class="d-flex flex-wrap gap-4 mt-4"><span>Data rilis/lagu diproses: <strong>{{ $selectedImport->media_processed }}</strong></span><span>File terverifikasi: <strong>{{ $importMediaCounts['copied'] ?? 0 }}</strong></span><span>File perlu diperiksa: <strong>{{ $importMediaCounts['issue'] ?? 0 }}</strong></span></div>
+    <div class="d-flex flex-wrap gap-4 mt-4"><span>Data pengguna/rilis/lagu diproses: <strong>{{ $selectedImport->media_processed }}</strong></span><span>File terverifikasi: <strong>{{ $importMediaCounts['copied'] ?? 0 }}</strong></span><span>File perlu diperiksa: <strong>{{ $importMediaCounts['issue'] ?? 0 }}</strong></span></div>
     @if($importMediaIssues && $importMediaIssues->count())
         <div class="table-responsive mt-3"><table class="table"><thead><tr><th>ID Pemetaan</th><th>Jenis</th><th>Kendala</th></tr></thead><tbody>@foreach($importMediaIssues as $issue)<tr><td>{{ $issue->record_id }}</td><td>{{ $issue->field }}</td><td>{{ $issue->message }}</td></tr>@endforeach</tbody></table></div>{{ $importMediaIssues->links() }}
     @endif
-    <p class="form-text mt-3">Format ini mendukung katalog Dimensi lama. Saldo, transaksi, kontrak, identitas, dan riwayat upload lainnya belum dipindahkan ke fitur baru. Akun admin tetap dikelola terpisah. Media dengan referensi kosong di SQL tidak memiliki file untuk disalin.</p>
+    <p class="form-text mt-3">Format ini mendukung katalog Dimensi lama. KTP, NPWP, NIB, SK Kemenkumham, tanda tangan, dan file kontrak lama disalin ke dokumen profil. Kontrak lama menjadi arsip dokumen, bukan kontrak baru yang digenerasi. Saldo, transaksi, dan riwayat upload lainnya belum dipindahkan ke fitur baru. Akun admin tetap dikelola terpisah. Media dengan referensi kosong di SQL tidak memiliki file untuk disalin.</p>
 </div></div>
 @endif
 @if($importsReady && $importRuns->count())

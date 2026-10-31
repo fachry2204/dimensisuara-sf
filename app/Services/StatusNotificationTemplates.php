@@ -4,7 +4,7 @@ namespace App\Services;
 
 class StatusNotificationTemplates
 {
-    public const TOKENS = ['nama','aplikasi','status','status_sebelumnya','judul_rilis','artis','upc','tanggal_rilis','alasan','tautan'];
+    public const TOKENS = ['nama','aplikasi','status','status_sebelumnya','judul_rilis','artis','upc','isrc','tanggal_rilis','alasan','tautan'];
 
     public function events(): array
     {
@@ -18,7 +18,7 @@ class StatusNotificationTemplates
             'release.revision'=>['label'=>'Rilis: Revisi','status'=>'Revisi','group'=>'Rilis','body'=>"Halo {nama},\n\nRilis {judul_rilis} berada pada tahap revisi.\n\nCatatan tim: {alasan}\n\nBuka detail rilis untuk memeriksa informasi revisi dan tindak lanjutnya."],
             'release.review'=>['label'=>'Rilis: Sedang Ditinjau','status'=>'Sedang ditinjau','group'=>'Rilis','body'=>"Halo {nama},\n\nTim {aplikasi} sedang meninjau rilis {judul_rilis}, termasuk metadata, cover art, dan audio.\n\nKami akan memberi kabar saat statusnya berubah."],
             'release.uploading'=>['label'=>'Rilis: Proses Distribusi','status'=>'Proses distribusi','group'=>'Rilis','body'=>"Halo {nama},\n\nRilis {judul_rilis} sedang diproses untuk distribusi ke platform musik.\n\nProses dan waktu ketersediaan dapat berbeda pada setiap platform. Pantau detail rilis untuk pembaruan selanjutnya."],
-            'release.released'=>['label'=>'Rilis: Released','status'=>'Released','group'=>'Rilis','body'=>"Halo {nama},\n\nStatus rilis {judul_rilis} di {aplikasi} telah berubah menjadi Released.\n\nTanggal rilis: {tanggal_rilis}\nUPC: {upc}\n\nKetersediaan di setiap platform mengikuti jadwal dan proses masing-masing. Buka detail rilis untuk informasi terbaru."],
+            'release.released'=>['label'=>'Rilis: Released','status'=>'Released','group'=>'Rilis','body'=>"Halo {nama},\n\nStatus rilis {judul_rilis} di {aplikasi} telah berubah menjadi Released.\n\nTanggal rilis: {tanggal_rilis}\nUPC: {upc}\nISRC: {isrc}\n\nKetersediaan di setiap platform mengikuti jadwal dan proses masing-masing. Buka detail rilis untuk informasi terbaru."],
             'release.rejected'=>['label'=>'Rilis: Ditolak','status'=>'Ditolak','group'=>'Rilis','body'=>"Halo {nama},\n\nRilis {judul_rilis} belum dapat dilanjutkan.\n\nAlasan: {alasan}\n\nBuka detail rilis, tinjau catatan tim dan batas waktu revisi yang tertera, lalu lakukan perbaikan yang diperlukan."],
         ];
     }
@@ -57,6 +57,7 @@ class StatusNotificationTemplates
             'status_sebelumnya'=>str_starts_with($event,'release.') ? 'Menunggu pemeriksaan' : 'Menunggu verifikasi',
             'judul_rilis'=>str_starts_with($event,'release.') ? 'Cerita di Dalam Musik' : '',
             'artis'=>str_starts_with($event,'release.') ? 'Artis Contoh' : '', 'upc'=>'8991234567890',
+            'isrc'=>str_starts_with($event,'release.') ? 'IDA1B2600001' : 'Belum tersedia',
             'tanggal_rilis'=>now()->addDays(14)->locale('id')->translatedFormat('d F Y'),
             'alasan'=>'Mohon periksa kembali informasi dan dokumen yang ditandai oleh tim.',
             'tautan'=>url('/login')];

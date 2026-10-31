@@ -42,7 +42,7 @@
         <div class="col-xl-6">
             <div class="d-flex align-items-center justify-content-between mb-2"><h6 class="mb-0">Pratinjau {{ $channelLabel }}</h6><small class="text-secondary">Data contoh · Tidak dikirim</small></div>
             <iframe name="notification-preview-{{ $channel }}" title="Pratinjau notifikasi {{ $channelLabel }}" src="{{ route('admin.system-settings.notifications.preview', ['channel'=>$channel,'event'=>$notificationEvent]) }}" sandbox="allow-same-origin" loading="lazy" style="display:block;width:100%;height:670px;border:1px solid var(--bs-border-color);border-radius:12px;background:#f3f5f9"></iframe>
-            <details class="mt-3" open><summary>Placeholder yang tersedia</summary><div class="d-flex flex-wrap gap-2 mt-2">@foreach(\App\Services\StatusNotificationTemplates::TOKENS as $token)<code>{{ '{'.$token.'}' }}</code>@endforeach</div><p class="form-text mt-2">Gunakan nama placeholder persis seperti di atas. {tautan} selalu menuju halaman akun atau rilis terkait. Informasi rilis hanya tersedia pada status rilis.</p></details>
+            <details class="mt-3" open><summary>Placeholder yang tersedia</summary><div class="d-flex flex-wrap gap-2 mt-2">@foreach(\App\Services\StatusNotificationTemplates::TOKENS as $token)<code>{{ '{'.$token.'}' }}</code>@endforeach</div><p class="form-text mt-2">Gunakan nama placeholder persis seperti di atas. {tautan} selalu menuju halaman akun atau rilis terkait. Informasi rilis hanya tersedia pada status rilis. {isrc} menampilkan kode ISRC track; untuk album, kode dipisahkan koma. Jika belum diisi, tampil “Belum tersedia”.</p></details>
         </div>
     </div>
 </div></div>

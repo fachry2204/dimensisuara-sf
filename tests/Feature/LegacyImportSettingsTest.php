@@ -145,7 +145,7 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $run->update(['status'=>'apply_queued']);
         (new RunLegacyImport($run->id,'apply'))->handle();
         $run->refresh()->update(['status'=>'media_queued']);
-        for ($i=0;$i<3;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
         $this->assertSame('media_issues',$run->fresh()->status);
         $this->assertSame(3,DB::table('filestorage')->count());
         $full = DB::table('filestorage')->where('type','full')->first();
@@ -154,15 +154,79 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $this->assertFileExists($this->directory.'/old/uploads/master.wav');
         copy($this->directory.'/old/uploads/master.wav',$this->directory.'/old/uploads/missing.wav');
         $run->refresh()->update(['status'=>'media_queued','media_cursor'=>0,'media_processed'=>0]);
-        for ($i=0;$i<3;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
         $this->assertSame('complete',$run->fresh()->status);
         $this->assertSame(4,DB::table('filestorage')->count());
         $this->assertSame(0,DB::table('legacy_import_media_results')->where('status','issue')->count());
         file_put_contents($this->directory.'/old/uploads/master.wav',$wav.'changed');
         $run->refresh()->update(['status'=>'media_queued','media_cursor'=>0]);
-        for ($i=0;$i<3;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
         $this->assertSame('media_issues',$run->fresh()->status);
         $this->assertSame($wav,Storage::disk('local')->get($full->identifier));
+    }
+
+    public function test_existing_import_can_backfill_identity_documents_and_retry_without_duplicate_users_or_files(): void
+    {
+        $data = $this->data();
+        $data['users'][7]['account_type'] = 'COMPANY';
+        $documents = ['ktp_doc_path'=>'ktp.png','npwp_doc_path'=>'npwp.pdf','nib_doc_path'=>'nib.png',
+            'kemenkumham_doc_path'=>'sk.pdf','signature_doc_path'=>'signature.png','contract_doc_path'=>'contract.docx'];
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8R8AAAAASUVORK5CYII=');
+        foreach ($documents as $field=>$name) {
+            $data['users'][7][$field] = '/uploads/'.$name;
+            if (str_ends_with($name,'.png')) file_put_contents($this->directory.'/old/uploads/'.$name,$png);
+            if (str_ends_with($name,'.pdf')) file_put_contents($this->directory.'/old/uploads/'.$name,"%PDF-1.4\n%%EOF");
+        }
+        $zip = new \ZipArchive;
+        $zip->open($this->directory.'/old/uploads/contract.docx',\ZipArchive::CREATE);
+        $zip->addFromString('[Content_Types].xml','<Types/>'); $zip->addFromString('word/document.xml','<document/>'); $zip->close();
+        $run = $this->runFor($data);
+        (new RunLegacyImport($run->id,'trial'))->handle();
+        $this->assertSame(6,$run->fresh()->stats['media.source_found']);
+        $run->refresh()->update(['status'=>'apply_queued']);
+        (new RunLegacyImport($run->id,'apply'))->handle();
+        // Simulate a completed import from before user-document mappings were supported.
+        $record = DB::table('legacy_import_records')->where('entity','users')->first();
+        DB::table('legacy_import_run_records')->where('run_id',$run->id)->where('record_id',$record->id)->delete();
+        unlink($this->directory.'/old/uploads/signature.png');
+        $run->refresh()->update(['status'=>'media_queued']);
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        $this->assertSame('media_issues',$run->fresh()->status);
+        $this->assertSame(5,DB::table('filestorage')->count());
+        file_put_contents($this->directory.'/old/uploads/signature.png',$png);
+        $run->refresh()->update(['status'=>'media_queued','media_cursor'=>0,'media_processed'=>0]);
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        $this->assertSame('complete',$run->fresh()->status);
+        $profile = \App\Models\User\Profile::first();
+        $this->assertEqualsCanonicalizing(['ktp','npwpcompany','nibcompany','establishment','signature','legacy_contract'],$profile->identities->pluck('type')->all());
+        foreach ($profile->identities as $file) {
+            $this->assertSame((int) $profile->id,(int) $file->profileid);
+            $this->assertSame($profile->getMorphClass(),$file->owner_type);
+            $this->assertStringStartsWith('legacy-media/profiles/'.$profile->id.'/',$file->identifier);
+            $this->assertSame(hash_file('sha256',$this->directory.'/old/uploads/'.$file->original_name),hash('sha256',Storage::disk('local')->get($file->identifier)));
+        }
+        $this->assertSame('application/vnd.openxmlformats-officedocument.wordprocessingml.document',$profile->identities->firstWhere('type','legacy_contract')->mime_type);
+        file_put_contents($this->directory.'/old/uploads/ktp.png',$png.'changed');
+        $run->refresh()->update(['status'=>'media_queued','media_cursor'=>0,'media_processed'=>0]);
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        $this->assertSame('media_issues',$run->fresh()->status);
+        $this->assertSame($png,Storage::disk('local')->get($profile->identities->firstWhere('type','ktp')->identifier));
+        $this->assertSame(6,DB::table('filestorage')->count());
+        $this->assertSame(1,DB::table('users')->count());
+        $this->assertSame(1,DB::table('user_profiles')->count());
+    }
+
+    public function test_personal_npwp_is_attached_to_the_imported_profile(): void
+    {
+        $data = $this->data();
+        $data['users'][7]['npwp_doc_path'] = '/uploads/personal.pdf';
+        file_put_contents($this->directory.'/old/uploads/personal.pdf',"%PDF-1.4\n%%EOF");
+        $run = $this->runFor($data); $run->update(['status'=>'apply_queued']);
+        (new RunLegacyImport($run->id,'apply'))->handle();
+        $run->refresh()->update(['status'=>'media_queued']);
+        for ($i=0;$i<4;$i++) (new RunLegacyImport($run->id,'media'))->handle();
+        $this->assertSame('complete',$run->fresh()->status);
+        $this->assertSame('npwppersonal',\App\Models\User\Profile::first()->identities()->sole()->type);
     }
 
     public function test_paths_reject_traversal_empty_root_and_sibling_prefix(): void
@@ -185,7 +249,7 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $second = LegacyImportRun::create(['sql_path'=>$first->sql_path,'sql_sha256'=>hash_file('sha256',$first->sql_path),'media_root'=>$first->media_root,'status'=>'apply_queued']);
         (new RunLegacyImport($second->id,'apply'))->handle();
         $this->assertSame('imported',$second->fresh()->status);
-        $this->assertSame(2,DB::table('legacy_import_run_records')->where('run_id',$second->id)->count());
+        $this->assertSame(3,DB::table('legacy_import_run_records')->where('run_id',$second->id)->count());
         $this->assertSame(1,DB::table('tracks')->count());
     }
 }
