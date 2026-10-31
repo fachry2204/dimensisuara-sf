@@ -104,7 +104,7 @@ html[data-bs-theme="light"] body.sf-app [class*="-head"] {
 }
 
 /* 5. Inputs, Selects, and Textareas */
-html[data-bs-theme="light"] body.sf-app input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html[data-bs-theme="light"] body.sf-app input:not(:where([type="checkbox"], [type="radio"], [type="hidden"], [type="range"], [type="color"], [type="submit"], [type="button"])),
 html[data-bs-theme="light"] body.sf-app select,
 html[data-bs-theme="light"] body.sf-app textarea,
 html[data-bs-theme="light"] body.sf-app .form-control,
@@ -147,12 +147,12 @@ html[data-bs-theme="light"] body.sf-app .dataTables_paginate .paginate_button.cu
 }
 
 /* 7. Action Buttons and Links (keep distinct from background) */
-html[data-bs-theme="light"] body.sf-app a:not(.btn):not([class*="badge"]):not(.nav-link):not([class*="button"]) {
-    color: #ff6a00 !important;
+html[data-bs-theme="light"] body.sf-app a:not(:where(.btn, [class*="badge"], .nav-link, [class*="button"], .admin-review-action, .announcement-create-btn)) {
+    color: var(--sf-accent, #c2410c) !important;
 }
 
-html[data-bs-theme="light"] body.sf-app a:not(.btn):not([class*="badge"]):not(.nav-link):not([class*="button"]):hover {
-    color: #ea580c !important;
+html[data-bs-theme="light"] body.sf-app a:not(:where(.btn, [class*="badge"], .nav-link, [class*="button"], .admin-review-action, .announcement-create-btn)):hover {
+    color: #9a3412 !important;
 }
 
 html[data-bs-theme="light"] body.sf-app .btn-outline-secondary,
@@ -805,16 +805,7 @@ html[data-bs-theme="light"] body.sf-app .alert-info strong {
     color: #0f172a !important;
 }
 
-/* Light-mode contrast corrections verified from latest screenshots */
-html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article,
-html[data-bs-theme="light"] body.sf-app .automation-summary > article,
-html[data-bs-theme="light"] body.sf-app .roles-summary > article { color:#f8fafc!important;border:1px solid rgba(255,255,255,.18)!important; }
-html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article:nth-child(1),html[data-bs-theme="light"] body.sf-app .roles-summary > article:nth-child(1),html[data-bs-theme="light"] body.sf-app .automation-summary > article:nth-child(1){background:linear-gradient(135deg,#174a76,#21689b)!important}
-html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article:nth-child(2),html[data-bs-theme="light"] body.sf-app .roles-summary > article:nth-child(2){background:linear-gradient(135deg,#493078,#704bb0)!important}
-html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article:nth-child(3),html[data-bs-theme="light"] body.sf-app .roles-summary > article:nth-child(3),html[data-bs-theme="light"] body.sf-app .automation-summary > article:nth-child(2){background:linear-gradient(135deg,#17634f,#188b72)!important}
-html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article:nth-child(4),html[data-bs-theme="light"] body.sf-app .automation-summary > article:nth-child(3){background:linear-gradient(135deg,#8a4524,#c56635)!important}
-html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article small,html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article strong,html[data-bs-theme="light"] body.sf-app .admin-summary-grid > article em,html[data-bs-theme="light"] body.sf-app .automation-summary > article small,html[data-bs-theme="light"] body.sf-app .automation-summary > article strong,html[data-bs-theme="light"] body.sf-app .automation-summary > article span,html[data-bs-theme="light"] body.sf-app .roles-summary > article small,html[data-bs-theme="light"] body.sf-app .roles-summary > article strong,html[data-bs-theme="light"] body.sf-app .roles-summary > article span{color:#fff!important}
-html[data-bs-theme="light"] body.sf-app .admin-summary-icon,html[data-bs-theme="light"] body.sf-app .automation-summary > article > i,html[data-bs-theme="light"] body.sf-app .roles-summary > article > i{color:#fff!important;background:rgba(255,255,255,.18)!important;border:1px solid rgba(255,255,255,.28)!important}
+/* Shared summary cards follow the palette in theme-controls.css. */
 html[data-bs-theme="light"] body.sf-app .announcement-create-btn,html[data-bs-theme="light"] body.sf-app .roles-page-header>a{background:#c2410c!important;border-color:#9a3412!important;color:#fff!important}
 html[data-bs-theme="light"] body.sf-app .announcement-create-btn *,html[data-bs-theme="light"] body.sf-app .roles-page-header>a *{color:#fff!important}
 html[data-bs-theme="light"] body.sf-app .automation-header>span{background:#fff!important;border:1px solid #2563a8!important;color:#1d4ed8!important}
@@ -831,6 +822,29 @@ html[data-bs-theme="light"] body.sf-app .analytics-period-display {
     color: #374151 !important;
     font-weight: 600;
     font-size: 0.8rem;
+}
+
+/* Published catalogue period filter */
+html[data-bs-theme="light"] body.sf-app .admin-catalog-period-form {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+    color-scheme: light;
+}
+html[data-bs-theme="light"] body.sf-app .admin-catalog-period-form .form-label {
+    color: #475569 !important;
+}
+html[data-bs-theme="light"] body.sf-app .admin-catalog-period-form .material-icons-outlined {
+    color: #2563eb !important;
+}
+html[data-bs-theme="light"] body.sf-app .admin-catalog-period-form select,
+html[data-bs-theme="light"] body.sf-app .admin-catalog-period-form option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] body.sf-app .admin-catalog-period-form select:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
 }
 html[data-bs-theme="light"] body.sf-app .release-filter-heading span {
     color: #374151 !important;
@@ -1580,3 +1594,260 @@ html[data-bs-theme="light"] body.sf-app .release-choice-card:has(.form-check-inp
 /* Date fields */
 html[data-bs-theme="light"] body.sf-app .release-date-field p { color: #64748b !important; }
 html[data-bs-theme="light"] body.sf-app .release-schedule-grid { color: #0f172a !important; }
+
+/* =====================================================
+   ADMIN RELEASE EDITOR — light mode overrides
+   Targets: admin.aggregator.create / edit
+   Selectors from inline <style> lines 421-431
+   ===================================================== */
+
+/* Header breadcrumb & title */
+html[data-bs-theme="light"] .admin-release-editor-header .breadcrumb-item a { color: #c2410c !important; }
+html[data-bs-theme="light"] .admin-release-editor-header h4 { color: #0f172a !important; }
+
+/* Main card container */
+html[data-bs-theme="light"] .admin-release-editor > .card {
+    border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(15,23,42,.08) !important;
+}
+html[data-bs-theme="light"] .admin-release-editor > .card > .card-header {
+    border-bottom-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+html[data-bs-theme="light"] .admin-release-editor > .card > .card-header .card-title { color: #0f172a !important; }
+html[data-bs-theme="light"] .admin-release-editor > .card > .card-body { background: #ffffff !important; }
+
+/* Form labels & hints */
+html[data-bs-theme="light"] .admin-release-editor .form-label { color: #374151 !important; }
+html[data-bs-theme="light"] .admin-release-editor .form-group > p { color: #64748b !important; }
+
+/* Inputs & selects */
+html[data-bs-theme="light"] .admin-release-editor .form-control,
+html[data-bs-theme="light"] .admin-release-editor .form-select {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] .admin-release-editor .form-control::placeholder { color: #94a3b8 !important; }
+html[data-bs-theme="light"] .admin-release-editor .form-control:focus,
+html[data-bs-theme="light"] .admin-release-editor .form-select:focus {
+    border-color: #c2410c !important;
+    box-shadow: 0 0 0 .2rem rgba(194,65,12,.14) !important;
+    background: #ffffff !important;
+}
+
+/* Album cover border */
+html[data-bs-theme="light"] .admin-release-editor .album-cover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 12px rgba(15,23,42,.10) !important;
+}
+
+/* Track placeholder */
+html[data-bs-theme="light"] .admin-release-editor .track-placeholder {
+    border-color: #94a3b8 !important;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+}
+
+/* Input group button */
+html[data-bs-theme="light"] .admin-release-editor .input-group .btn {
+    border-color: #cbd5e1 !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+}
+html[data-bs-theme="light"] .admin-release-editor .input-group .btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Stepper nav wrapper */
+html[data-bs-theme="light"] .admin-release-stepper {
+    border-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+
+/* Stepper step buttons */
+html[data-bs-theme="light"] .admin-release-step {
+    color: #64748b !important;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+html[data-bs-theme="light"] .admin-release-step span {
+    border-color: #94a3b8 !important;
+    color: #475569 !important;
+    background: transparent !important;
+}
+html[data-bs-theme="light"] .admin-release-step b { color: #334155 !important; }
+html[data-bs-theme="light"] .admin-release-step small { color: #64748b !important; }
+html[data-bs-theme="light"] .admin-release-step.is-active {
+    border-color: #c2410c !important;
+    background: rgba(194,65,12,.07) !important;
+}
+html[data-bs-theme="light"] .admin-release-step.is-active span {
+    border-color: #c2410c !important;
+    background: #c2410c !important;
+    color: #ffffff !important;
+}
+html[data-bs-theme="light"] .admin-release-step.is-active b { color: #c2410c !important; }
+
+/* Step prev/next buttons */
+html[data-bs-theme="light"] .admin-step-previous {
+    border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+}
+html[data-bs-theme="light"] .admin-step-next {
+    background: #c2410c !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(194,65,12,.18) !important;
+}
+
+/* Sticky step actions bar */
+html[data-bs-theme="light"] .admin-release-step-actions {
+    background: transparent !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Assignment grid */
+html[data-bs-theme="light"] .admin-release-editor .admin-assignment-grid .assignment-field > p { color: #475569 !important; }
+
+/* Choice cards (released yes/no) */
+html[data-bs-theme="light"] .admin-release-editor .release-choice-card {
+    border-color: #e2e8f0 !important;
+    background: #ffffff !important;
+}
+html[data-bs-theme="light"] .admin-release-editor .release-choice-card:has(.form-check-input:checked) {
+    border-color: #c2410c !important;
+    background: rgba(194,65,12,.05) !important;
+}
+html[data-bs-theme="light"] .admin-release-editor .release-choice-card .form-check-label { color: #0f172a !important; }
+
+/* Form check (radio/checkbox) rows */
+html[data-bs-theme="light"] .admin-release-editor .form-check {
+    border-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+
+/* Add-artist button */
+html[data-bs-theme="light"] .admin-release-editor .release-add-artist-button,
+html[data-bs-theme="light"] .track-editor-modal .release-add-artist-button {
+    border-color: #94a3b8 !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+}
+html[data-bs-theme="light"] .admin-release-editor .release-add-artist-button i,
+html[data-bs-theme="light"] .track-editor-modal .release-add-artist-button i { color: #c2410c !important; }
+html[data-bs-theme="light"] .admin-release-editor .release-add-artist-button strong,
+html[data-bs-theme="light"] .track-editor-modal .release-add-artist-button strong { color: #0f172a !important; }
+html[data-bs-theme="light"] .admin-release-editor .release-add-artist-button small,
+html[data-bs-theme="light"] .track-editor-modal .release-add-artist-button small { color: #64748b !important; }
+
+/* Inline action (tambah kontributor etc) in track editor modal */
+html[data-bs-theme="light"] .track-editor-modal .release-inline-action {
+    border-color: #94a3b8 !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .release-inline-action:hover {
+    border-color: #c2410c !important;
+    background: rgba(194,65,12,.06) !important;
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .release-inline-action > i { color: #c2410c !important; }
+html[data-bs-theme="light"] .track-editor-modal .release-inline-action strong { color: #0f172a !important; }
+html[data-bs-theme="light"] .track-editor-modal .release-inline-action small { color: #64748b !important; }
+html[data-bs-theme="light"] .track-editor-modal .release-inline-action:hover small { color: #475569 !important; }
+
+/* Shadow panel override */
+html[data-bs-theme="light"] .admin-release-editor .shadow,
+html[data-bs-theme="light"] .track-editor-modal .shadow {
+    border-color: #e2e8f0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(15,23,42,.08) !important;
+}
+
+/* Add track button */
+html[data-bs-theme="light"] .admin-release-editor #add-track {
+    border-color: #c2410c !important;
+    background: rgba(194,65,12,.08) !important;
+    color: #c2410c !important;
+}
+
+/* Total duration */
+html[data-bs-theme="light"] .admin-release-editor #totalDuration { color: #0f172a !important; font-weight: 800 !important; }
+
+/* Save button */
+html[data-bs-theme="light"] .admin-release-editor > .d-flex > .btn-primary {
+    background: #c2410c !important;
+    box-shadow: 0 4px 12px rgba(194,65,12,.20) !important;
+}
+
+/* Track editor modal */
+html[data-bs-theme="light"] .track-editor-modal {
+    border-color: #e2e8f0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 8px 32px rgba(15,23,42,.14) !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .modal-header {
+    border-bottom-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .modal-title { color: #0f172a !important; }
+html[data-bs-theme="light"] .track-editor-modal .modal-header a { color: #c2410c !important; }
+html[data-bs-theme="light"] .track-editor-modal .form-label { color: #374151 !important; }
+html[data-bs-theme="light"] .track-editor-modal .form-control,
+html[data-bs-theme="light"] .track-editor-modal .form-select {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .form-control:focus,
+html[data-bs-theme="light"] .track-editor-modal .form-select:focus {
+    border-color: #c2410c !important;
+    box-shadow: 0 0 0 .2rem rgba(194,65,12,.14) !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .track-placeholder {
+    border-color: #94a3b8 !important;
+    background: #f1f5f9 !important;
+}
+html[data-bs-theme="light"] .track-editor-modal .track-placeholder:hover { background: #e2e8f0 !important; }
+html[data-bs-theme="light"] .track-editor-modal .track-placeholder .material-icons-outlined { color: #c2410c !important; }
+html[data-bs-theme="light"] .track-editor-modal .track-placeholder p { color: #64748b !important; }
+html[data-bs-theme="light"] .track-editor-modal ul { color: #334155 !important; }
+html[data-bs-theme="light"] .track-editor-footer {
+    border-top-color: #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+html[data-bs-theme="light"] .track-editor-footer .btn-primary {
+    background: #c2410c !important;
+}
+html[data-bs-theme="light"] .track-editor-footer .btn-primary:hover { background: #9a3412 !important; }
+
+/* Select2 dropdown (admin release) */
+html[data-bs-theme="light"] .admin-release-editor .select2-container--default .select2-selection--single {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc !important;
+}
+html[data-bs-theme="light"] .admin-release-editor .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] .select2-dropdown {
+    border-color: #e2e8f0 !important;
+    background: #ffffff !important;
+}
+html[data-bs-theme="light"] .select2-search--dropdown .select2-search__field {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+html[data-bs-theme="light"] .select2-container--default .select2-results__option { color: #334155 !important; }
+html[data-bs-theme="light"] .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background: #c2410c !important;
+    color: #ffffff !important;
+}
+html[data-bs-theme="light"] .select2-container--default .select2-results__option--selected {
+    background: #fef2ee !important;
+    color: #9a3412 !important;
+}

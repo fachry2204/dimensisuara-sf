@@ -27,7 +27,7 @@ class HomeController extends Controller
         $pendingCount = $canViewAllReleases ? Release::where('status', 'pending')->count() : 0;
         $reviewCount = $canViewAllReleases ? Release::where('status', 'review')->count() : 0;
         $uploadingCount = $canViewAllReleases ? Release::where('status', 'uploading')->count() : 0;
-        $totalTracks = Track::count();
+        $totalTracks = Track::inReleaseCatalogue(auth()->user())->count();
         $publishedTracks = Track::whereHas('releases', fn ($query) => $query->where('status', 'released'))->count();
         $publishedReleases = Release::where('status', 'released')->count();
         $publishedAlbums = Release::where('status', 'released')->where('type', 'album')->count();
@@ -100,7 +100,7 @@ class HomeController extends Controller
 
         $trendDates = collect(range(6, 0))->map(fn ($offset) => now()->subDays($offset));
         $trendLabels = $trendDates->map(fn ($date) => $date->translatedFormat('d M'))->values();
-        $trendSubmitted = $trendDates->map(fn ($date) => Release::whereDate('created_at', $date)->count())->values();
+        $trendSubmitted = $trendDates->map(fn ($date) => Release::visibleTo(auth()->user())->whereDate('created_at', $date)->count())->values();
         $trendPublished = $trendDates->map(fn ($date) => Release::where('status', 'released')->whereDate('updated_at', $date)->count())->values();
 
         return view('admin.index', compact(

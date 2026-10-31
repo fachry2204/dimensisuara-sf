@@ -8,8 +8,8 @@
             <div class="card-body">
                 <div class="mb-4">
                     <a href="{{ url('/') }}">
-                        <img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145"
-                            alt="SoundFresh Logo">
+                        <img src="{{ app_logo('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145"
+                            alt="{{ app_name() }} Logo">
                     </a>
                     <h4 class="fw-bold">Review Publishing Contract</h4>
                     <div>Requested by {{ $signee->publishing->requestor->full_name }} on {{

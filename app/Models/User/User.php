@@ -86,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'access_user_roles', 'user_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'access_user_roles', 'user_id', 'role_id')->whereRaw('1 = 0');
     }
 
     public static function getByPermission(string|array $permissions)
@@ -98,7 +98,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $permissionIds = Permission::whereIn('slug', $permissions)->pluck('id')->toArray();
 
         // Get users with roles that have the permission
-        return User::whereHas('roles', fn ($q) => $q->whereHas('permissions', fn ($q) => $q->whereIn('permission_id', $permissionIds)))->get();
+        return Admin::whereHas('roles', fn ($q) => $q->whereHas('permissions', fn ($q) => $q->whereIn('permission_id', $permissionIds)))->get();
     }
 
     // public function sendEmailVerificationNotification()

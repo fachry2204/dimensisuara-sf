@@ -337,18 +337,29 @@ View User
                                                 @foreach ($user->profile->aggregator_contracts as $aggregator_contract)
                                                     <tr>
                                                         <td>{{ $aggregator_contract->docnum }}</td>
+                                                        <td>
+                                                            <div class="contract-progress">
+                                                                <span class="contract-progress-badge {{ $aggregator_contract->generated_html ? 'is-complete' : '' }}">Generate Kontrak: {{ $aggregator_contract->generated_html ? 'Sudah digenerate' : 'Belum digenerate' }}</span>
+                                                                <span class="contract-progress-badge {{ $aggregator_contract->digitalStamp ? 'is-complete' : '' }}">Kontrak bermaterai Digital: {{ $aggregator_contract->digitalStamp ? 'Sudah diupload' : 'Belum diupload' }}</span>
+                                                            </div>
+                                                        </td>
                                                         <td class="text-end">{{ $aggregator_contract->created_at }}</td>
                                                         <td class="text-center">
                                                             
                                                             <i class="bx bx-dots-vertical-rounded" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.5em; cursor: pointer"></i>
                                                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">
                                                                 @can('view-contracts')
-                                                                    <a class="dropdown-item" href="{{ route('admin.releases.contract.view_raw', ['id' => $aggregator_contract->id]) }}" target="_blank">Print Raw</a>
+                                                                    @if ($aggregator_contract->digitalStamp)
+                                                                        <a class="dropdown-item" href="{{ route('admin.releases.contract.stamp_view', $aggregator_contract->id) }}" target="_blank" rel="noopener">Lihat PDF bermaterai digital</a>
+                                                                    @endif
+                                                                    <a class="dropdown-item" href="{{ route('admin.releases.contract.view_raw', ['id' => $aggregator_contract->id]) }}" target="_blank">Lihat PDF hasil generate</a>
                                                                     @if ($aggregator_contract->file)
-                                                                        <a class="dropdown-item" href="{{ route('admin.releases.contract.view_uploaded', ['id' => $aggregator_contract->id]) }}" target="_blank">Print Uploaded</a>
+                                                                        <a class="dropdown-item" href="{{ route('admin.releases.contract.view_uploaded', ['id' => $aggregator_contract->id]) }}" target="_blank">Lihat PDF upload manual</a>
                                                                     @endif
                                                                 @endcan
                                                                 @can('upload-contracts')
+                                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#stamp-upload-{{ $aggregator_contract->id }}">{{ $aggregator_contract->digitalStamp ? 'Ganti' : 'Upload' }} Kontrak Bermaterai</button>
+                                                                    @include('admin.aggregator.partials.contract-stamp-modal', ['contract' => $aggregator_contract])
                                                                     <form action="{{ route('admin.releases.contract.pdf_upload',['id' => $aggregator_contract->id]) }}" method="POST" enctype="multipart/form-data" class="upload-pdf-form">
                                                                         @csrf
                                                                         <label for ="upload-pdf-{{ $aggregator_contract->id }}" class="dropdown-item text-primary">Upload document</label>
@@ -378,7 +389,11 @@ View User
                                 </div>
                                 @can('generate-contracts')
                                     <div class="d-flex align-items-center justify-content-center w-100">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aggregator-contract-modal">Create Contract</button>
+                                        @if($user->profile->status === 'verified' && $user->profile->feature_aggregator)
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aggregator-contract-modal">Generate Kontrak</button>
+                                        @else
+                                            <p class="text-secondary mb-0">Verifikasi user dan aktifkan fitur Aggregator untuk generate kontrak.</p>
+                                        @endif
                                     </div>
                                 @endcan
                             </div>
@@ -457,47 +472,52 @@ View User
                             </a>
                         </div>
                         <div class="modal-body">
-                            <p>Please input the contract details</p>
+                            <p>Draft {{ $user->profile->is_company ? 'PT' : 'Non PT' }} diisi otomatis dari profil user. Atur pembagian yang akan dimasukkan ke kontrak.</p>
                             <form id="aggregator-contract-form" action="{{ route('admin.releases.contract.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="profileid" value="{{ $user->profile->id }}">
                                 <input type="hidden" name="type" value="aggregator">
+                                @include('admin.aggregator.partials.contract-date', ['datePrefix' => 'user'])
+                                @include('admin.aggregator.partials.contract-rates', ['initialUserRate' => $user->profile->aggregator_rate ?? 70, 'ratePrefix' => 'user-contract'])
                                 <div class="row">
                                     <div class="col-md-5 mb-3">
                                         <label for="number">Document Number <span class="text-danger">*</span></label>
-                                        <input type="number" name="number" class="form-control" required>
+                                        <input type="number" name="number" class="form-control" min="1" value="{{ old('number') }}" required>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="month">Month <span class="text-danger">*</span></label>
                                         <select type="text" name="month" class="form-control" required>
-                                            <option value="1">January (I)</option>
-                                            <option value="2">February (II)</option>
-                                            <option value="3">March (III)</option>
-                                            <option value="4">April (IV)</option>
-                                            <option value="5">May (V)</option>
-                                            <option value="6">June (VI)</option>
-                                            <option value="7">July (VII)</option>
-                                            <option value="8">August (VIII)</option>
-                                            <option value="9">September (IX)</option>
-                                            <option value="10">October (X)</option>
-                                            <option value="11">November (XI)</option>
-                                            <option value="12">December (XII)</option>
+                                            <option value="1" @selected((int) old('month', now()->month) === 1)>January (I)</option>
+                                            <option value="2" @selected((int) old('month', now()->month) === 2)>February (II)</option>
+                                            <option value="3" @selected((int) old('month', now()->month) === 3)>March (III)</option>
+                                            <option value="4" @selected((int) old('month', now()->month) === 4)>April (IV)</option>
+                                            <option value="5" @selected((int) old('month', now()->month) === 5)>May (V)</option>
+                                            <option value="6" @selected((int) old('month', now()->month) === 6)>June (VI)</option>
+                                            <option value="7" @selected((int) old('month', now()->month) === 7)>July (VII)</option>
+                                            <option value="8" @selected((int) old('month', now()->month) === 8)>August (VIII)</option>
+                                            <option value="9" @selected((int) old('month', now()->month) === 9)>September (IX)</option>
+                                            <option value="10" @selected((int) old('month', now()->month) === 10)>October (X)</option>
+                                            <option value="11" @selected((int) old('month', now()->month) === 11)>November (XI)</option>
+                                            <option value="12" @selected((int) old('month', now()->month) === 12)>December (XII)</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="year">Year <span class="text-danger">*</span></label>
-                                        <input type="text" name="year" class="form-control" required>
+                                        <input type="number" name="year" class="form-control" min="2000" max="2100" value="{{ old('year', now()->year) }}" required>
                                     </div>
                                     <div class="col-12 mb-3">
-                                        <label for="pdf">PDF file (optional)</label>
+                                        @can('upload-contracts')
+                                        <label for="pdf">Upload PDF manual (opsional)</label>
                                         <input type="file" name="pdf" class="form-control" accept="application/pdf">
+                                        @endcan
+                                        <div class="form-text">Tanpa upload, PDF otomatis tersedia dari draft di Setting System.</div>
                                     </div>
                                 </div>
 
                             </form>
                         </div>
                         <div class="modal-footer border-top-0">
-                            <button class="btn btn-primary" type="submit" form="aggregator-contract-form">Create Contract</button>
+                            <button class="btn btn-primary" type="submit" form="aggregator-contract-form">Generate Kontrak</button>
                         </div>
                     </div>
                 </div>
@@ -520,7 +540,8 @@ View User
                                 <form action="{{ route('admin.users.verify', $user->id) }}" method="POST" id="verify-form">
                                     @csrf
                                     @method('PUT')
-                                    <p>Are you sure you want to verify this user?</p>
+                                    <p>Verifikasi user dan tetapkan pembagian penghasilan Aggregator.</p>
+                                    @include('admin.user.partials.aggregator-rates')
                                 </form>
                             </div>
                             <div class="modal-footer border-top-0">
@@ -860,12 +881,12 @@ View User
 @push('css')
     <style>
         :root {
-            --user-detail-surface: #0d2842;
-            --user-detail-surface-strong: #0a2138;
-            --user-detail-border: #245981;
-            --user-detail-text: #f4f8ff;
-            --user-detail-muted: #9ec7ed;
-            --user-detail-accent: #ff7048;
+            --user-detail-surface: var(--sf-surface);
+            --user-detail-surface-strong: var(--sf-surface-soft);
+            --user-detail-border: var(--sf-border);
+            --user-detail-text: var(--sf-text);
+            --user-detail-muted: var(--sf-muted);
+            --user-detail-accent: var(--sf-accent);
         }
 
         .admin-user-hero {
@@ -880,10 +901,10 @@ View User
         }
 
         .admin-user-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
-            color: #5781a4;
+            color: var(--user-detail-muted);
         }
 
-        .admin-user-breadcrumb a { color: #ff9a45; }
+        .admin-user-breadcrumb a { color: var(--user-detail-accent); }
 
         .admin-user-summary {
             display: flex;
@@ -892,7 +913,7 @@ View User
             padding: 1.45rem 1.55rem;
             margin-top: .85rem;
             color: var(--user-detail-text);
-            background: linear-gradient(110deg, rgba(15, 46, 75, .98), rgba(10, 32, 54, .96));
+            background: var(--user-detail-surface);
             border: 1px solid var(--user-detail-border);
             border-radius: 16px;
             box-shadow: 0 14px 32px rgba(0, 0, 0, .18);
@@ -930,8 +951,8 @@ View User
         }
 
         .admin-user-contact { color: var(--user-detail-muted); font-size: .92rem; }
-        .admin-user-contact a { color: #7fc4ff; }
-        .admin-user-contact-separator { color: #527796; }
+        .admin-user-contact a { color: var(--user-detail-accent); }
+        .admin-user-contact-separator { color: var(--user-detail-muted); }
         .admin-user-statuses { margin-top: .7rem; }
 
         .admin-user-status,
@@ -993,7 +1014,7 @@ View User
         .admin-user-documents {
             padding: 1.45rem;
             margin: 0 0 1.65rem;
-            background: rgba(12, 39, 65, .92);
+            background: var(--user-detail-surface);
             border: 1px solid var(--user-detail-border);
             border-radius: 16px;
         }
@@ -1012,21 +1033,21 @@ View User
             font-weight: 800;
         }
         .admin-user-section-heading p { margin: .25rem 0 0; color: var(--user-detail-muted); font-size: .83rem; }
-        .admin-user-document-count { color: #b9daf6; background: rgba(68, 134, 184, .18); white-space: nowrap; }
+        .admin-user-document-count { color: var(--user-detail-muted); background: var(--user-detail-surface-strong); white-space: nowrap; }
 
         .identity-document-card {
             display: block;
             overflow: hidden;
             color: var(--user-detail-text);
             background: var(--user-detail-surface-strong);
-            border: 1px solid #275d85;
+            border: 1px solid var(--user-detail-border);
             border-radius: 12px;
             text-decoration: none;
             transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
         }
         .identity-document-card:hover {
             color: var(--user-detail-text);
-            border-color: #58a9e8;
+            border-color: var(--user-detail-accent);
             box-shadow: 0 12px 22px rgba(0, 0, 0, .2);
             transform: translateY(-2px);
         }
@@ -1036,10 +1057,10 @@ View User
             height: 168px;
             place-items: center;
             overflow: hidden;
-            background: #0b2137;
+            background: var(--user-detail-surface-strong);
         }
         .identity-document-preview .document { width: 100%; height: 100%; }
-        .identity-document-preview .spinner-grow { color: #69b8f3; }
+        .identity-document-preview .spinner-grow { color: var(--user-detail-accent); }
         .identity-document-meta {
             display: flex;
             align-items: center;
@@ -1047,24 +1068,24 @@ View User
             gap: .75rem;
             min-height: 47px;
             padding: .7rem .85rem;
-            color: #d9ebfb;
+            color: var(--user-detail-text);
             font-size: .84rem;
             font-weight: 700;
         }
-        .identity-document-meta i { color: #7abcf1; font-size: 1.05rem; }
+        .identity-document-meta i { color: var(--user-detail-accent); font-size: 1.05rem; }
 
         .admin-user-tabs {
             gap: .55rem;
             padding: .38rem;
             width: fit-content;
-            border: 1px solid #24577e;
+            border: 1px solid var(--user-detail-border);
             border-radius: 11px;
-            background: #0b2540;
+            background: var(--user-detail-surface-strong);
         }
         .admin-user-tabs .nav-link {
             padding: .55rem .85rem;
             border-radius: 8px;
-            color: #a8ceed;
+            color: var(--user-detail-muted);
             font-size: .86rem;
             font-weight: 800;
         }
@@ -1077,8 +1098,8 @@ View User
         #tabs-contracts .card {
             height: 100%;
             color: var(--user-detail-text);
-            background: linear-gradient(145deg, rgba(14, 42, 69, .98), rgba(10, 31, 52, .98));
-            border: 1px solid #22577f;
+            background: var(--user-detail-surface);
+            border: 1px solid var(--user-detail-border);
             border-radius: 14px;
             box-shadow: none;
         }
@@ -1087,15 +1108,15 @@ View User
         .detail-blocks h5,
         #tabs-contracts h5 { margin-bottom: 1rem; color: var(--user-detail-text); font-size: 1rem; }
         .detail-blocks .table,
-        #tabs-contracts .table { --bs-table-bg: transparent; --bs-table-color: #eaf5ff; margin: 0; }
+        #tabs-contracts .table { --bs-table-bg: transparent; --bs-table-color: var(--user-detail-text); margin: 0; }
         .detail-blocks .table tr + tr td,
-        #tabs-contracts .table tr + tr td { border-top: 1px solid rgba(94, 157, 202, .14); }
+        #tabs-contracts .table tr + tr td { border-top: 1px solid var(--user-detail-border); }
         .detail-blocks .table td,
         #tabs-contracts .table td { padding: .55rem .25rem; vertical-align: top; }
-        .detail-blocks .table td:first-child { color: #91b9dc !important; width: 43%; }
+        .detail-blocks .table td:first-child { color: var(--user-detail-muted) !important; width: 43%; }
         .detail-blocks .table td:last-child { font-weight: 600; }
         .detail-blocks .table a,
-        #tabs-contracts .table a { color: #75bcf4; }
+        #tabs-contracts .table a { color: var(--user-detail-accent); }
         .detail-blocks .list-unstyled { margin: 0; }
         .detail-blocks .list-unstyled li + li { margin-top: .25rem; }
 
@@ -1103,12 +1124,12 @@ View User
         .admin-user-contract-list {
             overflow: hidden;
             margin: 0;
-            border: 1px solid #22577f;
+            border: 1px solid var(--user-detail-border);
             border-radius: 14px;
-            background: linear-gradient(145deg, rgba(14, 42, 69, .98), rgba(10, 31, 52, .98));
+            background: var(--user-detail-surface);
         }
         .admin-user-contract-list > .col-12 { padding: 0; }
-        .admin-user-contract-list > .col-12 + .col-12 { border-top: 1px solid rgba(94, 157, 202, .22); }
+        .admin-user-contract-list > .col-12 + .col-12 { border-top: 1px solid var(--user-detail-border); }
         .admin-user-contract-list .card {
             height: auto !important;
             background: transparent !important;
@@ -1131,13 +1152,16 @@ View User
             overflow: visible !important;
         }
         .admin-user-contract-list .table { width: 100%; }
+        .contract-progress { display: flex; flex-wrap: wrap; gap: .4rem; }
+        .contract-progress-badge { display: inline-flex; padding: .3rem .55rem; border: 1px solid var(--sf-border); border-radius: 6px; background: var(--sf-surface-soft); color: var(--sf-muted); font-size: .75rem; white-space: nowrap; }
+        html[data-bs-theme] body.sf-app .contract-progress-badge.is-complete { color: var(--sf-valid) !important; border-color: currentColor; }
         .admin-user-contract-list .table td { padding-top: .35rem !important; padding-bottom: .35rem !important; }
         .admin-user-contract-list .table td:last-child { white-space: nowrap; }
         .admin-user-contract-list .table-responsive > .d-flex {
             min-height: 0 !important;
             justify-content: flex-start !important;
         }
-        .admin-user-contract-list .table-responsive h6 { margin: 0; color: #91b9dc !important; font-size: .84rem; }
+        .admin-user-contract-list .table-responsive h6 { margin: 0; color: var(--user-detail-muted) !important; font-size: .84rem; }
         .admin-user-contract-list .card-body > .d-flex {
             grid-column: 2;
             grid-row: 1;
@@ -1257,6 +1281,14 @@ View User
                 var form = $(this).closest('form');
                 form.submit();
             });
+            @if(session('contract_stamp_id') || old('stamp_contract_id'))
+                const contractsTab = document.querySelector('[href="#tabs-contracts"]');
+                if (contractsTab) bootstrap.Tab.getOrCreateInstance(contractsTab).show();
+                @if($errors->has('stamped_pdf'))
+                    const stampModal = document.getElementById('stamp-upload-{{ (int) old('stamp_contract_id', session('contract_stamp_id')) }}');
+                    if (stampModal) bootstrap.Modal.getOrCreateInstance(stampModal).show();
+                @endif
+            @endif
         });
     </script>
 @endpush

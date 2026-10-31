@@ -146,7 +146,7 @@ class ProfileController extends Controller
             }
             else {
                 // Generate PDF and return
-                $file = ContractService::generateAggregatorPdf($contract);
+                $file = ContractService::generateAggregatorPdf($contract, false);
                 $mime = 'application/pdf';
             }
 

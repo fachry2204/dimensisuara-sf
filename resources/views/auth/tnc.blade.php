@@ -9,18 +9,17 @@ Terms and Conditions
             <div class="col-12">
                 <div class="card-body text-center">
                     <a href="{{ url('/') }}">
-                        <img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145" alt="SoundFresh Logo">
+                        <img src="{{ app_logo('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145" alt="{{ app_name() }} Logo">
                     </a>
                     <div class="text-justify">
-                        <h1 class="text-center mb-5">SYARAT DAN KETENTUAN PENGGUNAAN LAYANAN PENERBIT MUSIK (MUSIC PUBLISHER) PT DIGITAL MASIF SUARA VISUAL (SOUNDFRESH.ID)</h1>
+                        <h1 class="text-center mb-5">SYARAT DAN KETENTUAN PENGGUNAAN LAYANAN PENERBIT MUSIK (MUSIC PUBLISHER) {{ company_name() }} ({{ app_name() }})</h1>
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">PENGANTAR</h5>
                         <div>
-                            <p>Selamat datang di layanan Penerbit Musik (Music Publisher) yang disediakan oleh PT Digital
-                                Masif Suara Visual melalui platform SoundFresh.id. Layanan ini dirancang untuk membantu para
+                            <p>Selamat datang di layanan Penerbit Musik (Music Publisher) yang disediakan oleh {{ company_name() }} melalui platform {{ app_name() }}. Layanan ini dirancang untuk membantu para
                                 pencipta, pemegang hak cipta, dan pihak terkait dalam mengelola, mendistribusikan, dan
                                 memonetisasi karya musik mereka secara efektif dan profesional.</p>
-                            <p>Sebagai penerbit musik, PT Digital Masif Suara Visual bertanggung jawab untuk memastikan
+                            <p>Sebagai penerbit musik, {{ company_name() }} bertanggung jawab untuk memastikan
                                 bahwa karya musik Anda terlindungi hak ciptanya, serta memberikan peluang distribusi yang
                                 luas dan pembayaran royalti yang adil. Layanan kami memungkinkan Anda untuk mengelola hak
                                 cipta secara efisien melalui distribusi digital, pengumpulan royalti, serta pemberian
@@ -28,7 +27,7 @@ Terms and Conditions
                             <p>Dengan mengakses dan menggunakan layanan Penerbit Musik kami, Anda setuju untuk terikat
                                 dengan syarat dan ketentuan yang tercantum dalam dokumen ini. Penerimaan syarat dan
                                 ketentuan ini berlaku sebagai kesepakatan dan perjanjian yang mengikat secara hukum antara
-                                Anda (sebagai pengguna) dan PT Digital Masif Suara Visual, berdasarkan peraturan
+                                Anda (sebagai pengguna) dan {{ company_name() }}, berdasarkan peraturan
                                 perundang-undangan yang berlaku di Republik Indonesia, termasuk tetapi tidak terbatas pada
                                 Undang-Undang Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi, Undang-Undang Nomor 1
                                 Tahun 2024 tentang Informasi dan Transaksi Elektronik, dan Peraturan Pemerintah Nomor 71
@@ -42,13 +41,13 @@ Terms and Conditions
                                     royalti yang diperoleh dari berbagai saluran distribusi dan penggunaan lisensi.</li>
                                 <li>Distribusi Musik Digital dan Agregasi: Mengoptimalkan pengelolaan dan distribusi musik
                                     Anda melalui layanan distribusi dan agregator yang tersedia di platform kami,
-                                    SoundFresh.</li>
+                                    {{ app_name() }}.</li>
                             </ul>
                             <p>Sebagai bagian dari layanan Penerbit Musik, kami menawarkan layanan distribusi dan agregator
                                 yang memungkinkan Anda untuk mendistribusikan karya musik Anda dengan mudah. Layanan ini
                                 meliputi: Distribusi Musik Digital melalui Agregator: Kami menyediakan platform distribusi
                                 dan agregator yang memungkinkan Anda mendistribusikan karya musik ke berbagai platform
-                                streaming digital global. Melalui SoundFresh, Anda dapat mengelola dan mendistribusikan
+                                streaming digital global. Melalui {{ app_name() }}, Anda dapat mengelola dan mendistribusikan
                                 musik Anda dengan cepat dan mudah ke ratusan platform streaming dan layanan musik lainnya.
                             </p>
                             <p>Dengan menggunakan layanan distribusi kami, Anda dapat memastikan bahwa musik Anda tersedia
@@ -83,19 +82,17 @@ Terms and Conditions
                             <p>Untuk keperluan Syarat dan Ketentuan Pengguna ini, istilah-istilah yang digunakan memiliki
                                 arti sebagai berikut:</p>
                             <ol>
-                                <li><strong>Platform</strong>: Situs web dan aplikasi yang dikelola oleh <strong>PT Digital
-                                        Masif Suara Visual</strong>, termasuk tetapi tidak terbatas pada
-                                    <strong>SoundFresh.id</strong>, yang menyediakan layanan distribusi digital dan
+                                <li><strong>Platform</strong>: Situs web dan aplikasi yang dikelola oleh <strong>{{ company_name() }}</strong>, termasuk tetapi tidak terbatas pada
+                                    <strong>{{ app_name() }}</strong>, yang menyediakan layanan distribusi digital dan
                                     penerbitan musik kepada pengguna.</li>
                                 <li><strong>Pengguna</strong>: Individu atau entitas yang mendaftar untuk menggunakan
-                                    layanan yang disediakan oleh <strong>SoundFresh</strong> dan mengunggah karya cipta
-                                    musik mereka untuk dikelola, didistribusikan, dan dimonetisasi oleh <strong>PT Digital
-                                        Masif Suara Visual</strong>.</li>
+                                    layanan yang disediakan oleh <strong>{{ app_name() }}</strong> dan mengunggah karya cipta
+                                    musik mereka untuk dikelola, didistribusikan, dan dimonetisasi oleh <strong>{{ company_name() }}</strong>.</li>
                                 <li><strong>Penerbit Musik (Music Publisher)</strong>: Pihak yang bertanggung jawab untuk
                                     administrasi dan pengelolaan hak cipta atas karya musik yang dimiliki oleh
                                     <strong>Pencipta</strong> atau <strong>Pemegang Hak Cipta</strong>. Dalam hal ini,
-                                    <strong>PT Digital Masif Suara Visual</strong> bertindak sebagai <strong>Penerbit
-                                        Musik</strong> untuk karya cipta yang dikelola melalui <strong>SoundFresh</strong>.
+                                    <strong>{{ company_name() }}</strong> bertindak sebagai <strong>Penerbit
+                                        Musik</strong> untuk karya cipta yang dikelola melalui <strong>{{ app_name() }}</strong>.
                                 </li>
                                 <li><strong>Karya Cipta Lagu</strong>: Setiap ciptaan yang dihasilkan oleh
                                     <strong>Pencipta</strong> dalam bentuk komposisi musik, baik dalam bentuk lagu dengan
@@ -162,15 +159,14 @@ Terms and Conditions
                                 <li><strong>Klaim Kepemilikan</strong>: Bagian kepemilikan atas hak cipta lagu yang dimiliki
                                     oleh <strong>Pencipta</strong> atau pihak terkait, yang bisa mencakup hak atas notasi
                                     musik, lirik, atau kombinasi keduanya.</li>
-                                <li><strong>Pendapatan Bersih</strong>: Pendapatan yang diterima oleh <strong>PT Digital
-                                        Masif Suara Visual</strong> dari distribusi dan monetisasi karya cipta setelah
+                                <li><strong>Pendapatan Bersih</strong>: Pendapatan yang diterima oleh <strong>{{ company_name() }}</strong> dari distribusi dan monetisasi karya cipta setelah
                                     dikurangi biaya yang terkait dengan distribusi, pengumpulan royalti, pajak, dan biaya
                                     administrasi lainnya.</li>
                                 <li><strong>Pseudoname (Nama Alias)</strong>: Nama samaran atau nama lain yang digunakan
                                     oleh <strong>Pencipta</strong> untuk mengasosiasikan karya cipta mereka, selain nama
                                     asli mereka.</li>
                                 <li><strong>Post Term Period</strong>: Periode 12 bulan setelah pengakhiran perjanjian, di
-                                    mana <strong>PT Digital Masif Suara Visual</strong> masih dapat mengumpulkan royalti
+                                    mana <strong>{{ company_name() }}</strong> masih dapat mengumpulkan royalti
                                     yang dihasilkan dari penggunaan karya cipta yang dikelola sebelumnya.</li>
                                 <li><strong>Force Majeure</strong>: Kejadian di luar kendali yang menghalangi atau
                                     memperlambat pelaksanaan kewajiban dalam perjanjian, seperti bencana alam, kebakaran,
@@ -180,8 +176,8 @@ Terms and Conditions
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">KELAYAKAN</h5>
                         <div>
-                            <p>Layanan Penerbit Musik yang disediakan oleh PT Digital Masif Suara Visual melalui
-                                SoundFresh.id hanya dapat diakses dan digunakan oleh pihak yang memenuhi persyaratan
+                            <p>Layanan Penerbit Musik yang disediakan oleh {{ company_name() }} melalui
+                                {{ app_name() }} hanya dapat diakses dan digunakan oleh pihak yang memenuhi persyaratan
                                 kelayakan yang ditetapkan dalam syarat dan ketentuan ini. Dengan mengakses dan menggunakan
                                 layanan kami, Anda menyatakan dan menjamin bahwa Anda memenuhi semua kriteria kelayakan
                                 berikut:</p>
@@ -192,7 +188,7 @@ Terms and Conditions
                                 bahwa dengan pendaftaran layanan ini, orang tua atau wali sah Anda telah memberikan
                                 persetujuan untuk penggunaan layanan ini oleh Anda.</p>
                             <p><strong>Kepemilikan Karya Cipta</strong></p>
-                            <p>Pengguna yang mendaftar untuk layanan Penerbit Musik di SoundFresh harus:</p>
+                            <p>Pengguna yang mendaftar untuk layanan Penerbit Musik di {{ app_name() }} harus:</p>
                             <ul>
                                 <li>Memiliki hak cipta atau izin penuh untuk mengelola, mendistribusikan, dan memonetisasi
                                     karya musik yang diunggah.</li>
@@ -200,7 +196,7 @@ Terms and Conditions
                                     ketiga, termasuk hak cipta, hak moral, merek dagang, atau hak lainnya.</li>
                                 <li>Jika karya cipta yang diunggah melibatkan lebih dari satu pihak, Pengguna harus
                                     memastikan bahwa semua pihak terkait (misalnya, co-pencipta, label, atau penerbit) telah
-                                    memberikan izin tertulis untuk pengelolaan dan distribusi karya melalui SoundFresh.</li>
+                                    memberikan izin tertulis untuk pengelolaan dan distribusi karya melalui {{ app_name() }}.</li>
                             </ul>
                             <p><strong>Keberadaan dan Kapasitas Hukum</strong></p>
                             <ul>
@@ -219,7 +215,7 @@ Terms and Conditions
                                 <li>Menghindari distribusi konten yang melanggar hak cipta, pornografi, kebencian, atau
                                     konten yang merugikan pihak ketiga.</li>
                                 <li>Menghindari pelanggaran terhadap kebijakan platform distribusi dan agregator pihak
-                                    ketiga yang bekerja sama dengan <strong>PT Digital Masif Suara Visual</strong>.</li>
+                                    ketiga yang bekerja sama dengan <strong>{{ company_name() }}</strong>.</li>
                             </ul>
                             <p><strong>Pembatasan Penggunaan oleh Pihak Tertentu</strong></p>
                             <p>Layanan kami tidak tersedia untuk individu atau entitas yang:</p>
@@ -230,26 +226,21 @@ Terms and Conditions
                                 <li>Tidak memenuhi standar kelayakan berdasarkan ketentuan yang ditetapkan dalam syarat dan
                                     ketentuan ini.</li>
                             </ul>
-                            <p>Dengan mengakses dan menggunakan layanan Penerbit Musik melalui SoundFresh, Pengguna
+                            <p>Dengan mengakses dan menggunakan layanan Penerbit Musik melalui {{ app_name() }}, Pengguna
                                 mengonfirmasi bahwa mereka memenuhi semua persyaratan kelayakan yang telah disebutkan di
-                                atas dan bahwa mereka berhak untuk mengikatkan diri dalam perjanjian ini. PT Digital Masif
-                                Suara Visual berhak untuk membatasi atau menghentikan akses Pengguna yang tidak memenuhi
+                                atas dan bahwa mereka berhak untuk mengikatkan diri dalam perjanjian ini. {{ company_name() }} berhak untuk membatasi atau menghentikan akses Pengguna yang tidak memenuhi
                                 persyaratan kelayakan ini tanpa pemberitahuan lebih lanjut.</p>
                         </div>
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">PENERIMAAN SYARAT DAN KETENTUAN</h5>
                         <div>
-                            <p>Dengan mengakses, mendaftar, atau menggunakan layanan Penerbit Musik yang disediakan oleh PT
-                                Digital Masif Suara Visual melalui SoundFresh.id, Anda sebagai Pengguna menyatakan dan
+                            <p>Dengan mengakses, mendaftar, atau menggunakan layanan Penerbit Musik yang disediakan oleh {{ company_name() }} melalui {{ app_name() }}, Anda sebagai Pengguna menyatakan dan
                                 menyetujui untuk terikat dengan syarat dan ketentuan yang tercantum dalam dokumen ini.
-                                Syarat dan ketentuan ini mengatur penggunaan layanan yang disediakan oleh PT Digital Masif
-                                Suara Visual dan merupakan perjanjian yang sah secara hukum antara Pengguna dan PT Digital
-                                Masif Suara Visual.</p>
+                                Syarat dan ketentuan ini mengatur penggunaan layanan yang disediakan oleh {{ company_name() }} dan merupakan perjanjian yang sah secara hukum antara Pengguna dan {{ company_name() }}.</p>
                             <p>Dengan melanjutkan untuk mengakses atau menggunakan layanan Penerbit Musik melalui
-                                SoundFresh, Anda setuju bahwa tindakan tersebut adalah penerimaan penuh dan tidak terbatas
+                                {{ app_name() }}, Anda setuju bahwa tindakan tersebut adalah penerimaan penuh dan tidak terbatas
                                 terhadap syarat dan ketentuan yang telah kami tentukan. Penerimaan syarat dan ketentuan ini
-                                berlaku sebagai kesepakatan yang mengikat secara hukum antara Anda sebagai pengguna dan PT
-                                Digital Masif Suara Visual.</p>
+                                berlaku sebagai kesepakatan yang mengikat secara hukum antara Anda sebagai pengguna dan {{ company_name() }}.</p>
                             <p>Penerimaan ini juga mengikat Anda untuk mematuhi kewajiban yang tercantum dalam dokumen ini,
                                 yang akan dilaksanakan sesuai dengan hukum yang berlaku di Republik Indonesia. Pengguna
                                 menyetujui bahwa segala perselisihan atau sengketa yang timbul terkait penggunaan layanan
@@ -258,22 +249,22 @@ Terms and Conditions
                                 Data Pribadi, Undang-Undang Nomor 1 Tahun 2024 tentang Informasi dan Transaksi Elektronik,
                                 dan Peraturan Pemerintah Nomor 71 Tahun 2019 tentang Penyelenggaraan Sistem dan Transaksi
                                 Elektronik.</p>
-                            <p>PT Digital Masif Suara Visual berhak untuk mengubah, memperbarui, atau memperbaiki Syarat dan
+                            <p>{{ company_name() }} berhak untuk mengubah, memperbarui, atau memperbaiki Syarat dan
                                 Ketentuan Pengguna ini setiap saat sesuai dengan kebijakan perusahaan atau perubahan
                                 peraturan perundang-undangan yang berlaku. Setiap perubahan atau pembaruan akan diumumkan di
-                                Platform SoundFresh dan akan berlaku segera setelah diumumkan, kecuali jika ditentukan lain.
+                                Platform {{ app_name() }} dan akan berlaku segera setelah diumumkan, kecuali jika ditentukan lain.
                             </p>
                             <p>Jika Anda terus menggunakan layanan setelah perubahan atau pembaruan tersebut, hal itu
                                 dianggap sebagai penerimaan terhadap perubahan syarat dan ketentuan yang berlaku. Oleh
                                 karena itu, kami menyarankan Anda untuk secara berkala memeriksa Syarat dan Ketentuan ini
                                 untuk memastikan Anda tetap memahami ketentuan yang berlaku.</p>
-                            <p>Dengan menggunakan layanan Penerbit Musik melalui SoundFresh, Anda juga menyatakan bahwa Anda
+                            <p>Dengan menggunakan layanan Penerbit Musik melalui {{ app_name() }}, Anda juga menyatakan bahwa Anda
                                 memiliki hak atau izin yang sah untuk menggunakan, mendistribusikan, dan memonetisasi karya
                                 cipta yang diunggah, serta bahwa karya tersebut tidak melanggar hak kekayaan intelektual
                                 pihak ketiga, dan sesuai dengan semua peraturan yang berlaku.</p>
                             <p>Jika Anda tidak setuju dengan Syarat dan Ketentuan Pengguna ini, Anda tidak diperkenankan
                                 untuk menggunakan layanan kami. Anda harus segera menghentikan penggunaan platform dan
-                                layanan SoundFresh.</p>
+                                layanan {{ app_name() }}.</p>
                             <p>Segala perselisihan yang timbul akibat atau berkaitan dengan penggunaan layanan ini, termasuk
                                 namun tidak terbatas pada masalah pengelolaan hak cipta, distribusi royalti, dan pengumpulan
                                 royalti, akan diselesaikan secara musyawarah dalam waktu 60 (enam puluh) hari kalender sejak
@@ -284,14 +275,13 @@ Terms and Conditions
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">AKUN PENGGUNA</h5>
                         <div>
-                            <p>Untuk mengakses dan menggunakan layanan Penerbit Musik yang disediakan oleh PT Digital Masif
-                                Suara Visual melalui SoundFresh.id, Anda diwajibkan untuk membuat akun pengguna. Dalam hal
+                            <p>Untuk mengakses dan menggunakan layanan Penerbit Musik yang disediakan oleh {{ company_name() }} melalui {{ app_name() }}, Anda diwajibkan untuk membuat akun pengguna. Dalam hal
                                 ini, Anda bertanggung jawab sepenuhnya untuk menjaga kerahasiaan akun dan kata sandi yang
                                 digunakan untuk mengakses layanan kami. Berikut adalah ketentuan mengenai Akun Pengguna:</p>
                             <p>Pendaftaran Akun</p>
                             <ul>
                                 <li>Proses Pendaftaran: Untuk membuat akun, Anda harus mengisi formulir pendaftaran yang
-                                    disediakan oleh SoundFresh dengan informasi yang akurat, lengkap, dan terbaru. Anda
+                                    disediakan oleh {{ app_name() }} dengan informasi yang akurat, lengkap, dan terbaru. Anda
                                     diwajibkan untuk memberikan data pribadi yang benar, seperti nama lengkap, alamat email,
                                     nomor telepon, informasi identitas lainnya, dan rincian yang relevan dengan karya musik
                                     yang ingin dikelola.</li>
@@ -303,24 +293,23 @@ Terms and Conditions
                                     mendistribusikan dan mengelola karya cipta tersebut.</li>
                                 <li>Perjanjian Pengelolaan Hak Cipta: Sebelum menggunakan layanan Penerbit Musik, Anda
                                     sebagai Pencipta dan/atau Pemegang Hak Cipta harus menandatangani Perjanjian Pengelolaan
-                                    Hak Cipta atas Lagu dan/atau Musik dengan PT Digital Masif Suara Visual. Perjanjian ini
+                                    Hak Cipta atas Lagu dan/atau Musik dengan {{ company_name() }}. Perjanjian ini
                                     mengatur pengelolaan hak cipta dan royalti atas karya yang akan dikelola.</li>
                                 <li>Surat Kuasa: Sebagai bagian dari pendaftaran, Anda juga harus memberikan Surat Kuasa
-                                    yang sah dari Pencipta dan/atau Pemegang Hak Cipta yang memberikan izin kepada PT
-                                    Digital Masif Suara Visual untuk bertindak sebagai penerbit musik dan mengelola hak
+                                    yang sah dari Pencipta dan/atau Pemegang Hak Cipta yang memberikan izin kepada {{ company_name() }} untuk bertindak sebagai penerbit musik dan mengelola hak
                                     cipta serta royalti terkait karya cipta yang diunggah.</li>
                             </ul>
                             <p>Tanggung Jawab Akun</p>
                             <ul>
                                 <li>Kerahasiaan Akun dan Kata Sandi: Anda bertanggung jawab untuk menjaga kerahasiaan
-                                    informasi akun, termasuk kata sandi yang digunakan untuk mengakses layanan SoundFresh.
+                                    informasi akun, termasuk kata sandi yang digunakan untuk mengakses layanan {{ app_name() }}.
                                     Anda setuju untuk tidak mengungkapkan kata sandi Anda kepada pihak ketiga.</li>
                                 <li>Penggunaan yang Sah: Anda bertanggung jawab sepenuhnya atas segala aktivitas yang
                                     terjadi dalam akun Anda, termasuk namun tidak terbatas pada penggunaan layanan Penerbit
                                     Musik, pengunggahan karya cipta, dan pengelolaan hak cipta.</li>
                                 <li>Pemberitahuan Segera: Jika Anda mengetahui adanya penggunaan yang tidak sah atau
                                     pelanggaran terhadap akun Anda, Anda harus segera memberi tahu kami melalui informasi
-                                    kontak yang tersedia di platform SoundFresh. Kami akan mengambil langkah yang diperlukan
+                                    kontak yang tersedia di platform {{ app_name() }}. Kami akan mengambil langkah yang diperlukan
                                     untuk melindungi keamanan akun Anda.</li>
                             </ul>
                             <p>Akurasi Informasi Pengguna</p>
@@ -329,18 +318,18 @@ Terms and Conditions
                                     saat pendaftaran dan selama penggunaan layanan. Anda juga setuju untuk memperbarui
                                     informasi tersebut apabila ada perubahan, seperti perubahan alamat email, nama kontak,
                                     atau rincian karya musik yang dikelola.</li>
-                                <li>Pernyataan Kebenaran: Dengan mendaftar di SoundFresh, Anda menyatakan bahwa informasi
+                                <li>Pernyataan Kebenaran: Dengan mendaftar di {{ app_name() }}, Anda menyatakan bahwa informasi
                                     yang Anda berikan adalah benar dan bahwa Anda memiliki hak untuk menggunakan dan
                                     mendistribusikan karya cipta yang diunggah ke platform kami. Anda bertanggung jawab
                                     untuk memastikan bahwa karya yang diunggah tidak melanggar hak cipta pihak ketiga.</li>
                             </ul>
                             <p>Pembatasan Akses Akun</p>
-                            <p>PT Digital Masif Suara Visual berhak untuk:</p>
+                            <p>{{ company_name() }} berhak untuk:</p>
                             <ul>
                                 <li>Membatasi, menangguhkan, atau menghentikan akses akun Anda jika kami menemukan bahwa
                                     informasi yang diberikan tidak akurat, tidak lengkap, atau melanggar ketentuan dalam
                                     Syarat dan Ketentuan Pengguna.</li>
-                                <li>Membatasi akses ke fitur tertentu dalam platform SoundFresh jika Anda tidak memenuhi
+                                <li>Membatasi akses ke fitur tertentu dalam platform {{ app_name() }} jika Anda tidak memenuhi
                                     persyaratan kelayakan yang ditetapkan dalam bagian Kelayakan, termasuk bahwa akun
                                     tersebut hanya dapat digunakan oleh individu (orang pribadi) dan tidak oleh entitas
                                     perusahaan atau badan hukum.</li>
@@ -354,13 +343,13 @@ Terms and Conditions
                                     menghubungi tim dukungan pelanggan kami untuk prosedur lebih lanjut. Namun, setelah
                                     pengakhiran, Anda tetap berhak menerima royalti yang terhutang terkait karya cipta yang
                                     telah dikelola sebelum pengakhiran akun dilakukan.</li>
-                                <li>Pengakhiran oleh PT Digital Masif Suara Visual: Kami berhak untuk menangguhkan atau
+                                <li>Pengakhiran oleh {{ company_name() }}: Kami berhak untuk menangguhkan atau
                                     menghentikan akun Anda hanya jika terdapat pelanggaran terhadap Syarat dan Ketentuan
                                     Pengguna atau ketentuan yang ada dalam Perjanjian Pengelolaan Hak Cipta yang telah Anda
                                     tandatangani. Pengakhiran sepihak oleh kami tidak akan dilakukan sebelum jangka waktu
                                     yang diatur dalam Perjanjian Pengelolaan Hak Cipta berakhir, kecuali terdapat alasan
                                     yang sah sesuai dengan ketentuan peraturan perundang-undangan yang berlaku. Jika akun
-                                    dihentikan oleh PT Digital Masif Suara Visual, hak-hak Anda untuk memperoleh royalti
+                                    dihentikan oleh {{ company_name() }}, hak-hak Anda untuk memperoleh royalti
                                     atau pembayaran terkait karya yang sudah dikelola akan tetap dihormati dan diterima
                                     sesuai dengan ketentuan yang berlaku dalam Perjanjian Pengelolaan Hak Cipta.</li>
                             </ul>
@@ -370,22 +359,21 @@ Terms and Conditions
                         <div>
                             <p>Kepemilikan Karya Cipta</p>
                             <ul>
-                                <li>Hak Cipta: Pengguna yang mengunggah karya cipta ke platform SoundFresh menyatakan dan
+                                <li>Hak Cipta: Pengguna yang mengunggah karya cipta ke platform {{ app_name() }} menyatakan dan
                                     menjamin bahwa mereka adalah pemegang hak cipta yang sah atau telah memperoleh izin
                                     penuh dari pemegang hak cipta untuk mengelola, mendistribusikan, dan memonetisasi karya
                                     tersebut. Pengguna mengonfirmasi bahwa karya cipta yang diunggah tidak melanggar hak
                                     kekayaan intelektual pihak ketiga, termasuk hak cipta, merek dagang, atau hak lainnya.
                                 </li>
                                 <li>Kepemilikan atas Karya: Pengguna tetap mempertahankan hak cipta atas karya musik yang
-                                    diunggah. PT Digital Masif Suara Visual tidak akan mengklaim kepemilikan atas karya
-                                    cipta yang diunggah oleh pengguna, namun PT Digital Masif Suara Visual akan bertindak
+                                    diunggah. {{ company_name() }} tidak akan mengklaim kepemilikan atas karya
+                                    cipta yang diunggah oleh pengguna, namun {{ company_name() }} akan bertindak
                                     sebagai penerbit musik yang mengelola hak cipta tersebut sesuai dengan perjanjian yang
                                     disepakati antara pengguna dan perusahaan.</li>
                             </ul>
-                            <p>Lisensi yang Diberikan kepada PT Digital Masif Suara Visual</p>
+                            <p>Lisensi yang Diberikan kepada {{ company_name() }}</p>
                             <ul>
-                                <li>Dengan mengunggah karya cipta melalui platform SoundFresh, Pengguna memberikan kepada PT
-                                    Digital Masif Suara Visual hak lisensi global, non-eksklusif, bebas royalti, untuk:</li>
+                                <li>Dengan mengunggah karya cipta melalui platform {{ app_name() }}, Pengguna memberikan kepada {{ company_name() }} hak lisensi global, non-eksklusif, bebas royalti, untuk:</li>
                                 <ol>
                                     <li>Mendistribusikan karya musik di berbagai platform distribusi digital dan saluran
                                         media lainnya.</li>
@@ -395,20 +383,20 @@ Terms and Conditions
                                         kolektif, atau distributor lain, untuk penggunaan karya cipta tersebut dalam konteks
                                         yang telah disetujui, seperti film, iklan, video klip, dan lainnya.</li>
                                     <li>Menggunakan karya cipta untuk tujuan promosi, marketing, dan distribusi terkait
-                                        dengan layanan yang disediakan oleh PT Digital Masif Suara Visual.</li>
+                                        dengan layanan yang disediakan oleh {{ company_name() }}.</li>
                                 </ol>
                                 <li>Lisensi yang diberikan oleh Pengguna bersifat non-eksklusif, yang berarti pengguna
                                     berhak untuk memberikan lisensi yang sama kepada pihak lain atau mengelola hak cipta
-                                    mereka secara terpisah di luar platform SoundFresh.</li>
+                                    mereka secara terpisah di luar platform {{ app_name() }}.</li>
                             </ul>
-                            <p>Penggunaan Karya oleh PT Digital Masif Suara Visual</p>
+                            <p>Penggunaan Karya oleh {{ company_name() }}</p>
                             <ul>
-                                <li>Penggunaan Karya untuk Kepentingan Bisnis: PT Digital Masif Suara Visual berhak untuk
+                                <li>Penggunaan Karya untuk Kepentingan Bisnis: {{ company_name() }} berhak untuk
                                     menggunakan karya yang diunggah oleh pengguna untuk tujuan promosi dan distribusi dalam
-                                    kerangka bisnis SoundFresh, yang termasuk namun tidak terbatas pada penggunaan karya
+                                    kerangka bisnis {{ app_name() }}, yang termasuk namun tidak terbatas pada penggunaan karya
                                     dalam kampanye pemasaran digital, promosi platform, serta kegiatan lain yang bertujuan
                                     untuk meningkatkan eksposur karya pengguna.</li>
-                                <li>Penggunaan dalam Media: PT Digital Masif Suara Visual dapat memanfaatkan karya cipta
+                                <li>Penggunaan dalam Media: {{ company_name() }} dapat memanfaatkan karya cipta
                                     yang diunggah oleh pengguna untuk penayangan di media seperti televisi, radio, internet,
                                     dan platform streaming tanpa memberikan kompensasi tambahan selain royalti yang
                                     terutang, sesuai dengan ketentuan dalam perjanjian yang berlaku.</li>
@@ -416,16 +404,15 @@ Terms and Conditions
                             <p>Pembatasan Penggunaan oleh Pengguna</p>
                             <ul>
                                 <li>Pengguna tidak diperkenankan untuk memberikan lisensi atau hak lainnya terkait karya
-                                    cipta yang diunggah kepada pihak ketiga tanpa persetujuan tertulis dari PT Digital Masif
-                                    Suara Visual, kecuali untuk penggunaan yang tidak berhubungan dengan layanan SoundFresh.
+                                    cipta yang diunggah kepada pihak ketiga tanpa persetujuan tertulis dari {{ company_name() }}, kecuali untuk penggunaan yang tidak berhubungan dengan layanan {{ app_name() }}.
                                 </li>
                                 <li>Pengguna setuju untuk tidak melakukan tindakan yang dapat merusak atau mengurangi nilai
-                                    lisensi yang diberikan kepada PT Digital Masif Suara Visual, termasuk tetapi tidak
+                                    lisensi yang diberikan kepada {{ company_name() }}, termasuk tetapi tidak
                                     terbatas pada pelanggaran hak cipta atau distribusi ilegal dari karya yang diunggah.
                                 </li>
                             </ul>
                             <p>Pengakhiran Lisensi</p>
-                            <p>Lisensi yang diberikan oleh Pengguna kepada PT Digital Masif Suara Visual akan berakhir
+                            <p>Lisensi yang diberikan oleh Pengguna kepada {{ company_name() }} akan berakhir
                                 sesuai dengan ketentuan yang ada dalam Perjanjian Pengelolaan Hak Cipta yang telah
                                 ditandatangani. Namun, hak untuk mengumpulkan royalti yang telah diperoleh sebelum
                                 pengakhiran lisensi tetap berlaku meskipun akun pengguna telah dihentikan atau diakhiri.</p>
@@ -433,14 +420,14 @@ Terms and Conditions
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">KEWAJIBAN PENGGUNA</h5>
                         <div>
-                            <p>Sebagai pengguna layanan Penerbit Musik di SoundFresh, Anda setuju untuk mematuhi semua
+                            <p>Sebagai pengguna layanan Penerbit Musik di {{ app_name() }}, Anda setuju untuk mematuhi semua
                                 kewajiban yang tercantum dalam syarat dan ketentuan ini serta ketentuan yang berlaku dalam
                                 Perjanjian Pengelolaan Hak Cipta atas Lagu dan/atau Musik. Berikut adalah kewajiban yang
                                 harus dipenuhi oleh pengguna:</p>
                             <p>Pengunggahan Karya Cipta yang Sah</p>
                             <ul>
                                 <li>Keaslian Karya Cipta: Anda bertanggung jawab untuk memastikan bahwa karya yang diunggah
-                                    ke platform SoundFresh adalah karya cipta asli yang Anda buat, atau Anda telah
+                                    ke platform {{ app_name() }} adalah karya cipta asli yang Anda buat, atau Anda telah
                                     memperoleh izin yang sah dari pemegang hak cipta lainnya untuk mengunggah dan
                                     mendistribusikan karya tersebut.</li>
                                 <li>Tidak Melanggar Hak Pihak Ketiga: Anda menyatakan dan menjamin bahwa karya cipta yang
@@ -460,7 +447,7 @@ Terms and Conditions
                                     <li>Mengandung unsur pornografi, kekerasan, atau ujaran kebencian yang dapat merugikan
                                         pihak lain.</li>
                                     <li>Melanggar kebijakan yang ditetapkan oleh platform distribusi dan agregator pihak
-                                        ketiga yang digunakan oleh SoundFresh.</li>
+                                        ketiga yang digunakan oleh {{ app_name() }}.</li>
                                 </ul>
                             </ul>
                             <p>Pengelolaan Akun dengan Bijak</p>
@@ -475,18 +462,17 @@ Terms and Conditions
                             </ul>
                             <p>Kewajiban untuk Membayar Royalti dan Biaya yang Terkait</p>
                             <ul>
-                                <li>Pembayaran Royalti: Anda wajib menerima pembayaran royalti yang dikumpulkan oleh PT
-                                    Digital Masif Suara Visual untuk penggunaan karya cipta Anda di berbagai platform
+                                <li>Pembayaran Royalti: Anda wajib menerima pembayaran royalti yang dikumpulkan oleh {{ company_name() }} untuk penggunaan karya cipta Anda di berbagai platform
                                     distribusi dan media lain, sesuai dengan ketentuan dalam Perjanjian Pengelolaan Hak
                                     Cipta. Pembayaran royalti akan dilakukan sesuai dengan perhitungan yang telah disepakati
                                     antara pengguna dan perusahaan.</li>
                                 <li>Biaya Layanan: Anda setuju untuk membayar biaya atau komisi yang terkait dengan layanan
-                                    yang disediakan oleh PT Digital Masif Suara Visual sesuai dengan ketentuan yang
-                                    tercantum dalam perjanjian atau yang diinformasikan melalui platform SoundFresh.</li>
+                                    yang disediakan oleh {{ company_name() }} sesuai dengan ketentuan yang
+                                    tercantum dalam perjanjian atau yang diinformasikan melalui platform {{ app_name() }}.</li>
                             </ul>
                             <p>Tanggung Jawab atas Penggunaan Karya oleh Pihak Ketiga</p>
                             <ul>
-                                <li>Lisensi kepada Pihak Ketiga: Anda setuju bahwa PT Digital Masif Suara Visual dapat
+                                <li>Lisensi kepada Pihak Ketiga: Anda setuju bahwa {{ company_name() }} dapat
                                     memberikan lisensi kepada pihak ketiga untuk penggunaan karya cipta Anda dalam berbagai
                                     bentuk media atau platform, termasuk namun tidak terbatas pada film, iklan, video klip,
                                     atau platform digital lainnya, dan Anda berhak menerima royalti yang dihasilkan dari
@@ -499,7 +485,7 @@ Terms and Conditions
                             <p>Penggunaan Layanan secara Etis dan Profesional</p>
                             <ul>
                                 <li>Menghindari Penyalahgunaan Layanan: Anda setuju untuk tidak menggunakan layanan
-                                    SoundFresh untuk melakukan tindakan yang merugikan platform, pengguna lain, atau pihak
+                                    {{ app_name() }} untuk melakukan tindakan yang merugikan platform, pengguna lain, atau pihak
                                     ketiga, termasuk tetapi tidak terbatas pada:</li>
                                 <ul>
                                     <li>Menggunakan perangkat lunak atau alat lain untuk meretas atau memperoleh akses tidak
@@ -508,21 +494,21 @@ Terms and Conditions
                                         merusak sistem atau data pengguna lain.</li>
                                 </ul>
                                 <li>Tanggung Jawab Sosial: Anda setuju untuk menggunakan layanan dengan cara yang etis,
-                                    menjaga hubungan profesional dengan PT Digital Masif Suara Visual serta pengguna dan
+                                    menjaga hubungan profesional dengan {{ company_name() }} serta pengguna dan
                                     pihak ketiga lainnya, dan tidak melakukan tindakan yang dapat merusak reputasi layanan
-                                    SoundFresh atau perusahaan.</li>
+                                    {{ app_name() }} atau perusahaan.</li>
                             </ul>
                             <p>Kewajiban untuk Mematuhi Ketentuan yang Terkait dengan Pembayaran Royalti dan Hak Cipta</p>
                             <p>Anda setuju untuk mematuhi semua kewajiban yang diatur dalam Perjanjian Pengelolaan Hak Cipta
                                 dan untuk tidak mengalihkan atau mencabut hak dan kewajiban yang tercantum dalam perjanjian
-                                tersebut tanpa persetujuan tertulis dari PT Digital Masif Suara Visual.</p>
+                                tersebut tanpa persetujuan tertulis dari {{ company_name() }}.</p>
                         </div>
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">PEMROSESAN DATA PRIBADI</h5>
                         <div>
                             <p><strong>Pengumpulan Data Pribadi</strong></p>
-                            <p>PT Digital Masif Suara Visual menghargai privasi Anda dan berkomitmen untuk melindungi data
-                                pribadi yang Anda berikan selama penggunaan layanan Penerbit Musik melalui SoundFresh. Dalam
+                            <p>{{ company_name() }} menghargai privasi Anda dan berkomitmen untuk melindungi data
+                                pribadi yang Anda berikan selama penggunaan layanan Penerbit Musik melalui {{ app_name() }}. Dalam
                                 rangka menyediakan layanan ini, kami mengumpulkan berbagai jenis informasi pribadi yang
                                 dapat mencakup namun tidak terbatas pada:</p>
                             <ul>
@@ -530,13 +516,13 @@ Terms and Conditions
                                 <li>Alamat email</li>
                                 <li>Nomor telepon</li>
                                 <li>Informasi identitas lainnya yang relevan dengan penggunaan platform</li>
-                                <li>Informasi mengenai karya cipta yang diunggah dan dikelola melalui SoundFresh</li>
+                                <li>Informasi mengenai karya cipta yang diunggah dan dikelola melalui {{ app_name() }}</li>
                             </ul>
                             <p><strong>Tujuan Pemrosesan Data Pribadi</strong></p>
                             <p>Data pribadi yang kami kumpulkan akan diproses untuk tujuan sebagai berikut:</p>
                             <ul>
                                 <li><strong>Pendaftaran Akun</strong>: Memastikan pendaftaran akun yang sah dan memberikan
-                                    akses ke layanan yang disediakan oleh <strong>SoundFresh</strong>.</li>
+                                    akses ke layanan yang disediakan oleh <strong>{{ app_name() }}</strong>.</li>
                                 <li><strong>Pengelolaan Layanan Penerbit Musik</strong>: Memungkinkan kami untuk mengelola
                                     dan mendistribusikan karya cipta yang Anda unggah, serta mengumpulkan royalti dan
                                     membayar pengguna sesuai dengan <strong>Perjanjian Pengelolaan Hak Cipta</strong> yang
@@ -588,14 +574,14 @@ Terms and Conditions
                             </ul>
                             <p>Jika Anda ingin menggunakan hak-hak tersebut, atau jika Anda memiliki pertanyaan mengenai
                                 pemrosesan data pribadi Anda, Anda dapat menghubungi kami melalui informasi kontak yang
-                                tersedia di platform <strong>SoundFresh</strong>.</p>
+                                tersedia di platform <strong>{{ app_name() }}</strong>.</p>
                         </div>
                         <p>&nbsp;</p>
                         <h5 class="text-center mb-3">PELANGGARAN HAK CIPTA</h5>
                         <div>
                             <p>Tanggung Jawab atas Pelanggaran Hak Cipta</p>
                             <p>Pengguna bertanggung jawab sepenuhnya untuk memastikan bahwa karya cipta yang diunggah ke
-                                SoundFresh tidak melanggar hak cipta atau hak kekayaan intelektual lainnya yang dimiliki
+                                {{ app_name() }} tidak melanggar hak cipta atau hak kekayaan intelektual lainnya yang dimiliki
                                 oleh pihak ketiga. Anda menjamin bahwa:</p>
                             <ul>
                                 <li>Anda adalah pemegang hak cipta atau telah memperoleh izin yang sah dari pemegang hak
@@ -603,11 +589,11 @@ Terms and Conditions
                                 <li>Karya cipta yang diunggah tidak mengandung unsur yang melanggar hak cipta, hak moral,
                                     hak merek dagang, atau hak kekayaan intelektual lainnya dari pihak ketiga.</li>
                                 <li>Anda tidak akan mengunggah karya cipta yang melanggar hukum atau yang berpotensi merusak
-                                    reputasi dan integritas PT Digital Masif Suara Visual dan platform SoundFresh.</li>
+                                    reputasi dan integritas {{ company_name() }} dan platform {{ app_name() }}.</li>
                             </ul>
                             <p>Prosedur Pengaduan Pelanggaran Hak Cipta</p>
                             <p>Jika Anda mengetahui adanya pelanggaran hak cipta terkait karya cipta yang diunggah oleh
-                                pengguna lain di platform SoundFresh, Anda dapat melaporkan pelanggaran tersebut kepada kami
+                                pengguna lain di platform {{ app_name() }}, Anda dapat melaporkan pelanggaran tersebut kepada kami
                                 dengan mengikuti prosedur yang telah ditentukan. Langkah-langkah pengaduan adalah sebagai
                                 berikut:</p>
                             <ol>
@@ -649,7 +635,7 @@ Terms and Conditions
                                 yang berlaku.</p>
                             <p>Penangguhan atau Pengakhiran Akun Pengguna</p>
                             <p>Jika pengguna terbukti melakukan pelanggaran hak cipta atau pelanggaran lainnya yang
-                                merugikan pihak ketiga atau platform SoundFresh, PT Digital Masif Suara Visual berhak untuk:
+                                merugikan pihak ketiga atau platform {{ app_name() }}, {{ company_name() }} berhak untuk:
                             </p>
                             <ul>
                                 <li>Menangguhkan akses akun pengguna yang melanggar untuk sementara waktu sampai masalah
@@ -659,9 +645,8 @@ Terms and Conditions
                                     atau biaya yang masih terutang.</li>
                             </ul>
                             <p>Penghentian Distribusi dan Lisensi</p>
-                            <p>Jika karya cipta yang diunggah dilaporkan dan terbukti melanggar hak cipta, PT Digital Masif
-                                Suara Visual berhak untuk menghentikan distribusi karya tersebut ke platform streaming atau
-                                media lain. Lisensi yang diberikan kepada PT Digital Masif Suara Visual untuk distribusi
+                            <p>Jika karya cipta yang diunggah dilaporkan dan terbukti melanggar hak cipta, {{ company_name() }} berhak untuk menghentikan distribusi karya tersebut ke platform streaming atau
+                                media lain. Lisensi yang diberikan kepada {{ company_name() }} untuk distribusi
                                 karya yang melanggar akan dibatalkan, dan karya tersebut akan dihapus dari sistem distribusi
                                 kami, sesuai dengan ketentuan dalam Perjanjian Pengelolaan Hak Cipta.</p>
                         </div>
@@ -669,8 +654,8 @@ Terms and Conditions
                         <h5 class="text-center mb-3">PEMBAYARAN DAN ROYALTI</h5>
                         <div>
                             <p>Pengumpulan Royalti</p>
-                            <p>PT Digital Masif Suara Visual akan mengumpulkan royalti yang diperoleh dari penggunaan karya
-                                cipta yang diunggah oleh pengguna ke SoundFresh melalui berbagai saluran, termasuk tetapi
+                            <p>{{ company_name() }} akan mengumpulkan royalti yang diperoleh dari penggunaan karya
+                                cipta yang diunggah oleh pengguna ke {{ app_name() }} melalui berbagai saluran, termasuk tetapi
                                 tidak terbatas pada:</p>
                             <ul>
                                 <li>Platform streaming digital seperti Spotify, Apple Music, YouTube, dan lainnya.</li>
@@ -678,11 +663,11 @@ Terms and Conditions
                                 <li>Penggunaan dalam film, iklan, video klip, dan media lainnya yang melibatkan hak lisensi
                                     sinkronisasi.</li>
                             </ul>
-                            <p>PT Digital Masif Suara Visual berhak untuk memantau dan mengumpulkan royalti yang diperoleh
-                                dari distribusi dan penggunaan karya cipta yang dikelola melalui platform SoundFresh.</p>
+                            <p>{{ company_name() }} berhak untuk memantau dan mengumpulkan royalti yang diperoleh
+                                dari distribusi dan penggunaan karya cipta yang dikelola melalui platform {{ app_name() }}.</p>
                             <p>Pembayaran Royalti kepada Pengguna</p>
                             <ul>
-                                <li>Pembayaran Royalti: Setelah royalti terkumpul, PT Digital Masif Suara Visual akan
+                                <li>Pembayaran Royalti: Setelah royalti terkumpul, {{ company_name() }} akan
                                     menghitung dan membayar royalti kepada Pencipta dan/atau Pemegang Hak Cipta berdasarkan
                                     persentase yang tercantum dalam Perjanjian Pengelolaan Hak Cipta yang telah disepakati
                                     oleh kedua belah pihak.</li>
@@ -696,7 +681,7 @@ Terms and Conditions
                             </ul>
                             <p>Pemotongan dan Biaya Administrasi</p>
                             <ul>
-                                <li>Biaya Administrasi: PT Digital Masif Suara Visual berhak untuk memotong biaya
+                                <li>Biaya Administrasi: {{ company_name() }} berhak untuk memotong biaya
                                     administrasi yang wajar untuk pengelolaan royalti dan distribusi karya cipta. Biaya
                                     administrasi ini akan diumumkan dan disepakati dalam Perjanjian Pengelolaan Hak Cipta.
                                 </li>
@@ -706,23 +691,22 @@ Terms and Conditions
                             </ul>
                             <p>Transparansi Laporan Royalti</p>
                             <ul>
-                                <li>Laporan Penggunaan dan Pendapatan: PT Digital Masif Suara Visual akan menyediakan
+                                <li>Laporan Penggunaan dan Pendapatan: {{ company_name() }} akan menyediakan
                                     laporan yang transparan mengenai penggunaan karya cipta dan pendapatan royalti yang
                                     dihasilkan. Laporan ini akan mencakup detail tentang jumlah streaming, penjualan, dan
                                     penggunaan lainnya yang berkontribusi pada pendapatan royalti.</li>
                                 <li>Akses Laporan: Pengguna dapat mengakses laporan pendapatan royalti dan penggunaan karya
-                                    cipta melalui akun mereka di platform SoundFresh, yang akan diperbarui secara berkala.
+                                    cipta melalui akun mereka di platform {{ app_name() }}, yang akan diperbarui secara berkala.
                                 </li>
                             </ul>
                             <p>Pembayaran Royalti untuk Karya Bersama</p>
                             <p>Jika karya cipta yang dikelola adalah hasil karya bersama (collaboration), royalti akan
                                 dibagi sesuai dengan kesepakatan yang telah dibuat di antara para pihak yang terlibat, yang
                                 tercantum dalam Perjanjian Pengelolaan Hak Cipta. Jika tidak ada kesepakatan khusus,
-                                pembagian royalti akan mengikuti ketentuan standar yang berlaku di industri musik, dan PT
-                                Digital Masif Suara Visual akan bertindak sebagai pihak yang mengelola dan menyalurkan
+                                pembagian royalti akan mengikuti ketentuan standar yang berlaku di industri musik, dan {{ company_name() }} akan bertindak sebagai pihak yang mengelola dan menyalurkan
                                 pembayaran tersebut.</p>
                             <p>Penangguhan Pembayaran Royalti</p>
-                            <p>PT Digital Masif Suara Visual berhak untuk menangguhkan pembayaran royalti kepada pengguna
+                            <p>{{ company_name() }} berhak untuk menangguhkan pembayaran royalti kepada pengguna
                                 dalam situasi tertentu, termasuk namun tidak terbatas pada:</p>
                             <ul>
                                 <li>Pelanggaran terhadap Syarat dan Ketentuan: Jika pengguna melanggar ketentuan yang
@@ -734,7 +718,7 @@ Terms and Conditions
                             </ul>
                             <p>Pengakhiran Akun dan Pembayaran Royalti</p>
                             <ul>
-                                <li>Pengakhiran Akun: Jika akun Anda dihentikan atau diakhiri, PT Digital Masif Suara Visual
+                                <li>Pengakhiran Akun: Jika akun Anda dihentikan atau diakhiri, {{ company_name() }}
                                     akan tetap memenuhi kewajibannya untuk membayar royalti yang terutang kepada pengguna
                                     atas karya cipta yang telah didistribusikan sebelum pengakhiran akun. Pembayaran royalti
                                     yang belum dibayar akan dilakukan sesuai dengan ketentuan yang tercantum dalam
@@ -745,33 +729,32 @@ Terms and Conditions
                         <h5 class="text-center mb-3">PERUBAHAN LAYANAN DAN SYARAT</h5>
                         <div>
                             <p><strong>Perubahan Layanan</strong></p>
-                            <p><strong>PT Digital Masif Suara Visual</strong> berhak untuk mengubah, memperbarui, atau
-                                menghentikan layanan <strong>Penerbit Musik</strong> melalui <strong>SoundFresh</strong>
+                            <p><strong>{{ company_name() }}</strong> berhak untuk mengubah, memperbarui, atau
+                                menghentikan layanan <strong>Penerbit Musik</strong> melalui <strong>{{ app_name() }}</strong>
                                 atau bagian dari layanan tersebut, baik untuk seluruh pengguna atau sebagian pengguna,
-                                dengan pemberitahuan sebelumnya kepada pengguna melalui platform <strong>SoundFresh</strong>
-                                atau email yang terdaftar pada akun pengguna. Pengguna setuju bahwa <strong>PT Digital Masif
-                                    Suara Visual</strong> tidak bertanggung jawab atas kerugian atau kerusakan yang timbul
+                                dengan pemberitahuan sebelumnya kepada pengguna melalui platform <strong>{{ app_name() }}</strong>
+                                atau email yang terdaftar pada akun pengguna. Pengguna setuju bahwa <strong>{{ company_name() }}</strong> tidak bertanggung jawab atas kerugian atau kerusakan yang timbul
                                 akibat perubahan, penghentian, atau pembatasan layanan ini.</p>
                             <p>Jika perubahan layanan tersebut memengaruhi layanan yang telah diberikan kepada pengguna,
                                 pengguna akan diberi kesempatan untuk meninjau dan menyetujui perubahan tersebut. Jika
                                 pengguna tidak setuju dengan perubahan yang dilakukan, pengguna dapat mengakhiri penggunaan
                                 layanan sesuai dengan ketentuan dalam perjanjian.</p>
                             <p><strong>11.2. Perubahan Syarat dan Ketentuan</strong></p>
-                            <p><strong>PT Digital Masif Suara Visual</strong> berhak untuk mengubah, memperbarui, atau
+                            <p><strong>{{ company_name() }}</strong> berhak untuk mengubah, memperbarui, atau
                                 memperbaiki <strong>Syarat dan Ketentuan Pengguna</strong> ini dari waktu ke waktu.
                                 Perubahan ini bisa disebabkan oleh perubahan peraturan perundang-undangan yang berlaku,
                                 pembaruan fitur layanan, atau kebijakan internal perusahaan. <strong>Syarat dan Ketentuan
                                     Pengguna</strong> yang baru akan diberlakukan setelah diposting di platform
-                                <strong>SoundFresh</strong>, dan pengguna akan diberitahukan melalui email atau notifikasi
+                                <strong>{{ app_name() }}</strong>, dan pengguna akan diberitahukan melalui email atau notifikasi
                                 di akun mereka.</p>
                             <ul>
                                 <li><strong>Pemberitahuan Perubahan</strong>: Pengguna akan diberi pemberitahuan tentang
                                     perubahan syarat dan ketentuan ini melalui email yang terdaftar atau notifikasi di
-                                    platform <strong>SoundFresh</strong>. Pengguna diwajibkan untuk memeriksa secara berkala
+                                    platform <strong>{{ app_name() }}</strong>. Pengguna diwajibkan untuk memeriksa secara berkala
                                     syarat dan ketentuan yang berlaku untuk mengetahui pembaruan atau perubahan yang ada.
                                 </li>
                                 <li><strong>Penerimaan Perubahan</strong>: Dengan terus menggunakan layanan
-                                    <strong>SoundFresh</strong> setelah perubahan syarat dan ketentuan diberlakukan,
+                                    <strong>{{ app_name() }}</strong> setelah perubahan syarat dan ketentuan diberlakukan,
                                     pengguna dianggap telah menerima dan menyetujui perubahan tersebut. Jika pengguna tidak
                                     setuju dengan perubahan yang dibuat, pengguna berhak untuk menghentikan penggunaan
                                     layanan.</li>
@@ -781,12 +764,12 @@ Terms and Conditions
                                 ini dengan mencantumkan tanggal revisi terakhir. Pengguna dianjurkan untuk membaca dan
                                 memahami Syarat dan Ketentuan Pengguna secara berkala untuk tetap mendapatkan informasi
                                 terkini.</p>
-                            <p>PT Digital Masif Suara Visual berhak untuk mengakhiri atau membatasi akses pengguna ke
-                                layanan SoundFresh jika:</p>
+                            <p>{{ company_name() }} berhak untuk mengakhiri atau membatasi akses pengguna ke
+                                layanan {{ app_name() }} jika:</p>
                             <ul>
                                 <li>Pengguna melanggar ketentuan dalam Syarat dan Ketentuan Pengguna atau peraturan hukum
                                     yang berlaku.</li>
-                                <li>Layanan dihentikan atau dibatasi sesuai dengan kebijakan PT Digital Masif Suara Visual,
+                                <li>Layanan dihentikan atau dibatasi sesuai dengan kebijakan {{ company_name() }},
                                     yang mungkin terkait dengan perubahan regulasi atau keputusan bisnis internal.</li>
                             </ul>
                             <p>Jika penghentian atau pembatasan layanan berlaku, hak-hak pengguna untuk menerima royalti
@@ -798,57 +781,57 @@ Terms and Conditions
                         <div>
                             <p>Tanggung Jawab Terhadap Penggunaan Layanan</p>
                             <ul>
-                                <li>PT Digital Masif Suara Visual tidak bertanggung jawab atas setiap kerugian, kerusakan,
+                                <li>{{ company_name() }} tidak bertanggung jawab atas setiap kerugian, kerusakan,
                                     atau klaim yang timbul akibat penggunaan atau ketidakmampuan untuk menggunakan layanan
-                                    SoundFresh. Pengguna bertanggung jawab sepenuhnya atas keputusan dan tindakan yang
+                                    {{ app_name() }}. Pengguna bertanggung jawab sepenuhnya atas keputusan dan tindakan yang
                                     diambil dalam menggunakan layanan, termasuk namun tidak terbatas pada distribusi karya
                                     cipta, pengumpulan royalti, dan pengelolaan hak cipta.</li>
-                                <li>PT Digital Masif Suara Visual tidak bertanggung jawab atas pelanggaran hak cipta yang
-                                    dilakukan oleh pihak ketiga yang tidak terkait dengan layanan SoundFresh atau distribusi
+                                <li>{{ company_name() }} tidak bertanggung jawab atas pelanggaran hak cipta yang
+                                    dilakukan oleh pihak ketiga yang tidak terkait dengan layanan {{ app_name() }} atau distribusi
                                     yang dilakukan oleh platform pihak ketiga.</li>
                             </ul>
                             <p>Kerusakan atau Kehilangan Data</p>
                             <ul>
-                                <li>Kami berusaha untuk memastikan bahwa layanan SoundFresh berfungsi dengan baik dan data
-                                    yang dikumpulkan aman. Namun, PT Digital Masif Suara Visual tidak bertanggung jawab atas
+                                <li>Kami berusaha untuk memastikan bahwa layanan {{ app_name() }} berfungsi dengan baik dan data
+                                    yang dikumpulkan aman. Namun, {{ company_name() }} tidak bertanggung jawab atas
                                     kerusakan, kehilangan data, atau kerugian lainnya yang disebabkan oleh kesalahan teknis,
                                     gangguan sistem, atau kehilangan data yang disebabkan oleh kelalaian atau masalah yang
                                     berada di luar kendali kami.</li>
-                                <li>Kami tidak menjamin bahwa platform SoundFresh bebas dari kesalahan atau bahwa akses ke
+                                <li>Kami tidak menjamin bahwa platform {{ app_name() }} bebas dari kesalahan atau bahwa akses ke
                                     layanan tidak akan terganggu. Pengguna setuju untuk menggunakan layanan ini dengan
                                     pemahaman bahwa gangguan atau kesalahan sistem bisa terjadi.</li>
                             </ul>
                             <p>Ketergantungan pada Konten Pihak Ketiga</p>
-                            <p>Layanan SoundFresh dapat menyediakan akses ke konten pihak ketiga, termasuk namun tidak
+                            <p>Layanan {{ app_name() }} dapat menyediakan akses ke konten pihak ketiga, termasuk namun tidak
                                 terbatas pada platform streaming digital atau media lain yang digunakan untuk
-                                mendistribusikan karya cipta. PT Digital Masif Suara Visual tidak bertanggung jawab atas
+                                mendistribusikan karya cipta. {{ company_name() }} tidak bertanggung jawab atas
                                 kualitas, ketersediaan, atau kelangsungan layanan yang disediakan oleh pihak ketiga ini.
-                                Pengguna setuju untuk tidak menuntut PT Digital Masif Suara Visual atas kerugian yang timbul
+                                Pengguna setuju untuk tidak menuntut {{ company_name() }} atas kerugian yang timbul
                                 akibat ketergantungan pada atau penggunaan konten atau layanan pihak ketiga yang diakses
-                                melalui platform SoundFresh.</p>
+                                melalui platform {{ app_name() }}.</p>
                             <p>Tanggung Jawab atas Klaim Hak Cipta</p>
-                            <p>Pengguna menyetujui untuk membebaskan PT Digital Masif Suara Visual dari segala klaim atau
+                            <p>Pengguna menyetujui untuk membebaskan {{ company_name() }} dari segala klaim atau
                                 tuntutan hukum yang timbul akibat pelanggaran hak cipta atau hak kekayaan intelektual
                                 lainnya yang terkait dengan karya cipta yang diunggah dan dikelola melalui platform
-                                SoundFresh. Jika terjadi pelanggaran hak cipta atau hak kekayaan intelektual lainnya terkait
+                                {{ app_name() }}. Jika terjadi pelanggaran hak cipta atau hak kekayaan intelektual lainnya terkait
                                 karya cipta yang diunggah, pengguna bertanggung jawab penuh untuk menyelesaikan masalah
                                 tersebut, termasuk biaya yang timbul dari klaim atau gugatan tersebut.</p>
                             <p>Pembebasan Tanggung Jawab atas Penghentian Layanan</p>
-                            <p>PT Digital Masif Suara Visual tidak bertanggung jawab atas kerugian atau kerusakan yang
+                            <p>{{ company_name() }} tidak bertanggung jawab atas kerugian atau kerusakan yang
                                 timbul akibat penghentian atau pembatasan layanan yang disebabkan oleh perubahan kebijakan,
                                 pembaruan teknis, atau karena alasan hukum atau administratif yang tidak dapat dihindari.
-                                Pengguna setuju untuk tidak menuntut PT Digital Masif Suara Visual atas penghentian layanan,
+                                Pengguna setuju untuk tidak menuntut {{ company_name() }} atas penghentian layanan,
                                 penghapusan akun, atau pembatasan akses yang dilakukan sesuai dengan ketentuan Syarat dan
                                 Ketentuan Pengguna dan Perjanjian Pengelolaan Hak Cipta.</p>
                             <p>Tidak Ada Jaminan</p>
-                            <p>Layanan SoundFresh disediakan "sebagaimana adanya" tanpa jaminan apapun, baik secara
+                            <p>Layanan {{ app_name() }} disediakan "sebagaimana adanya" tanpa jaminan apapun, baik secara
                                 eksplisit maupun implisit, termasuk namun tidak terbatas pada jaminan kelayakan untuk tujuan
-                                tertentu atau tidak adanya pelanggaran hak cipta. PT Digital Masif Suara Visual tidak
+                                tertentu atau tidak adanya pelanggaran hak cipta. {{ company_name() }} tidak
                                 memberikan jaminan bahwa layanan atau platform akan bebas dari kesalahan, gangguan, atau
                                 bahwa hasil yang diperoleh melalui penggunaan layanan akan memenuhi harapan pengguna.</p>
                             <p>Pembebasan Tanggung Jawab atas Ketidakmampuan Mengakses Platform</p>
-                            <p>PT Digital Masif Suara Visual tidak bertanggung jawab atas ketidakmampuan pengguna untuk
-                                mengakses platform SoundFresh karena masalah teknis, termasuk kesalahan perangkat keras,
+                            <p>{{ company_name() }} tidak bertanggung jawab atas ketidakmampuan pengguna untuk
+                                mengakses platform {{ app_name() }} karena masalah teknis, termasuk kesalahan perangkat keras,
                                 perangkat lunak, koneksi internet, atau masalah lain yang berada di luar kendali kami.
                                 Pengguna setuju bahwa kami tidak akan bertanggung jawab atas keterlambatan atau kegagalan
                                 dalam melakukan transaksi atau komunikasi yang terkait dengan layanan.</p>
@@ -858,15 +841,14 @@ Terms and Conditions
                         <div>
                             <p>Syarat dan Ketentuan Pengguna ini diatur oleh dan akan ditafsirkan sesuai dengan hukum yang
                                 berlaku di Republik Indonesia. Semua perselisihan atau klaim yang timbul berdasarkan atau
-                                sehubungan dengan penggunaan layanan SoundFresh akan diselesaikan sesuai dengan hukum yang
+                                sehubungan dengan penggunaan layanan {{ app_name() }} akan diselesaikan sesuai dengan hukum yang
                                 berlaku di Indonesia.</p>
                             <p>Jika terjadi perselisihan yang tidak dapat diselesaikan melalui musyawarah dalam waktu 60
                                 (enam puluh) hari kalender, para pihak sepakat untuk menyelesaikan sengketa tersebut melalui
                                 Pengadilan Negeri Jakarta Selatan sebagai pengadilan yang berwenang untuk menyelesaikan
                                 sengketa hukum yang timbul. Jika Pengadilan Negeri Jakarta Selatan tidak dipilih, maka
-                                yurisdiksi yang berlaku adalah Pengadilan Negeri tempat kedudukan PT Digital Masif Suara
-                                Visual berada di Jakarta, Republik Indonesia.</p>
-                            <p>Syarat dan Ketentuan ini, serta semua komunikasi terkait dengan layanan SoundFresh, akan
+                                yurisdiksi yang berlaku adalah Pengadilan Negeri tempat kedudukan {{ company_name() }} berada di Jakarta, Republik Indonesia.</p>
+                            <p>Syarat dan Ketentuan ini, serta semua komunikasi terkait dengan layanan {{ app_name() }}, akan
                                 disusun dan diterjemahkan dalam Bahasa Indonesia. Dalam hal terjadi perbedaan penafsiran
                                 antara versi Bahasa Indonesia dan terjemahan bahasa lainnya, versi Bahasa Indonesia yang
                                 berlaku.</p>
@@ -889,8 +871,7 @@ Terms and Conditions
                                 kejadian-kejadian yang berada di luar kendali kami, termasuk namun tidak terbatas pada
                                 bencana alam, perang, terorisme, kebakaran, banjir, pandemi, kegagalan sistem, kerusakan
                                 perangkat keras atau perangkat lunak, atau kegagalan pihak ketiga dalam menyediakan layanan
-                                yang diperlukan. Kejadian-kejadian tersebut dianggap sebagai Force Majeure, dan PT Digital
-                                Masif Suara Visual akan segera memberitahukan pengguna tentang kejadian tersebut dan
+                                yang diperlukan. Kejadian-kejadian tersebut dianggap sebagai Force Majeure, dan {{ company_name() }} akan segera memberitahukan pengguna tentang kejadian tersebut dan
                                 mengambil langkah-langkah yang wajar untuk mengatasi dampaknya.</p>
                             <p>Keterpisahan (Severability)</p>
                             <p>Jika salah satu ketentuan dalam Syarat dan Ketentuan Pengguna ini dianggap tidak sah, ilegal,
@@ -899,37 +880,33 @@ Terms and Conditions
                                 lainnya. Ketentuan yang tersisa tetap berlaku sepenuhnya dan memiliki kekuatan hukum.</p>
                             <p>Pengalihan (Assignment)</p>
                             <p>Pengguna tidak diperkenankan untuk mengalihkan hak atau kewajiban yang timbul dari Syarat dan
-                                Ketentuan Pengguna ini kepada pihak lain tanpa persetujuan tertulis dari PT Digital Masif
-                                Suara Visual. Sebaliknya, PT Digital Masif Suara Visual berhak untuk mengalihkan hak atau
+                                Ketentuan Pengguna ini kepada pihak lain tanpa persetujuan tertulis dari {{ company_name() }}. Sebaliknya, {{ company_name() }} berhak untuk mengalihkan hak atau
                                 kewajibannya kepada pihak lain sesuai dengan kebutuhan operasional atau peraturan yang
                                 berlaku, tanpa pemberitahuan lebih lanjut kepada pengguna.</p>
                             <p>Tidak Ada Hubungan Kemitraan atau Agensi</p>
                             <p>Tidak ada ketentuan dalam Syarat dan Ketentuan Pengguna ini yang mengarah pada pembentukan
-                                hubungan kemitraan, joint venture, atau hubungan agensi antara pengguna dan PT Digital Masif
-                                Suara Visual. Pengguna tidak berhak untuk bertindak atau mewakili diri mereka sebagai
-                                perwakilan PT Digital Masif Suara Visual, kecuali jika secara eksplisit ditentukan dalam
+                                hubungan kemitraan, joint venture, atau hubungan agensi antara pengguna dan {{ company_name() }}. Pengguna tidak berhak untuk bertindak atau mewakili diri mereka sebagai
+                                perwakilan {{ company_name() }}, kecuali jika secara eksplisit ditentukan dalam
                                 perjanjian tertulis antara kedua belah pihak.</p>
                             <p>Penggunaan Layanan oleh Pengguna yang Berusia di Bawah 18 Tahun</p>
-                            <p>Layanan SoundFresh hanya dapat digunakan oleh individu yang berusia 18 tahun ke atas. Jika
+                            <p>Layanan {{ app_name() }} hanya dapat digunakan oleh individu yang berusia 18 tahun ke atas. Jika
                                 pengguna berusia antara 13 hingga 17 tahun, mereka dapat menggunakan layanan ini hanya
                                 dengan izin tertulis dari orang tua atau wali sah mereka. Pengguna yang berusia di bawah 18
                                 tahun harus memiliki persetujuan orang tua atau wali untuk dapat menggunakan layanan
                                 Penerbit Musik.</p>
                             <p>Penggunaan oleh Entitas Hukum</p>
                             <p>Layanan Penerbit Musik hanya tersedia untuk individu (orang pribadi) yang memiliki hak cipta
-                                atau izin yang sah atas karya cipta yang diunggah. PT Digital Masif Suara Visual tidak
+                                atau izin yang sah atas karya cipta yang diunggah. {{ company_name() }} tidak
                                 menyediakan layanan kepada badan hukum atau entitas lainnya untuk pengelolaan hak cipta.
                                 Jika terdapat perubahan pada ketentuan ini, pengguna akan diberitahukan melalui platform.
                             </p>
                             <p>Ketentuan tentang Penyelesaian Perselisihan</p>
-                            <p>Setiap sengketa atau perselisihan yang timbul antara pengguna dan PT Digital Masif Suara
-                                Visual terkait dengan penggunaan layanan ini akan diselesaikan sesuai dengan ketentuan dalam
+                            <p>Setiap sengketa atau perselisihan yang timbul antara pengguna dan {{ company_name() }} terkait dengan penggunaan layanan ini akan diselesaikan sesuai dengan ketentuan dalam
                                 Syarat dan Ketentuan Pengguna ini dan melalui prosedur yang telah ditentukan, termasuk
                                 melalui Pengadilan Negeri Jakarta Selatan atau pengadilan yang berwenang berdasarkan hukum
                                 yang berlaku di Indonesia.</p>
                             <p>Persetujuan untuk Komunikasi Elektronik</p>
-                            <p>Dengan menggunakan layanan SoundFresh, pengguna menyetujui bahwa PT Digital Masif Suara
-                                Visual dapat berkomunikasi dengan pengguna melalui email, notifikasi dalam aplikasi, atau
+                            <p>Dengan menggunakan layanan {{ app_name() }}, pengguna menyetujui bahwa {{ company_name() }} dapat berkomunikasi dengan pengguna melalui email, notifikasi dalam aplikasi, atau
                                 cara lain yang bersifat elektronik untuk tujuan pengelolaan akun, pemberitahuan mengenai
                                 pembaruan layanan, atau untuk tujuan administratif lainnya.</p>
                             <p>Kebijakan Privasi</p>
@@ -942,25 +919,24 @@ Terms and Conditions
                         <div>
                             <p>Syarat dan Ketentuan Pengguna ini, bersama dengan Perjanjian Pengelolaan Hak Cipta atas Lagu
                                 dan/atau Musik dan kebijakan lainnya yang berlaku, merupakan keseluruhan perjanjian antara
-                                pengguna dan PT Digital Masif Suara Visual terkait penggunaan layanan Penerbit Musik melalui
-                                SoundFresh. Perjanjian ini menggantikan semua komunikasi, diskusi, dan perjanjian
+                                pengguna dan {{ company_name() }} terkait penggunaan layanan Penerbit Musik melalui
+                                {{ app_name() }}. Perjanjian ini menggantikan semua komunikasi, diskusi, dan perjanjian
                                 sebelumnya, baik lisan maupun tertulis, yang berkaitan dengan hal yang sama.</p>
-                            <p>Dengan menggunakan layanan SoundFresh, Anda mengakui bahwa Anda telah membaca, memahami, dan
-                                setuju untuk terikat oleh Syarat dan Ketentuan Pengguna ini. Anda juga menyetujui bahwa PT
-                                Digital Masif Suara Visual dapat memperbarui atau mengubah syarat dan ketentuan ini kapan
+                            <p>Dengan menggunakan layanan {{ app_name() }}, Anda mengakui bahwa Anda telah membaca, memahami, dan
+                                setuju untuk terikat oleh Syarat dan Ketentuan Pengguna ini. Anda juga menyetujui bahwa {{ company_name() }} dapat memperbarui atau mengubah syarat dan ketentuan ini kapan
                                 saja sesuai dengan ketentuan yang telah dijelaskan.</p>
                             <p>Jika Anda memiliki pertanyaan atau membutuhkan klarifikasi mengenai Syarat dan Ketentuan
                                 Pengguna ini, Anda dapat menghubungi kami melalui informasi kontak yang tersedia di platform
-                                SoundFresh. Kami akan dengan senang hati membantu menjawab pertanyaan Anda terkait layanan
+                                {{ app_name() }}. Kami akan dengan senang hati membantu menjawab pertanyaan Anda terkait layanan
                                 kami.</p>
-                            <p>Meskipun Anda berhenti menggunakan layanan SoundFresh atau akun Anda dihentikan,
+                            <p>Meskipun Anda berhenti menggunakan layanan {{ app_name() }} atau akun Anda dihentikan,
                                 ketentuan-ketentuan dalam Syarat dan Ketentuan Pengguna yang berhubungan dengan pembayaran
                                 royalti, pelanggaran hak cipta, dan kewajiban hukum lainnya akan tetap berlaku. Hal ini
                                 memastikan bahwa hak-hak dan kewajiban yang sudah terakumulasi tetap dihormati meskipun
-                                hubungan antara pengguna dan PT Digital Masif Suara Visual berakhir.</p>
+                                hubungan antara pengguna dan {{ company_name() }} berakhir.</p>
                             <p>Syarat dan Ketentuan Pengguna ini mulai berlaku sejak tanggal yang tercantum pada bagian awal
                                 dokumen ini dan akan terus berlaku sampai ada perubahan atau pembaruan yang diumumkan oleh
-                                PT Digital Masif Suara Visual.</p>
+                                {{ company_name() }}.</p>
                         </div>
                     </div>
                 </div>

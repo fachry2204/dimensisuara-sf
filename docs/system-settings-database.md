@@ -1,0 +1,15 @@
+# Pengaturan sistem di database
+
+Seluruh penyimpanan nilai System Setting kini menggunakan tabel `system_settings`: identitas aplikasi, logo/favicon (referensi file), warna, draft kontrak, perusahaan, referensi tanda tangan, SMTP, Fonnte, serta maintenance. Tiap kunci disimpan sebagai baris terenkripsi dengan timestamp. Nilai array memakai serialisasi PHP di dalam enkripsi, bukan file JSON. Gambar/aset tetap berupa file pada penyimpanan yang sesuai.
+
+Migrasi `2026_10_30_140000_create_system_settings_table` mengimpor file lama `storage/app/private/system-settings.enc` satu kali dan mempertahankan nilainya. File lama dipertahankan sebagai salinan pemulihan, tetapi tidak dibaca atau ditulis oleh service runtime. Konfigurasi `system-settings.path` hanya untuk sumber migrasi lama. Pengujian mencakup impor, persistensi antar instance, enkripsi rahasia, dan pembaruan kunci independen.
+
+Mode Maintenance ada pada tab Maintenance. Admin memilih role aktual, client tanpa role admin, dan/atau pengunjung belum login. Jika user memiliki salah satu role terpilih, middleware mengembalikan halaman maintenance HTTP 503. Request JSON mendapat respons 503 dengan alasan. Request perubahan data juga dihentikan sebelum controller dijalankan. Alasan disimpan dan di-escape pada tampilan. Status `Retry-After` 300 detik bukan jadwal berakhir otomatis.
+
+Admin dengan izin `manage-automation` selalu dikecualikan agar pengaturan dapat dipulihkan, sekalipun role admin dipilih. Login GET/POST, logout, verifikasi email, dan pemulihan password tetap tersedia. Role lain yang tidak dipilih tetap dapat memakai aplikasi. Tab menyediakan pratinjau halaman tanpa mengaktifkan maintenance. Kondisi awal setelah implementasi tetap nonaktif. Mode ini membatasi akses web pengguna, bukan menghentikan queue/scheduler atau layanan database.
+
+Fonnte menggantikan format gateway lama. Endpoint tetap `https://api.fonnte.com/send`; token device dikirim langsung lewat header `Authorization` tanpa Bearer. Payload form menggunakan `target`, `message`, dan `countryCode=0` karena nomor dinormalisasi dahulu (08 menjadi 628). Device ditentukan token; nomor pengirim opsional hanya untuk pencatatan. ID antrean Fonnte disimpan pada `notify_whatsapp.gwid`. Respons sukses berarti diterima antrean, bukan bukti pesan sudah diterima pengguna. Detail: https://docs.fonnte.com/api-send-message/
+
+Token lama dari gateway lain tetap tersimpan selama migrasi, tetapi tidak dikirim ke Fonnte. Masukkan token device Fonnte pada pengaturan; sesudah itu input kosong mempertahankan token tersebut. Token tidak ditampilkan di form, tidak masuk old input, dan tidak dicatat bersama respons mentah. Pengiriman diuji dengan HTTP fake tanpa mengirim pesan nyata.
+
+Verifikasi mencakup role terpilih/tidak terpilih, multi-role, client, guest, login saat guest maintenance aktif, pengecualian admin server, alasan, JSON, POST yang diblokir, pengaktifan/penonaktifan, dan validasi kelompok. Tampilan diperiksa pada kedua tema menggunakan snapshot lokal terisolasi dari penyimpanan aplikasi.

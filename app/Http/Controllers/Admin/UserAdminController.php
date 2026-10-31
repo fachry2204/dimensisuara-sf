@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateAdminRequest;
 use App\Models\Access\Role;
 use App\Models\Access\Permission;
-use App\Models\User\User;
+use App\Models\User\Admin as User;
 
 class UserAdminController extends Controller
 {
@@ -21,7 +21,7 @@ class UserAdminController extends Controller
             DB::transaction(function () use ($request) {
                 if($request->type === 'existing') {
                     $user = User::findOrFail($request->userid);
-                    $user->roles()->attach($request->role);
+                    $user->roles()->syncWithoutDetaching([$request->role]);
                 }
                 else {
                     $user = User::create([

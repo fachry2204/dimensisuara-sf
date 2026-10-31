@@ -72,6 +72,7 @@ Aggregator Transactions
             </div>
         </div>
         <div class="col-12 mb-3">
+            <div class="transaction-summary-panel">
             <div class="row justify-content-center g-3 transaction-summary-grid">
                 <div class="col-12 col-sm-6 col-lg-3">
                     <div class="card rounded-4 mb-0 transaction-summary-card transaction-summary-card--total">
@@ -129,6 +130,7 @@ Aggregator Transactions
                         </span>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
         <div class="col-12 mb-3">
@@ -275,6 +277,34 @@ Aggregator Transactions
     <link href="{{ URL::asset('build/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
     <style>
         .transaction-page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;margin-bottom:2rem}.transaction-page-heading h4{color:#f4f8ff;font-weight:700;letter-spacing:-.025em}.transaction-page-heading p{color:#8fb9e8;font-size:.94rem}.transaction-generate-btn{display:inline-flex;align-items:center;gap:.42rem;padding:.5rem .78rem;border-radius:.5rem;font-size:.82rem;font-weight:700}.transaction-generate-btn .material-icons-outlined{font-size:17px}.transaction-filter-card{overflow:hidden;border:1px solid #27618f;background:#0e2944}.transaction-filter-card .card-header{padding:1rem 1.25rem!important;background:#173d63;border-bottom:1px solid #28618e}.transaction-filter-card .card-header .card-title{display:flex;align-items:center;gap:.5rem;color:#f3f8ff}.transaction-filter-card .card-header .material-icons-outlined{color:#8fc8ff;font-size:19px}.transaction-filter-card .card-body{padding:1.2rem 1.25rem;color:#c9e0f7;background:#0e2944}.transaction-filter-card .card-body>p{margin-bottom:1rem;color:#9fc3e8;font-size:.88rem}.transaction-filter-card .form-label{margin-bottom:.35rem;color:#cfe4f7;font-size:.8rem;font-weight:700}.transaction-filter-card .form-select{min-height:38px;color:#edf6ff;background:#091f34;border-color:#356e9f;font-size:.86rem}.transaction-filter-submit{display:inline-flex;align-items:center;gap:.35rem;padding:.48rem .72rem;font-size:.8rem;font-weight:700}.transaction-filter-submit .material-icons-outlined{font-size:16px}.transaction-summary-card{border:1px solid #27618f;background:linear-gradient(135deg,#123754,#0d2943);box-shadow:0 9px 20px rgba(0,0,0,.14)}.transaction-summary-card .card-body{padding:1rem 1.1rem;background:transparent;color:#edf7ff}.transaction-summary-card h5{color:#fff;font-size:1.15rem;font-weight:750;white-space:nowrap}.transaction-summary-card p{color:#acd0f4;font-size:.78rem;font-weight:650}.transaction-summary-card .wh-48{width:44px!important;height:44px!important}.transaction-summary-card--total .wh-48{background:rgba(39,135,234,.18)!important;color:#69b6ff!important}.transaction-summary-card--aggregator .wh-48{background:rgba(128,85,241,.18)!important;color:#b499ff!important}.transaction-summary-card--client .wh-48{background:rgba(46,191,151,.18)!important;color:#67e1bd!important}.transaction-note{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;color:#b8e4ff;background:rgba(12,74,100,.54);border:1px solid #1e88a9;border-radius:.55rem;font-size:.83rem}.transaction-note .material-icons-outlined{color:#57caf3;font-size:18px}.transaction-table-toolbar{display:flex;justify-content:flex-end}.transaction-table-toolbar .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border-radius:.42rem;font-size:.8rem;font-weight:700}.transaction-table-toolbar .material-icons-outlined{font-size:16px}.transaction-table-shell{padding:1rem;border:1px solid #27618f;border-radius:.8rem;background:rgba(11,37,62,.77)}#rows-table{margin-top:.45rem!important;color:#eaf5ff;border-color:#234d73}#rows-table thead th{color:#d3e8ff;background:rgba(27,66,104,.76);border-bottom-color:#3972a0;font-size:.8rem;letter-spacing:.01em;white-space:nowrap}#rows-table td{padding:.75rem .5rem;vertical-align:middle;border-color:#234d73}#rows-table tbody tr:hover{background:rgba(37,94,143,.19)}#rows-table .btn{border-radius:.4rem;padding:.35rem .65rem;font-size:.78rem;font-weight:700}.transaction-table-shell .dataTables_filter input,.transaction-table-shell .dataTables_length select{color:#edf6ff;background:#081e33;border-color:#356e9f;border-radius:.4rem}@media(max-width:700px){.transaction-page-heading{flex-direction:column}.transaction-generate-btn{width:100%;justify-content:center}.transaction-filter-card .card-body{padding:1rem}.transaction-table-shell{padding:.65rem}}
+        html[data-bs-theme] body.sf-app .transaction-page .transaction-summary-panel {
+            padding: 1.25rem;
+            border: 1px solid var(--sf-border);
+            border-radius: 1rem;
+            background: var(--sf-surface) !important;
+        }
+        html[data-bs-theme] body.sf-app .transaction-page .transaction-summary-grid {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: 0 !important;
+            padding-bottom: .25rem;
+        }
+        .transaction-summary-card { overflow: hidden; height: 100%; }
+        .transaction-note { flex-wrap: wrap; }
+        .transaction-note > span:last-child { flex: 1; min-width: 0; }
+        html[data-bs-theme] body.sf-app .transaction-page .transaction-table-toolbar {
+            flex-wrap: wrap;
+            gap: .5rem;
+            padding: .85rem 1rem;
+            border: 1px solid var(--sf-border);
+            border-radius: .8rem;
+            background: var(--sf-surface) !important;
+        }
+        .transaction-table-toolbar .btn { margin: 0 !important; }
+        @media(max-width:575px) {
+            html[data-bs-theme] body.sf-app .transaction-page .transaction-summary-panel { padding: 1rem; }
+            .transaction-table-toolbar .btn { flex: 1 1 100%; justify-content: center; }
+        }
     </style>
 @endpush
 @push('script')

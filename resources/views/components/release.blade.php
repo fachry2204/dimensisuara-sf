@@ -484,7 +484,7 @@
 </div>
 
 @push('css')
-    <link href="{{ URL::asset('build/css/album.css') }}" rel="stylesheet" />
+    <link href="{{ URL::asset('build/css/album.css') }}?v={{ file_exists(public_path('build/css/album.css')) ? substr(hash_file('sha256', public_path('build/css/album.css')), 0, 12) : '1' }}" rel="stylesheet" />
     <style>
         .single-track-item .accordion-button.no-collapse::after {
             display: none !important;

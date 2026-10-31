@@ -54,10 +54,19 @@ class ContractController extends Controller
                 'month',
                 'year',
                 'type',
+                'aggregator_rate',
+                'system_rate',
+                'contract_date',
             ]);
 
             // Create contract
-            $result = $this->service->store($data);
+            $result = DB::transaction(function () use ($data, $request) {
+                $contract = $this->service->store($data);
+                if ($request->user()->can('upload-contracts') && $request->hasFile('pdf')) {
+                    $this->service->upload($contract, ['file' => $request->file('pdf')]);
+                }
+                return $contract;
+            });
 
             // if the callback returns an Eloquent model, add its id
             if ($result instanceof \Illuminate\Database\Eloquent\Model) {
@@ -121,6 +130,29 @@ class ContractController extends Controller
         }
     }
     
+    public function stamp_upload(int $id, Request $request)
+    {
+        $contract = Contract::where('type', 'aggregator')->findOrFail($id);
+        $request->validate(['stamped_pdf' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240']]);
+        try {
+            $this->service->uploadDigitalStamp($contract, $request->file('stamped_pdf'));
+            return redirect()->back()->with('contract_stamp_id', $contract->id)->with('success', 'PDF kontrak bermaterai digital berhasil diupload.');
+        } catch (\Throwable $exception) {
+            Log::error('Failed to upload digitally stamped contract.', ['contract_id' => $id, 'message' => $exception->getMessage()]);
+            return redirect()->back()->with('contract_stamp_id', $contract->id)->withErrors(['stamped_pdf' => 'Upload materai digital gagal. Silakan coba kembali.']);
+        }
+    }
+
+    public function stamp_view(int $id)
+    {
+        $contract = Contract::where('type', 'aggregator')->findOrFail($id);
+        $file = $contract->digitalStamp;
+        abort_unless($file && Storage::disk($file->disk)->exists($file->identifier), 404);
+        return Storage::disk($file->disk)->response($file->identifier, 'kontrak-bermaterai.pdf', [
+            'Content-Type' => 'application/pdf', 'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function view_raw(int $id)
     {
         // Get contract

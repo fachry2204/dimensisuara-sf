@@ -26,4 +26,16 @@ class ResetPasswordController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
+
+    public function broker()
+    {
+        $admin = \App\Models\User\Admin::where('email', request('email'))->exists();
+        return \Illuminate\Support\Facades\Password::broker($admin ? 'admins' : 'users');
+    }
+
+    protected function guard()
+    {
+        $admin = \App\Models\User\Admin::where('email', request('email'))->exists();
+        return \Illuminate\Support\Facades\Auth::guard($admin ? 'admin' : 'web');
+    }
 }

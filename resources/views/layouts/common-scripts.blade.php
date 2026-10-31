@@ -18,3 +18,4 @@
 @endunless
 
 @stack('script')
+<script src="{{ asset('build/js/theme-charts.js') }}?v={{ file_exists(public_path('build/js/theme-charts.js')) ? filemtime(public_path('build/js/theme-charts.js')) : '1' }}"></script>

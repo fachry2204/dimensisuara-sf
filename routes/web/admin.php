@@ -75,6 +75,8 @@ Route::middleware(['auth','verified'])->group(function () {
                     Route::get('view',              [AggregatorContractController::class, 'view_raw'])->name('admin.releases.contract.view_raw');                                            // view raw contract PDF
                     Route::get('view-pdf',          [AggregatorContractController::class, 'view_uploaded'])->name('admin.releases.contract.view_uploaded');                                  // view uploaded contract PDF
                     Route::post('upload',           [AggregatorContractController::class, 'pdf_upload'])->middleware(['can:upload-contracts'])->name('admin.releases.contract.pdf_upload');  // upload an existing contract
+                    Route::post('digital-stamp', [AggregatorContractController::class, 'stamp_upload'])->middleware(['can:upload-contracts'])->name('admin.releases.contract.stamp_upload');
+                    Route::get('digital-stamp', [AggregatorContractController::class, 'stamp_view'])->middleware(['can:view-contracts'])->name('admin.releases.contract.stamp_view');
                     Route::delete('/',              [AggregatorContractController::class, 'destroy'])->middleware(['can:delete-contracts'])->name('admin.releases.contract.destroy');        // delete a contract
                 });
             });
@@ -339,6 +341,16 @@ Route::middleware(['auth','verified'])->group(function () {
             Route::get('{id}',   [LogActivityController::class, 'show'])->name('admin.logactivity.show');
         });
 
+        // System settings: restricted to server administrators.
+        Route::prefix('system-settings')->middleware(['can:manage-automation'])->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('admin.system-settings.index');
+            Route::get('company-signature', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'companySignature'])->name('admin.system-settings.company-signature');
+            Route::get('maintenance-preview', function (\App\Services\SystemSettings $settings) {
+                return response()->view('maintenance', ['reason' => $settings->get('maintenance_reason')], 200, ['Cache-Control' => 'no-store, private']);
+            })->name('admin.system-settings.maintenance-preview');
+            Route::put('/', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('admin.system-settings.update');
+        });
+
         // Automation
         Route::prefix('automation')->middleware(['can:manage-automation'])->group(function () {
             Route::get('/',                 [AutomationController::class, 'index'])->name('admin.automation.index');
@@ -357,7 +369,7 @@ Route::middleware(['auth','verified'])->group(function () {
                Route::delete('{id}',    [UserRolesController::class, 'destroy'])->name('admin.user-roles.destroy');
            });
 
-            Route::prefix('admin')->group(function () {
+            Route::prefix('admin')->middleware(['can:manage-admins'])->group(function () {
                 Route::post('store',            [UserAdminController::class, 'store'])->name('admin.user-admin.store');
                 Route::delete('{id}/revoke',    [UserAdminController::class, 'revoke'])->name('admin.user-admin.revoke');
             });

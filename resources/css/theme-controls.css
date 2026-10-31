@@ -1,0 +1,519 @@
+/* Shared palette for every page and every native/custom form control. */
+html[data-bs-theme="light"],
+html[data-bs-theme="light"] body.sf-app {
+    color-scheme: light;
+    --sf-canvas: #f4f7fb;
+    --sf-surface: #ffffff;
+    --sf-surface-soft: #f8fafc;
+    --sf-input: #ffffff;
+    --sf-text: #0f172a;
+    --sf-muted: #475569;
+    --sf-placeholder: #64748b;
+    --sf-border: #cbd5e1;
+    --sf-accent: #c2410c;
+    --sf-accent-soft: #fff1e6;
+    --sf-focus: rgba(194, 65, 12, .25);
+    --sf-disabled: #e2e8f0;
+    --sf-invalid: #b91c1c;
+    --sf-valid: #087f5b;
+    --sf-danger-bg: #fff1f2;
+    --sf-danger-border: #fda4af;
+    --sf-danger-text: #9f1239;
+}
+html[data-bs-theme="dark"],
+html[data-bs-theme="dark"] body.sf-app {
+    color-scheme: dark;
+    --sf-canvas: #0b1220;
+    --sf-surface: #141e2d;
+    --sf-surface-soft: #1d293a;
+    --sf-input: #101c2d;
+    --sf-text: #eaf0f8;
+    --sf-muted: #bac9dc;
+    --sf-placeholder: #93a7c0;
+    --sf-border: #49617f;
+    --sf-accent: #fb923c;
+    --sf-accent-soft: #3b271e;
+    --sf-focus: rgba(251, 146, 60, .3);
+    --sf-disabled: #263448;
+    --sf-invalid: #fda4af;
+    --sf-valid: #6ee7b7;
+    --sf-danger-bg: #3b2027;
+    --sf-danger-border: #9f5365;
+    --sf-danger-text: #fecdd3;
+}
+html[data-bs-theme] body {
+    --bs-body-color: var(--sf-text);
+    --bs-body-bg: var(--sf-surface);
+    --bs-body-bg-2: var(--sf-canvas);
+    --bs-heading-color: var(--sf-text);
+    --bs-border-color: var(--sf-border);
+    --bs-secondary-color: var(--sf-muted);
+    --bs-secondary-bg: var(--sf-surface-soft);
+    --bs-tertiary-bg: var(--sf-surface-soft);
+    accent-color: var(--sf-accent);
+}
+html[data-bs-theme] body[class] :is(input, select, textarea):not(:where([type="radio"], [type="checkbox"], [type="hidden"], [type="range"], [type="color"], [type="submit"], [type="button"], [type="image"])) {
+    background-color: var(--sf-input) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+    caret-color: var(--sf-text);
+}
+html[data-bs-theme] body :is(input, textarea)::placeholder {
+    color: var(--sf-placeholder) !important;
+    opacity: 1 !important;
+}
+html[data-bs-theme] body :is(input, select, textarea):focus-visible {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px var(--sf-focus) !important;
+}
+html[data-bs-theme] body[class] :is(input, select, textarea):disabled,
+html[data-bs-theme] body[class] :is(input, textarea)[readonly] {
+    background-color: var(--sf-disabled) !important;
+    color: var(--sf-muted) !important;
+    opacity: 1;
+}
+html[data-bs-theme] body :is(select option, select optgroup) {
+    background: var(--sf-surface);
+    color: var(--sf-text);
+}
+html[data-bs-theme] body input::file-selector-button {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+/* Restore the checked artwork: never paint a white dot on a white background. */
+html[data-bs-theme] body .form-check-input {
+    background-color: var(--sf-input) !important;
+    border: 1px solid var(--sf-border) !important;
+    background-repeat: no-repeat !important;
+    background-position: center;
+    background-size: contain;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+html[data-bs-theme] body .form-check-input:checked,
+html[data-bs-theme] body .form-check-input:indeterminate {
+    background-color: #c2410c !important;
+    border-color: #c2410c !important;
+}
+html[data-bs-theme] body .form-check-input[type="radio"]:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='2' fill='white'/%3E%3C/svg%3E") !important;
+}
+html[data-bs-theme] body .form-check-input[type="checkbox"]:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3E%3C/svg%3E") !important;
+}
+html[data-bs-theme] body .form-check-input[type="checkbox"]:indeterminate {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-width='3' d='M6 10h8'/%3E%3C/svg%3E") !important;
+}
+html[data-bs-theme] body .form-switch .form-check-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='3' fill='%2393a7c0'/%3E%3C/svg%3E") !important;
+    background-position: left center !important;
+}
+html[data-bs-theme] body .form-switch .form-check-input:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='3' fill='white'/%3E%3C/svg%3E") !important;
+    background-position: right center !important;
+}
+html[data-bs-theme] body input:is([type="checkbox"], [type="radio"]):disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+html[data-bs-theme] body .form-check-input:checked:disabled {
+    background-color: #9a3412 !important;
+}
+/* A selected button-radio needs a different surface even under label overrides. */
+html[data-bs-theme] body.sf-app .btn-check:checked + .btn,
+html[data-bs-theme] body.sf-app .btn-check:checked + .btn :is(span, i) {
+    background-color: #c2410c !important;
+    border-color: #c2410c !important;
+    color: #ffffff !important;
+}
+html[data-bs-theme] body.sf-app .btn-check:focus-visible + .btn {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 3px;
+}
+html[data-bs-theme] body.sf-app :is(.release-choice-card, .release-radio-option):has(input:checked) {
+    background: var(--sf-accent-soft) !important;
+    border-color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app :is(.release-choice-card, .release-radio-option):has(input:focus-visible) {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 3px;
+}
+/* Validation colors follow the palette, without overriding checked state. */
+html[data-bs-theme] body :is(input, select, textarea):is(.is-invalid, .error),
+html[data-bs-theme] body .was-validated :is(input, select, textarea):invalid {
+    border-color: var(--sf-invalid) !important;
+}
+html[data-bs-theme] body :is(.invalid-feedback, .invalid-tooltip) { color: var(--sf-invalid); }
+html[data-bs-theme] body :is(input, select, textarea).is-valid,
+html[data-bs-theme] body .was-validated :is(input, select, textarea):valid {
+    border-color: var(--sf-valid) !important;
+}
+/* Neutral surfaces and text shared by lists, forms, dialogs, and third-party editors. */
+html[data-bs-theme] body.sf-app :is(.input-group-text, .dropdown-menu, .modal-content, .offcanvas, .accordion-item, .accordion-button, .accordion-body, .ql-toolbar, .ql-container, .ql-editor, .ql-picker-options, .ql-tooltip, .select2-dropdown, .select2-selection, .select2-search__field, .select2-results__option, .flatpickr-calendar) {
+    background-color: var(--sf-surface) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app :is(.select2-selection__rendered, .form-text, .form-label, .form-check-label) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app .select2-results__option--highlighted {
+    background: #c2410c !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app :is(.ql-stroke) { stroke: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app :is(.ql-fill) { fill: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app :is(.dropdown-item:hover, .dropdown-item:focus, .accordion-button:not(.collapsed)) {
+    background-color: var(--sf-surface-soft) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app :is(.admin-period, .admin-catalog-period-form, .analytics-period-form, .release-chart-period-form, .earn-period, .earn-download, .dashboard-period, .dashboard-secondary-btn) {
+    background: var(--sf-surface) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app :is(.admin-period, .catalog-period-display, .analytics-period-display, .sf-welcome, .branding-preview) {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app :is(.sf-welcome, .branding-preview) {
+    background: var(--sf-surface-soft) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app .sf-welcome :is(strong, p, .sf-welcome__eyebrow) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app .sf-welcome button { color: var(--sf-muted) !important; }
+html[data-bs-theme="dark"] body.sf-app :is(.bg-white, .bg-light, .card, .card-header, .card-footer, .tab-content) {
+    background-color: var(--sf-surface) !important;
+    color: var(--sf-text);
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme="dark"] body.sf-app :is(.text-dark, .text-black) { color: var(--sf-text) !important; }
+html[data-bs-theme="dark"] body.sf-app :is(.badge.bg-warning, .badge.bg-success).text-dark { color: #0b1220 !important; }
+html[data-bs-theme] body.sf-app .btn:focus-visible,
+html[data-bs-theme] body.sf-app a:focus-visible,
+html[data-bs-theme] body.sf-app button:focus-visible {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 3px;
+}
+
+/* Custom actions also need explicit hover/focus colors; .btn alone has no fill. */
+html[data-bs-theme] body .btn-primary { --sf-button-bg: #c2410c; --sf-button-hover: #9a3412; --sf-button-text: #fff; }
+html[data-bs-theme] body .btn-success { --sf-button-bg: #087f5b; --sf-button-hover: #066649; --sf-button-text: #fff; }
+html[data-bs-theme] body .btn-danger { --sf-button-bg: #be185d; --sf-button-hover: #9d174d; --sf-button-text: #fff; }
+html[data-bs-theme] body .btn-info { --sf-button-bg: #0369a1; --sf-button-hover: #075985; --sf-button-text: #fff; }
+html[data-bs-theme] body .btn-warning { --sf-button-bg: #fbbf24; --sf-button-hover: #f59e0b; --sf-button-text: #422006; }
+html[data-bs-theme] body .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-warning) {
+    background: var(--sf-button-bg) !important;
+    border-color: var(--sf-button-bg) !important;
+    color: var(--sf-button-text) !important;
+}
+html[data-bs-theme] body .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-warning):is(:hover, :focus-visible, :active) {
+    background: var(--sf-button-hover) !important;
+    border-color: var(--sf-button-hover) !important;
+    color: var(--sf-button-text) !important;
+}
+html[data-bs-theme] body .btn:disabled,
+html[data-bs-theme] body .btn.disabled {
+    background: var(--sf-disabled) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-muted) !important;
+    opacity: .7;
+}
+html[data-bs-theme] body.sf-app :is(.release-next-button, .release-submit-button, .release-upload-button, .release-add-track, .admin-step-next, .release-create-button, .contract-create-button, .dashboard-create-btn, .dashboard-upload-btn, .release-type-cta) {
+    background: #c2410c !important;
+    border-color: #c2410c !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app :is(.release-next-button, .release-submit-button, .release-upload-button, .release-add-track, .admin-step-next, .release-create-button, .contract-create-button, .dashboard-create-btn, .dashboard-upload-btn, .release-type-cta):is(:hover, :focus-visible, :active) {
+    background: #9a3412 !important;
+    border-color: #9a3412 !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app :is(.release-previous-button, .release-save-draft, .admin-step-previous, .release-toolbar-button, .release-inline-action, .release-ipl-upload, .release-add-artist-button, .admin-user-action-btn) {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app :is(.release-previous-button, .release-save-draft, .admin-step-previous, .release-toolbar-button, .release-inline-action, .release-ipl-upload, .release-add-artist-button, .admin-user-action-btn):is(:hover, :focus-visible, :active) {
+    background: var(--sf-accent-soft) !important;
+    border-color: var(--sf-accent) !important;
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app :is(.release-add-artist-button, .release-inline-action) :is(strong, small, i) { color: inherit !important; }
+html[data-bs-theme] body.sf-app :is(.release-remove-button, .release-upload-error-close) {
+    background: #be185d !important;
+    border-color: #be185d !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app :is(.release-remove-button, .release-upload-error-close):is(:hover, :focus-visible) { background: #9d174d !important; }
+html[data-bs-theme="dark"] body.sf-app :is(.profile-info-card, .profile-legacy-details, .profile-contract-row, .profile-contract-empty, .dashboard-announcements, .dashboard-kpi-card, .dashboard-panel, .user-table-titlebar, .broadcast-table-titlebar) {
+    background: var(--sf-surface) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme="dark"] body.sf-app :is(.profile-info-card, .profile-legacy-details, .profile-contract-row, .profile-contract-empty, .dashboard-announcements) :is(h2, h3, h4, h5, strong, p, span, small, label) { color: var(--sf-text) !important; }
+
+/* Authentication pages use the same preference as the workspace. */
+html[data-bs-theme] body.soundfresh-login :is(.login-panel, .login-form-wrap),
+html[data-bs-theme] .sf-login .sf-form-side,
+html[data-bs-theme] .sf-register {
+    background: var(--sf-canvas) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.soundfresh-login :is(.login-input-wrap, .login-input-wrap:focus-within),
+html[data-bs-theme] .sf-login .sf-input {
+    background-color: var(--sf-input) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.soundfresh-login .login-input-wrap input:focus-visible {
+    outline: 0;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.soundfresh-login .login-input-wrap:focus-within {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 2px;
+}
+html[data-bs-theme] body.soundfresh-login :is(.login-heading h2, .login-field label, .login-input-wrap, .login-options label),
+html[data-bs-theme] .sf-login :is(.sf-form-panel h2, .sf-field label) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.soundfresh-login :is(.login-heading p, .login-input-wrap > span, .login-input-wrap button, .login-signup p),
+html[data-bs-theme] .sf-login :is(.sf-form-panel__intro, .sf-remember) { color: var(--sf-muted) !important; }
+html[data-bs-theme="light"] .sf-register :is(.sf-register__header, .sf-register__footer, .sf-register__choices label, .sf-register__info, .sf-register__review, .sf-register__section) {
+    background: var(--sf-surface) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme="light"] .sf-register :is(h1, h2, strong, label, .sf-register__grid) { color: var(--sf-text) !important; }
+html[data-bs-theme="light"] .sf-register :is(p, small, .sf-register__intro, .sf-register__progress, .sf-register__footer) { color: var(--sf-muted) !important; }
+html[data-bs-theme] .sf-register .sf-register__choices label.selected {
+    background: var(--sf-accent-soft) !important;
+    border-color: var(--sf-accent) !important;
+}
+@media (forced-colors: active) {
+    html[data-bs-theme] body .form-check-input { appearance: auto; background-image: none !important; }
+}
+
+/* Shared list headers, summaries, and insight panels must follow both palettes. */
+html[data-bs-theme] body.sf-app :is(.user-table-titlebar, .broadcast-table-titlebar, .identity-document-preview, .admin-user-tabs, .analytics-insight.featured) {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app .announcement-live-preview { background: var(--sf-surface-soft) !important; color: var(--sf-text) !important; border-color: var(--sf-border) !important; }
+html[data-bs-theme] body.sf-app :is(.admin-summary-grid, .automation-summary, .roles-summary) > article {
+    background: var(--sf-surface) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app :is(.admin-summary-grid, .automation-summary, .roles-summary) > article strong {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app :is(.admin-summary-grid, .automation-summary, .roles-summary) > article :is(small, em, span),
+html[data-bs-theme] body.sf-app .analytics-insight.featured :is(strong, p, small),
+html[data-bs-theme] body.sf-app :is(.user-table-titlebar, .broadcast-table-titlebar) :is(strong, span),
+html[data-bs-theme] body.sf-app :is(.admin-artist-name, .admin-release-format, .admin-activity-detail, .admin-user-document-count, .user-summary-card em, .contract-review-users) {
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app :is(.admin-summary-icon, .roles-summary > article > i, .automation-summary > article > i) {
+    background: var(--sf-accent-soft) !important;
+    color: var(--sf-accent) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme="light"] body.sf-app .admin-eyebrow { color: var(--sf-accent) !important; }
+html[data-bs-theme="light"] body.sf-app .reporting-summary-grid strong { color: var(--sf-text) !important; }
+html[data-bs-theme="light"] body.sf-app .admin-release-action--edit { color: #c2410c; }
+html[data-bs-theme="light"] body.sf-app .admin-release-action--edit:is(:hover, :focus-visible, :active) { color: #fff; }
+html[data-bs-theme] body.sf-app :is(.admin-review-action, .earn-balance > a, .role-form-actions button, .announcement-form-actions button, .roles-page-header > a, .announcement-create-btn) {
+    background: #c2410c !important;
+    border-color: #c2410c !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app :is(.admin-review-action, .earn-balance > a, .role-form-actions button, .announcement-form-actions button, .roles-page-header > a, .announcement-create-btn):is(:hover, :focus-visible) {
+    background: #9a3412 !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app :is(.profile-avatar, .admin-user-avatar) { background: #c2410c !important; color: #fff !important; }
+html[data-bs-theme] body.sf-app .badge:is(.bg-primary, .bg-success, .bg-danger, .bg-info, .bg-secondary) {
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app .badge.bg-primary { background: #c2410c !important; }
+html[data-bs-theme] body.sf-app .badge.bg-success { background: #087f5b !important; }
+html[data-bs-theme] body.sf-app .badge.bg-danger { background: #be185d !important; }
+html[data-bs-theme] body.sf-app .badge.bg-info { background: #0369a1 !important; }
+html[data-bs-theme] body.sf-app .badge.bg-secondary { background: #475569 !important; }
+html[data-bs-theme] body.sf-app .badge.bg-warning { background: #fbbf24 !important; color: #422006 !important; }
+html[data-bs-theme] body.sf-app :is(.earn-legend span, .earn-platform em, .tx-history footer span, .admin-user-contact span, .announcement-data-panel header > span, .announcement-period-note span) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app .role-form-grid label > span { color: var(--sf-invalid) !important; }
+html[data-bs-theme] body.sf-app .analytics-view-button,
+html[data-bs-theme] body.sf-app .analytics-view-button span { color: var(--sf-accent) !important; }
+html[data-bs-theme] body.sf-app .analytics-view-button:is(:hover, :focus-visible),
+html[data-bs-theme] body.sf-app .analytics-view-button:is(:hover, :focus-visible) span { background: #c2410c !important; color: #fff !important; }
+html[data-bs-theme="light"] body.sf-app .bs-stepper-circle { background: #e2e8f0; color: #334155; }
+html[data-bs-theme="light"] body.sf-app .active .bs-stepper-circle { background: #c2410c; color: #fff; }
+html[data-bs-theme] body.sf-app .apexcharts-text { fill: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app :is(.nav-tabs .nav-link.active, .nav-pills .nav-link.active, .pagination .active > .page-link, .admin-release-step.is-active span, .bs-stepper .active .bs-stepper-circle) {
+    background: #c2410c !important;
+    border-color: #c2410c !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app .nav-link.active .tab-title { color: #fff !important; }
+html[data-bs-theme] body.sf-app .apexcharts-gridline { stroke: var(--sf-border) !important; }
+html[data-bs-theme] body.sf-app :is(.admin-chart-legend span, .analytics-legend span, .announcement-preview-card span, .tx-steps span) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.soundfresh-login .login-submit {
+    background: linear-gradient(110deg, #c2410c, #9a3412) !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.soundfresh-login .login-submit:is(:hover, :focus-visible) { background: #9a3412 !important; }
+html[data-bs-theme="light"] .sf-register :is(.sf-register__top > span, .sf-register__top a) { color: var(--sf-text) !important; }
+html[data-bs-theme="light"] .sf-register .sf-register__action-note { color: var(--sf-muted) !important; }
+html[data-bs-theme="light"] .sf-register .sf-register__rail-footer { color: #e2e8f0 !important; }
+html[data-bs-theme="light"] .sf-register .sf-register__error { background: #fff1f2 !important; color: #9f1239 !important; border-color: #fda4af !important; }
+html[data-bs-theme="light"] .sf-register .sf-register__choices .material-icons-outlined { color: var(--sf-accent) !important; background: var(--sf-accent-soft) !important; border-color: var(--sf-border) !important; }
+html[data-bs-theme] body.sf-app .profile-hero-card { background: var(--sf-surface) !important; color: var(--sf-text) !important; border-color: var(--sf-border) !important; }
+html[data-bs-theme="dark"] body.sf-app :is(.profile-hero-card, .profile-info-card, .profile-contract-content) :is(h2, h3, h4, h5, strong, b, dd) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app .earn-tab.is-active { background: #c2410c !important; color: #fff !important; }
+html[data-bs-theme] body.sf-app .bs-stepper-circle { background: var(--sf-surface-soft); color: var(--sf-muted); }
+html[data-bs-theme] body.sf-app .bs-stepper .line { background: var(--sf-border); }
+html[data-bs-theme] .sf-register .primary,
+html[data-bs-theme] .sf-register .primary span { background: #c2410c !important; color: #fff !important; }
+html[data-bs-theme] .sf-register .primary:is(:hover, :focus-visible) { background: #9a3412 !important; }
+html[data-bs-theme] .sf-register .primary:disabled { background: var(--sf-disabled) !important; color: var(--sf-muted) !important; }
+html[data-bs-theme] .sf-register .primary:disabled span { background: transparent !important; color: inherit !important; }
+html[data-bs-theme] body.sf-app .analytics-page-header > div > span { color: var(--sf-accent) !important; }
+html[data-bs-theme="light"] .sf-register .sf-register__rail { background: var(--sf-surface-soft); }
+html[data-bs-theme="light"] .sf-register .sf-register__rail::before { background: linear-gradient(180deg, rgba(248,250,252,.9), rgba(248,250,252,.97)), var(--studio-image) center/cover no-repeat; }
+html[data-bs-theme="light"] .sf-register .sf-register__rail::after { background: none; }
+html[data-bs-theme="light"] .sf-register .sf-register__rail :is(li, .sf-register__rail-footer) { color: var(--sf-muted) !important; }
+html[data-bs-theme="light"] .sf-register .sf-register__rail li span { background: var(--sf-surface); border-color: var(--sf-border); color: var(--sf-text); }
+html[data-bs-theme="light"] .sf-register .sf-register__rail :is(li.current, li.done) span { background: #c2410c; border-color: #c2410c; color: #fff; }
+html[data-bs-theme="light"] body.soundfresh-login .login-hero { background-color: var(--sf-canvas); }
+html[data-bs-theme="light"] body.soundfresh-login .login-hero-overlay { background: linear-gradient(90deg, rgba(248,250,252,.97), rgba(248,250,252,.87)); }
+html[data-bs-theme="light"] body.soundfresh-login .login-hero h1 em { color: #c2410c; }
+html[data-bs-theme="light"] body.soundfresh-login .login-hero-content :is(h1, .login-kicker, .login-feature strong, .login-social-proof strong) { color: var(--sf-text); }
+html[data-bs-theme="light"] body.soundfresh-login .login-hero-content :is(.login-hero-copy, .login-tagline, .login-feature small, .login-social-proof small) { color: var(--sf-muted); }
+html[data-bs-theme="light"] body.soundfresh-login .login-feature { background: var(--sf-surface); border-color: var(--sf-border); }
+html[data-bs-theme="light"] body.soundfresh-login .login-social-proof { border-color: var(--sf-border); }
+html[data-bs-theme="light"] body.soundfresh-login .feature-orange { color: #c2410c; background: #fff1e6; }
+html[data-bs-theme="light"] body.soundfresh-login .feature-purple { color: #7e22ce; background: #f3e8ff; }
+html[data-bs-theme="light"] body.soundfresh-login .feature-green { color: #047857; background: #d1fae5; }
+html[data-bs-theme="light"] .sf-login .sf-story { background-color: var(--sf-canvas); }
+html[data-bs-theme="light"] .sf-login .sf-story::before { background: rgba(248,250,252,.9); }
+html[data-bs-theme="light"] .sf-login .sf-story :is(h1, p, li) { color: var(--sf-text); }
+html[data-bs-theme] body.sf-app :is(.apexcharts-tooltip, .apexcharts-tooltip-title, .apexcharts-menu) {
+    background: var(--sf-surface) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+
+/* Interactive panels are also themed while tabs and dialogs are open. */
+html[data-bs-theme] body.sf-app .report-filter-grid label > span {
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app .report-export {
+    background: var(--sf-surface) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app .report-export:is(:hover, :focus-visible) {
+    background: var(--sf-accent-soft) !important;
+    border-color: var(--sf-accent) !important;
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app :is(.earn-balance > a, .report-export, .release-type-cta) :is(span, i) {
+    color: inherit !important;
+}
+html[data-bs-theme] body.sf-app .release-picker-dialog .modal-content {
+    background: var(--sf-canvas) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app .release-picker :is(h4, .release-type .fs-4) {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app .release-picker :is(.release-picker-subtitle, .release-picker-step, .release-picker-step span, .release-type-detail, .release-type .fs-4 + p) {
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app .release-picker .release-type {
+    background: var(--sf-surface) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+    box-shadow: 0 8px 24px var(--sf-focus) !important;
+}
+html[data-bs-theme] body.sf-app .release-picker .release-type:hover {
+    background: var(--sf-surface-soft) !important;
+    border-color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app .release-picker :is(.release-type-icon, .release-type-detail span),
+html[data-bs-theme] body.sf-app .release-picker-header .primaery-menu-close {
+    background: var(--sf-accent-soft) !important;
+    color: var(--sf-accent) !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app .release-picker-header .primaery-menu-close:hover {
+    background: #c2410c !important;
+    color: #fff !important;
+}
+html[data-bs-theme] body.sf-app .release-picker-kicker { color: var(--sf-accent) !important; }
+html[data-bs-theme="light"] body.sf-app .release-picker-studio {
+    opacity: .35;
+    background: radial-gradient(circle at 50% 42%, #dbeafe, transparent 65%);
+}
+html[data-bs-theme="light"] body.sf-app .studio-speaker {
+    border-color: #cbd5e1;
+    box-shadow: inset 0 0 0 34px #e2e8f0;
+}
+html[data-bs-theme="light"] body.sf-app .studio-speaker::after { background: #cbd5e1; }
+html[data-bs-theme="light"] body.sf-app .studio-note { color: #64748b; }
+html[data-bs-theme] body.sf-app .system-settings [data-contract-preview] {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app .system-settings [data-contract-preview]:is(:hover, :focus-visible, :active) {
+    background: #c2410c !important;
+    color: #fff !important;
+    border-color: #c2410c !important;
+}
+
+/* Log rows are injected by DataTables, so their own text needs the active palette. */
+html[data-bs-theme] body.sf-app .log-data-panel .log-message {
+    color: var(--sf-text) !important;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+html[data-bs-theme] body.sf-app .log-data-panel .log-user { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app .log-data-panel .log-user i {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme="light"] body.sf-app .log-data-panel .log-level-info { background: #dbeafe; color: #1e40af; }
+html[data-bs-theme="light"] body.sf-app .log-data-panel .log-level-error { background: #ffe4e6; color: #9f1239; }
+html[data-bs-theme="light"] body.sf-app .log-data-panel .log-level-warning { background: #fef3c7; color: #92400e; }
+html[data-bs-theme="light"] body.sf-app .log-data-panel .log-level-default { background: #e2e8f0; color: #334155; }
+
+/* Alerts and impersonation notices follow the active palette. */
+html[data-bs-theme] body.sf-app .alert.alert-danger {
+    --bs-alert-bg: var(--sf-danger-bg);
+    --bs-alert-border-color: var(--sf-danger-border);
+    --bs-alert-color: var(--sf-danger-text);
+    background: var(--sf-danger-bg) !important;
+    border-color: var(--sf-danger-border) !important;
+    color: var(--sf-danger-text) !important;
+}
+html[data-bs-theme] body.sf-app .alert.alert-danger :is(div, p, span, strong, b, h1, h2, h3, h4, h5, h6, ul, ol, li, a) {
+    color: inherit !important;
+}
+html[data-bs-theme] body.sf-app .impersonation-banner {
+    background: var(--sf-accent-soft) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app .impersonation-banner__message,
+html[data-bs-theme] body.sf-app .impersonation-banner__message :is(span, strong) {
+    color: inherit !important;
+}
+html[data-bs-theme] body.sf-app .impersonation-banner__message .material-icons-outlined {
+    color: var(--sf-accent) !important;
+}
+/* Wide management tables use the available space beside the sidebar. */
+.sf-app .main-wrapper .main-content.main-content--wide {
+    width: 100%;
+    max-width: none;
+}

@@ -51,7 +51,7 @@ class UpdateUserRequest extends FormRequest
                     'companyname'   => 'required_if:registrationtype,company|nullable|string',
                     'firstname'     => 'required|string|max:100',
                     'lastname'      => 'nullable|string|max:100',
-                    'email'         => 'required|string|email|max:50|unique:users,email,' . $user->id,
+                    'email'         => 'required|string|email|max:50|unique:user_admin,email|unique:users,email,' . $user->id,
                     'phone'         => 'required|string|max:20',
                     'address1'      => 'required|string|max:255',
                     'address2'      => 'nullable|string|max:255',

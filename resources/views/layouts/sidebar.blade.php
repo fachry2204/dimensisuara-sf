@@ -1,17 +1,19 @@
 <!--start sidebar-->
+@php($customerNavigation = session()->has('impersonate') || !auth()->user()->can('admin'))
+@php($sidebarHome = $customerNavigation ? 'home' : 'admin.home')
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
         <div class="logo-icon">
-            <a href="{{ route('home') }}">
-                <img src="{{ URL::asset('build/images/logo-soundfresh-150.webp') }}" alt="SoundFresh Logo" class="py-3"
+            <a href="{{ route($sidebarHome) }}">
+                <img src="{{ app_logo('build/images/logo-soundfresh-150.webp') }}" alt="{{ app_name() }} Logo" class="py-3"
                     style="max-width: 100%;">
             </a>
         </div>
         <div class="logo-name">
-            <a href="{{ route('home') }}">
-                <img src="{{ URL::asset('build/images/logo-putih.webp') }}" alt="SoundFresh Logo"
+            <a href="{{ route($sidebarHome) }}">
+                <img src="{{ app_logo('build/images/logo-putih.webp') }}" alt="{{ app_name() }} Logo"
                     class="sidebar-theme-logo sidebar-theme-logo-dark py-3">
-                <img src="{{ URL::asset('build/images/logo-oranges.webp') }}" alt="SoundFresh Logo"
+                <img src="{{ app_logo('build/images/logo-oranges.webp') }}" alt="{{ app_name() }} Logo"
                     class="sidebar-theme-logo sidebar-theme-logo-light py-3">
             </a>
         </div>
@@ -22,6 +24,7 @@
     <div class="sidebar-nav">
         <!--navigation-->
         <ul class="metismenu" id="sidenav">
+            @if($customerNavigation)
             @can('customer')
                 <li class="menu-label">Home</li>
                 <li>
@@ -124,8 +127,10 @@
                     @endif
                 @endcan
             @endcan
+            @endif
 
             {{-- Start Admin Menu --}}
+            @if(!session()->has('impersonate'))
             @can('admin')
                 <li class="menu-label">Administrative Tools</li>
                 <li>
@@ -286,6 +291,12 @@
                     <li class="menu-label">Server Management</li>
                     @can('manage-automation')
                         <li>
+                            <a href="{{ route('admin.system-settings.index') }}">
+                                <div class="parent-icon"><span class="material-icons-outlined">settings</span></div>
+                                <div class="menu-title">Setting System</div>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{route('admin.automation.index')}}">
                                 <div class="parent-icon">
                                     <span class="material-symbols-outlined">automation</span>
@@ -306,6 +317,7 @@
                     @endcan
                 @endcanany
             @endcan
+            @endif
         </ul>
         <!--end navigation-->
     </div>

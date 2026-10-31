@@ -12,7 +12,7 @@ if (login) {
 
 const app = document.querySelector('[data-vue-app]');
 if (app) {
-    createApp(AppEnhancements).mount(app);
+    createApp(AppEnhancements, { appName: app.dataset.appName }).mount(app);
 }
 
 const register = document.querySelector('[data-vue-register]');

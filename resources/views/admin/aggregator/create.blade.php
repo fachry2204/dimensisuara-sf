@@ -75,12 +75,10 @@
                     <label for="aggregator" class="form-label">Aggregator</label>
                     <p>Please select an aggregator to review this release:</p>
                     <select class="form-select" name="aggregator" id="aggregator">
-                        <option value="">-- Unassigned --</option>
-                        @foreach (['Believe', 'SoundOn', 'Lokamusik'] as $name)
-                            <option value="{{ $name }}" @if(old('aggregator', $release->aggregator) == $name) selected @endif>
-                                {{ $name }}
-                            </option>
-                        @endforeach
+                        @include('admin.aggregator.partials.aggregator-options', [
+                            'selectedAggregator' => old('aggregator', $release->aggregator),
+                            'legacyAggregator' => $release->exists ? $release->aggregator : null,
+                        ])
                     </select>
                 </div>
             </div>
@@ -205,12 +203,12 @@
                     <p class="form-label mb-2">Has this album already been released outside this system?</p>
                     <div class="release-choice-grid">
                     <div class="form-check release-choice-card">
-                        <input class="form-check-input" type="radio" name="released" value="0" id="released-no"
+                        <input class="form-check-input" type="radio" name="released" value="0" id="released-no" @checked((string) old('released', $release->released ?? 0) === '0')
                             x-model="$store.release.released" required>
                         <label class="form-check-label" for="released-no">No, this is a new release</label>
                     </div>
                     <div class="form-check release-choice-card">
-                        <input class="form-check-input" type="radio" name="released" value="1" id="released-yes"
+                        <input class="form-check-input" type="radio" name="released" value="1" id="released-yes" @checked((string) old('released', $release->released ?? 0) === '1')
                             x-model="$store.release.released">
                         <label class="form-check-label" for="released-yes">Yes, this album has already been released</label>
                     </div>
@@ -664,7 +662,7 @@
                 version:        {{ old('version', $release->version) ?? 1 }},
                 genre:          {{ old('genre', $release->genre) ?? 1 }},
                 subgenre:       {{ old('subgenre', $release->subgenre) ?? 0 }},
-                released:       {{ old('released', $release->released) ?? 0 }},
+                released:       @json((string) old('released', $release->released ?? 0)),
                 trackSubGenres: [],
                 methods: {
                     determinePreRelease() {

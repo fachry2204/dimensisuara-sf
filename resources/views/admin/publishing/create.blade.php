@@ -88,7 +88,7 @@
                         <div class="ms-3">
                             Select synchronization licensing type:
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="sync_license_type" id="sync_license_type_exclusive" value="exclusive" @if( old('sync_license_type', $publishing->sync_license_type) == 'exclusive' || $publishing->sync_license_type == null ) checked @endif>
+                                <input class="form-check-input" type="radio" name="sync_license_type" id="sync_license_type_exclusive" value="exclusive" @checked(old('sync_license_type', $publishing->sync_license_type ?? 'exclusive') === 'exclusive')>
                                 <label class="form-check-label" for="sync_license_type_exclusive">
                                     Exclusive License<br>
                                     <small>Only the Publisher shall have the exclusive right to negotiate synchronization licensing of the Composition with third parties, subject to written notice to the Author/Composer.</small>

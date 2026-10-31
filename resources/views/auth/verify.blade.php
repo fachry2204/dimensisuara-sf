@@ -11,7 +11,7 @@
                     <div class="card rounded-0 m-3 mb-0 border-0 shadow-none bg-none">
                         <div class="card-body p-5">
                             <a href="{{ url('/') }}">
-                                <img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145" alt="SoundFresh Logo">
+                                <img src="{{ app_logo('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145" alt="{{ app_name() }} Logo">
                             </a>
                             <h4 class="fw-bold">Verify Your Email Address</h4>
                             <p class="mb-0">Before proceeding, please check your email for a verification link!</p>

@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class Track extends Model
 {
+    public function scopeInReleaseCatalogue(\Illuminate\Database\Eloquent\Builder $query, \App\Models\User\User $viewer): \Illuminate\Database\Eloquent\Builder
+    {
+        // Count each track once, only while it belongs to an accessible release.
+        return $query->whereHas('releases', fn ($releases) => $releases->visibleTo($viewer));
+    }
     protected $fillable = [
         'order',
         'profileid',

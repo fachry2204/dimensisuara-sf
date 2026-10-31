@@ -63,19 +63,6 @@
             </tr>
         </table>
 
-        <div class="mt-3">
-            <ul>
-                @if ($settlement->slip)
-                    <li>
-                        <a href="{{ $settlement->slip_url }}" target="_blank">Download Transaction Slip</a>
-                    </li>
-                @endif
-                @if ($settlement->tax_invoice)
-                    <li>
-                        <a href="{{ $settlement->tax_invoice_url }}" target="_blank">Download Payment Receipt</a>
-                    </li>
-                @endif
-            </ul>
-        </div>
+        @include('components.settlement-documents')
     </div>
 </div>

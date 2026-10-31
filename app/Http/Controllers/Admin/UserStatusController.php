@@ -20,8 +20,15 @@ class UserStatusController extends Controller
     /**
      * User status
      */
-    public function verify(string $id)
+    public function verify(string $id, Request $request)
     {
+        $rates = $request->validate([
+            'aggregator_rate' => ['required', 'numeric', 'multiple_of:1', 'between:0,100'],
+            'system_rate' => ['required', 'numeric', 'multiple_of:1', 'between:0,100'],
+        ]);
+        if ((int) $rates['aggregator_rate'] + (int) $rates['system_rate'] !== 100) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['aggregator_rate' => 'Total persentase user dan system harus 100%.']);
+        }
         try {
             // Get user
             $user = User::findOrFail($id);
@@ -34,8 +41,9 @@ class UserStatusController extends Controller
                 throw new \Exception("This user is already verified");
             }
 
-            DB::transaction(function () use ($user) {
+            DB::transaction(function () use ($user, $rates) {
                 // Update profile
+                $user->profile->aggregator_rate = $rates['aggregator_rate'];
                 $user->profile->status      = 'verified';
                 $user->profile->reason      = null;
                 $user->profile->delete_by   = null;

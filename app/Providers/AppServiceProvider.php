@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\SystemSettings::class);
     }
 
     /**
@@ -28,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        app(\App\Services\SystemSettings::class)->apply();
+        \Illuminate\Support\Facades\Queue::before(function () {
+            app(\App\Services\SystemSettings::class)->refresh();
+        });
 
         Gate::before(function ($user, string $ability) {
             return $user->hasPermission($ability) ? true : null;
@@ -46,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Auth::viaRequest('impersonate', function () {
-            if (Session::has('impersonate')) {
+            if (Auth::user() instanceof \App\Models\User\Admin && Auth::user()->can('impersonate-users') && Session::has('impersonate')) {
                 return User::find(Session::get('impersonate'));
             }
 

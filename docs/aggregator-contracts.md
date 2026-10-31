@@ -1,0 +1,29 @@
+# Draft dan generate kontrak Aggregator
+
+Setting System → Contract menyediakan dua draft: Non PT dan PT. Draft awal berasal dari template Aggregator aplikasi; angka tetap 70/30 diganti penanda persentase. Admin dapat mengedit HTML atau mengimpor HTML/TXT, melihat pratinjau, lalu menyimpan kedua draft.
+
+Bagian Prefix Kode Contract pada tab yang sama mengatur kode tengah nomor Aggregator (default `PKS-DMSV`). Nilai tersimpan di database, huruf dinormalisasi menjadi kapital, maksimal 50 karakter berupa huruf/angka/titik/garis bawah/tanda hubung. Contoh prefix `PKS-SF` menghasilkan `001/PKS-SF/X/2026`. Nomor kontrak yang sudah tersimpan tetap dipakai saat dicetak kembali, termasuk kontrak lama tanpa snapshot.
+
+Penanda wajib: `[FULLNAME]`, `[USER_PERCENT]`, `[SYSTEM_PERCENT]`. Daftar penanda lain tersedia di layar, termasuk identitas PIC, perusahaan, alamat, rekening, nomor dokumen, tanggal, dan tanda tangan yang sudah tersimpan. Script dan referensi aset eksternal tidak diterima. Pratinjau memperlihatkan penanda; data user digabung saat generate.
+
+Verifikasi user meminta persentase user dan system dalam bilangan bulat 0–100, dengan total wajib 100%. Mengubah satu nilai otomatis menghitung pasangannya. Bagian user disimpan pada `user_profiles.aggregator_rate`, yang juga dipakai alur laporan yang sudah ada; bagian system merupakan komplemennya.
+
+User Management → pilih user → Contracts → Generate Kontrak tersedia bagi admin dengan izin `generate-contracts`, setelah profil terverifikasi dan fitur Aggregator aktif. Isi nomor dokumen, bulan, dan tahun. Jenis draft mengikuti `is_company`. Upload PDF opsional tersedia bagi admin dengan izin `upload-contracts`.
+
+Form generate pada halaman user dan daftar kontrak memiliki input Pembagian User dan Pembagian System. Nilai awal mengikuti rate profil; perubahan salah satunya menghitung komplemennya. Total wajib 100% dan masing-masing bilangan bulat 0–100. Saat generate berhasil, nilai disimpan pada `contracts.user_percentage` dan `contracts.system_percentage`, dipakai mengisi PDF, dan bagian user menjadi `user_profiles.aggregator_rate` untuk laporan berikutnya. Seluruh perubahan berada dalam transaksi yang sama; kegagalan generate tidak mengubah rate. Kontrak terdahulu mempertahankan snapshot dan nilai pembagiannya sendiri.
+
+Migrasi pembagian: `2026_10_30_130000_add_revenue_split_to_contracts.php`. Kolom kontrak lama tetap nullable; snapshot lama tidak ditulis ulang. Kesalahan validasi membuka kembali form dengan nilai input dipertahankan.
+
+Kontrak baru menyimpan HTML yang sudah diisi pada kolom `contracts.generated_html`, terenkripsi dan tidak masuk serialisasi JSON. PDF dibuat dari salinan tersebut. Perubahan draft, profil, atau rate berikutnya tidak menulis ulang isinya. Template/tanda tangan yang tersimpan di aplikasi digunakan; proses ini tidak menjalankan alur persetujuan atau penandatanganan baru.
+
+PDF hasil generate bisa dibuka melalui menu kontrak admin dan halaman profil pemilik. Jika ada PDF manual, halaman profil mendahulukan file manual, sementara admin tetap bisa membuka hasil generate. Kontrak lama tanpa snapshot mempertahankan penggunaan template lama saat dicetak. Header logo PDF tetap mengikuti branding aplikasi.
+
+Migrasi: `2026_10_30_120000_add_generated_html_to_contracts.php`. Draft tersimpan di pengaturan sistem terenkripsi. Kontrak Publishing belum memiliki editor draft pada tab ini.
+
+Verifikasi: `AggregatorContractTest` memakai SQLite dalam memori dan direktori sementara. Mencakup draft Non PT/PT, total persentase, penolakan user belum terverifikasi, salinan isi yang tetap, PDF bawaan/custom, sanitasi markup, duplikat nomor, serta upload PDF opsional. Pemeriksaan browser memakai snapshot lokal tanpa menyimpan perubahan akun nyata.
+
+Upload Materai Digital tersedia pada menu setiap kontrak Aggregator di detail user, dengan izin `upload-contracts`. File yang diunggah adalah PDF kontrak lengkap yang sudah bermaterai, maksimal 10 MB. File disimpan secara privat pada `filestorage` dengan tipe `digital_stamp`, terpisah dari PDF manual dan HTML hasil generate; tidak memerlukan migrasi database baru. Izin `view-contracts` diperlukan untuk membuka PDF bermaterai. Upload berikutnya mengganti file bermaterai sebelumnya, dan penghapusan kontrak ikut menghapus file tersebut.
+
+Di samping nomor kontrak ditampilkan status Generate Kontrak (berdasarkan snapshot `generated_html`) serta Materai Digital (Belum diupload / Sudah diupload). Setelah upload, tab Contracts terbuka kembali. Kesalahan validasi mempertahankan konteks kontrak dan membuka dialog untuk memilih ulang file. Pengujian mencakup PDF valid, penolakan file palsu/terlalu besar/kosong, izin akses, penggantian file, pemisahan PDF manual dan snapshot, serta pembersihan file saat kontrak dihapus.
+Tanggal Generate Kontrak tersedia pada form detail user dan daftar kontrak. Nilai awal adalah hari ini; tanggal pilihan disimpan sebagai `contracts.contract_date` dan mengisi penanda `[DATE]` pada snapshot/PDF. Month dan Year tetap menentukan nomor dokumen. Kontrak lama tanpa tanggal pilihan menggunakan tanggal pembuatannya, sementara snapshot yang sudah tersimpan tetap dipertahankan. Migrasi: `2026_10_30_160000_add_contract_date_to_contracts.php`. Persentase bulat ditampilkan tanpa nol desimal (`75`, bukan `75.00`), termasuk setelah validasi gagal dan saat mengganti profil pada daftar kontrak.
+Area tanda tangan PDF Aggregator menggunakan tiga kolom: pihak pertama 34%, ruang kosong materai digital 32%, dan pihak kedua 34%. Kota Bogor ditampilkan di atas area tersebut, dengan tanggal kontrak pada baris berikutnya. Tata letak diterapkan pada tabel tanda tangan draft Non PT/PT serta saat membuka snapshot lama, tanpa mengubah data snapshot yang tersimpan atau file PDF upload. Nama, jabatan, dan gambar tanda tangan dipertahankan; gambar dibatasi agar tidak masuk ke ruang tengah.

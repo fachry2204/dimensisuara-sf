@@ -203,15 +203,15 @@
                             </header>
                             <div class="release-detail-body">
                                 <div class="release-status-choice">
-                                    <p class="form-label">Apakah rilis ini sudah pernah didistribusikan di luar Soundfresh?</p>
+                                    <p class="form-label">Apakah rilis ini sudah pernah didistribusikan di luar {{ app_name() }}?</p>
                                     <div class="release-radio-options">
                                         <label class="release-radio-option" for="released-no">
-                                            <input class="form-check-input" type="radio" name="released" value="0" id="released-no"
+                                            <input class="form-check-input" type="radio" name="released" value="0" id="released-no" @checked((string) old('released', $release->released ?? 0) === '0')
                                                 x-model="$store.release.released" @if(old('released', $release->released) == 0) checked @endif required>
                                             <span><strong>Belum, ini rilis baru</strong><small>Belum pernah dipublikasikan pada layanan lain.</small></span>
                                         </label>
                                         <label class="release-radio-option" for="released-yes">
-                                            <input class="form-check-input" type="radio" name="released" value="1" id="released-yes"
+                                            <input class="form-check-input" type="radio" name="released" value="1" id="released-yes" @checked((string) old('released', $release->released ?? 0) === '1')
                                                 x-model="$store.release.released" @if(old('released', $release->released) == 1) checked @endif>
                                             <span><strong>Sudah, pernah dirilis</strong><small>Masukkan tanggal rilis awal dan UPC jika tersedia.</small></span>
                                         </label>
@@ -704,7 +704,7 @@
                 version:        "{{ old('version', $release->version) ?? 1 }}",
                 genre:          "{{ old('genre', $release->genre) ?? 1 }}",
                 subgenre:       "{{ old('subgenre', $release->subgenre) != 0 ? old('subgenre', $release->subgenre) : '' }}",
-                released:       {{ old('released', $release->released) ?? 0 }},
+                released:       @json((string) old('released', $release->released ?? 0)),
                 title: "{{ old('title', $release->title) ?? '' }}",
                 titlelang: "{{ old('titlelang', $release->titlelang) ?? 'id' }}",
                 recordlabel: "{{ old('recordlabel', $release->recordlabel) ?? '' }}",

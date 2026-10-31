@@ -11,7 +11,7 @@
                     <div class="card rounded-0 m-3 mb-0 border-0 shadow-none bg-none">
                         <div class="card-body p-5">
                             <a href="{{ url('/') }}">
-                                <img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145" alt="SoundFresh Logo">
+                                <img src="{{ app_logo('build/images/logo-soundfresh-full-white.webp') }}" class="mb-4" width="145" alt="{{ app_name() }} Logo">
                             </a>
                             <h4 class="fw-bold">Lost Your Rhythm?</h4>
                             <p class="mb-0">Don't worry, we'll help you get back on track. Reset your password below by entering the email address associated with your account.</p>

@@ -5,10 +5,10 @@
 
 @section('content')
 <main class="login-page">
-    <section class="login-hero" aria-label="Tentang Soundfresh">
+    <section class="login-hero" aria-label="Tentang {{ app_name() }}">
         <div class="login-hero-overlay"></div>
         <div class="login-hero-content">
-            <a class="login-hero-logo" href="{{ url('/') }}"><img src="{{ URL::asset('build/images/logo-soundfresh-full-white.webp') }}" alt="Soundfresh"></a>
+            <a class="login-hero-logo" href="{{ url('/') }}"><img src="{{ app_logo('build/images/logo-soundfresh-full-white.webp') }}" alt="{{ app_name() }}"></a>
             <p class="login-kicker">Musik lebih jauh</p>
             <h1>Karyamu layak<br>didengar <em>lebih jauh.</em></h1>
             <p class="login-hero-copy">Kelola rilis, pantau performa, dan terima penghasilanmu dalam satu ruang kerja.</p>
@@ -19,7 +19,7 @@
             </div>
             <div class="login-social-proof">
                 <div class="login-avatars"><span></span><span></span><span></span><span></span><span></span></div>
-                <div><strong>Dipercaya oleh kreator<br>musik Indonesia</strong><small>Ribuan musisi telah berkembang bersama Soundfresh.</small></div>
+                <div><strong>Dipercaya oleh kreator<br>musik Indonesia</strong><small>Ribuan musisi telah berkembang bersama {{ app_name() }}.</small></div>
             </div>
             <p class="login-tagline">Musik, lebih banyak cerita.</p>
         </div>
@@ -27,7 +27,7 @@
 
     <section class="login-panel" aria-labelledby="login-title">
         <div class="login-form-wrap">
-            <a class="login-brand" href="{{ url('/') }}"><img src="{{ URL::asset('build/images/logo-soundfresh-full.webp') }}" alt="Soundfresh"></a>
+            <a class="login-brand" href="{{ url('/') }}"><img src="{{ app_logo('build/images/logo-soundfresh-full.webp') }}" alt="{{ app_name() }}"></a>
             <div class="login-heading"><h2 id="login-title">Selamat datang kembali</h2><p>Masuk untuk melanjutkan perjalanan musikmu.</p></div>
             <form method="POST" action="{{ route('login') }}" class="login-form">
                 @csrf
@@ -36,7 +36,7 @@
                 <div class="login-options"><label><input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}><span>Ingat saya</span></label>@if (Route::has('password.request'))<a href="{{ route('password.request') }}">Lupa kata sandi?</a>@endif</div>
                 <button type="submit" class="login-submit">Masuk ke dashboard <span class="material-icons-outlined">arrow_forward</span></button>
             </form>
-            <div class="login-signup"><span></span><p>Baru di Soundfresh? <a href="{{ route('register') }}">Buat akun</a></p><span></span></div>
+            <div class="login-signup"><span></span><p>Baru di {{ app_name() }}? <a href="{{ route('register') }}">Buat akun</a></p><span></span></div>
         </div>
     </section>
 </main>

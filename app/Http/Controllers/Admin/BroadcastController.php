@@ -61,8 +61,8 @@ class BroadcastController extends Controller
             $orderDir = $request->input('order.0.dir', 'desc');
 
             if ($orderColumn === 'creator_name') {
-                $query->join('users', 'broadcasts.created_by', '=', 'users.id')
-                      ->orderBy('users.name', $orderDir)
+                $query->leftJoin('user_admin', 'broadcasts.created_by', '=', 'user_admin.id')
+                      ->orderBy('user_admin.name', $orderDir)
                       ->select('broadcasts.*');
             } else {
                 $query->orderBy($orderColumn, $orderDir);

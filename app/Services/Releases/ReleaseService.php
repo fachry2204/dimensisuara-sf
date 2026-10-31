@@ -479,7 +479,7 @@ class ReleaseService
                 'action' => 'submit',
                 'message' => 'Release submitted by user',
                 'type' => 'waiting',
-                'user_id' => current_user()->id,
+                ...account_actor(current_user()),
             ]);
 
             $release->status = $targetStatus;
@@ -515,7 +515,7 @@ class ReleaseService
                 'action' => 'adminAcceptRevision',
                 'message' => 'Revision accepted by admin',
                 'type' => 'waiting',
-                'user_id' => auth()->user()->id,
+                ...account_actor(auth()->user()),
             ]);
 
             // Update release
@@ -545,7 +545,7 @@ class ReleaseService
                 'action' => 'adminReview',
                 'message' => 'Release reviewed by admin',
                 'type' => 'waiting',
-                'user_id' => auth()->user()->id,
+                ...account_actor(auth()->user()),
             ]);
 
             // Update release
@@ -572,7 +572,7 @@ class ReleaseService
                 'action' => 'adminUpload',
                 'message' => 'Release uploaded by admin',
                 'type' => 'waiting',
-                'user_id' => auth()->user()->id,
+                ...account_actor(auth()->user()),
             ]);
 
             // Update release
@@ -596,7 +596,7 @@ class ReleaseService
                 'action' => 'adminApprove',
                 'message' => 'Release approved by admin',
                 'type' => 'accepted',
-                'user_id' => auth()->user()->id,
+                ...account_actor(auth()->user()),
             ]);
 
             // Update release
@@ -634,7 +634,7 @@ class ReleaseService
                 'action' => 'adminReject',
                 'message' => 'Release rejected by admin: ' . $reason,
                 'type' => 'rejected',
-                'user_id' => auth()->user()->id,
+                ...account_actor(auth()->user()),
             ]);
 
             // Update release

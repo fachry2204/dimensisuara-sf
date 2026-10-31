@@ -12,7 +12,7 @@ class CreateAdminRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('admin');
+        return Gate::allows('manage-admins');
     }
 
     /**
@@ -25,8 +25,8 @@ class CreateAdminRequest extends FormRequest
         if ($this->input('type') === 'new') {
             return [
                 'type'      => 'required|string|in:new,existing',
-                'name'      => 'required|string|max:255',
-                'email'     => 'required|string|email|unique:users|max:255',
+                'name'      => 'required|string|max:191',
+                'email'     => 'required|string|email|unique:user_admin,email|unique:users,email|max:191',
                 'password'  => 'required|string|min:8|confirmed',
                 'role'      => 'required|integer|exists:access_roles,id',
             ];
@@ -34,7 +34,7 @@ class CreateAdminRequest extends FormRequest
         else {
             return [
                 'type'      => 'required|string|in:new,existing',
-                'userid'    => 'required|integer|exists:users,id',
+                'userid'    => 'required|integer|exists:user_admin,id',
                 'role'      => 'required|integer|exists:access_roles,id',
             ];
         }

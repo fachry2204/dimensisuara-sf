@@ -86,12 +86,12 @@ Create Broadcast Message
                     <div class="mb-3">
                         <label class="form-label">Selection Mode</label>
                         <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="selection_mode" id="mode_exclude" value="exclude" checked>
+                            <input type="radio" class="btn-check" name="selection_mode" id="mode_exclude" value="exclude" @checked(old('selection_mode', 'exclude') === 'exclude')>
                             <label class="btn btn-outline-primary d-flex align-items-center justify-content-center" for="mode_exclude">
                                 <span class="material-icons-outlined align-middle me-1" style="font-size: 18px;">block</span>
                                 Exclude Mode
                             </label>
-                            <input type="radio" class="btn-check" name="selection_mode" id="mode_include" value="include">
+                            <input type="radio" class="btn-check" name="selection_mode" id="mode_include" value="include" @checked(old('selection_mode', 'exclude') === 'include')>
                             <label class="btn btn-outline-primary d-flex align-items-center justify-content-center" for="mode_include">
                                 <span class="material-icons-outlined align-middle me-1" style="font-size: 18px;">check_circle</span>
                                 Include Mode

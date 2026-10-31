@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 
 const props = defineProps({
     action: String, csrf: String, loginUrl: String, pendingUrl: String,
-    termsUrl: String, logoUrl: String, studioUrl: String, countries: Object,
+    termsUrl: String, logoUrl: String, appName: String, studioUrl: String, countries: Object,
 });
 
 const steps = ['Jenis akun', 'Kontak', 'Alamat', 'Dokumen', 'Rekening', 'Keamanan', 'Tinjau'];
@@ -175,7 +175,7 @@ async function submit() {
 <template>
     <main class="sf-register" :class="{ 'is-compact-step': step === 0 }" :style="{ '--studio-image': `url('${studioUrl}')` }">
         <aside class="sf-register__rail">
-            <a :href="loginUrl" class="sf-register__logo"><img :src="logoUrl" alt="SoundFresh"></a>
+            <a :href="loginUrl" class="sf-register__logo"><img :src="logoUrl" :alt="appName"></a>
             <nav aria-label="Tahap pendaftaran"><ol><li v-for="(label, index) in steps" :key="label" :class="{ current: index === step, done: index < step }"><span>{{ index + 1 }}</span>{{ label }}</li></ol></nav>
             <p class="sf-register__rail-footer"><span class="material-icons-outlined">schedule</span>Pendaftaran hanya butuh<br>beberapa menit.</p>
         </aside>
@@ -183,15 +183,15 @@ async function submit() {
             <div class="sf-register__top"><span>Langkah {{ step + 1 }} dari 7</span><a :href="loginUrl">Sudah punya akun? <strong>Masuk</strong></a></div>
             <div class="sf-register__progress" role="progressbar" :aria-valuenow="step + 1" aria-valuemin="1" aria-valuemax="7" aria-label="Kemajuan pendaftaran"><span v-for="index in 7" :key="index" :class="{ active: index <= step + 1 }"></span></div>
             <div class="sf-register__body">
-                <h1>{{ step === 0 ? 'Buat akun SoundFresh' : steps[step] }}</h1>
+                <h1>{{ step === 0 ? 'Buat akun ' + appName : steps[step] }}</h1>
                 <p class="sf-register__intro">{{ descriptions[step] }}</p>
                 <div v-if="generalError" class="sf-register__error" role="alert">{{ generalError }}</div>
                 <div v-if="Object.keys(errors).length" class="sf-register__error" role="alert"><strong>Periksa kembali:</strong><ul><li v-for="(messages, key) in errors" :key="key">{{ Array.isArray(messages) ? messages[0] : messages }}</li></ul></div>
 
                 <div v-if="step === 0">
                     <div class="sf-register__choices">
-                        <label :class="{ selected: !isCompany }"><input v-model="form.registrationtype" type="radio" value="personal"><span class="material-icons-outlined">person_outline</span><span><strong>Individu</strong><small>Untuk musisi, solois, atau kreator independen.</small></span></label>
-                        <label :class="{ selected: isCompany }"><input v-model="form.registrationtype" type="radio" value="company"><span class="material-icons-outlined">business</span><span><strong>Perusahaan</strong><small>Untuk label, manajemen, atau badan usaha.</small></span></label>
+                        <label :class="{ selected: !isCompany }"><input v-model="form.registrationtype" name="registrationtype" type="radio" value="personal"><span class="material-icons-outlined">person_outline</span><span><strong>Individu</strong><small>Untuk musisi, solois, atau kreator independen.</small></span></label>
+                        <label :class="{ selected: isCompany }"><input v-model="form.registrationtype" name="registrationtype" type="radio" value="company"><span class="material-icons-outlined">business</span><span><strong>Perusahaan</strong><small>Untuk label, manajemen, atau badan usaha.</small></span></label>
                     </div>
                     <div class="sf-register__info"><span class="material-icons-outlined">info</span>Kamu dapat melengkapi data berikutnya setelah memilih jenis akun.</div>
                     <div v-if="isCompany" class="sf-register__section"><h2>Data perusahaan</h2><p>Lengkapi informasi perusahaan untuk melanjutkan.</p><div class="sf-register__grid">
@@ -242,7 +242,7 @@ async function submit() {
                     <label class="sf-register__check wide"><input v-model="showPassword" type="checkbox"> Tampilkan kata sandi</label>
                 </div>
                 <div v-else class="sf-register__review">
-                    <iframe :src="termsUrl" title="Syarat dan ketentuan SoundFresh"></iframe>
+                    <iframe :src="termsUrl" :title="'Syarat dan ketentuan ' + appName"></iframe>
                     <h2>Tanda tangan kontrak</h2><p>Tandatangani pada bidang putih atau unggah gambar tanda tangan.</p>
                     <canvas ref="signatureCanvas" width="600" height="190" aria-label="Bidang tanda tangan" @pointerdown="startDraw" @pointermove="draw" @pointerup="endDraw" @pointercancel="endDraw"></canvas>
                     <div class="sf-register__signature-actions"><button type="button" @click="clearSignature">Hapus tanda tangan</button><label>Unggah tanda tangan <input type="file" accept="image/png,image/jpeg" @change="uploadSignature"></label></div>

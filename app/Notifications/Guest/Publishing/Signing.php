@@ -29,7 +29,7 @@ class Signing extends Notification implements ShouldQueue
         $title      = $signee->publishing->title;
 
         $this->signee = $signee;
-        $this->subject = 'New Publishing Request on SoundFresh';
+        $this->subject = 'New Publishing Request on '.app_name();
         $this->content = [
             'User '.$requestor.' has requested a publishing contract for song "'.$title.'". Please review and sign the contract.',
             __('Thank you for your trust in our service'),

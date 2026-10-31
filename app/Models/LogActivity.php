@@ -14,6 +14,9 @@ class LogActivity extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userid');
+        return $this->morphTo('user', 'actor_type', 'actor_id');
     }
+
+    public function getActorTypeAttribute(): string { return $this->admin_user_id ? \App\Models\User\Admin::class : User::class; }
+    public function getActorIdAttribute(): ?int { return $this->admin_user_id ?? $this->userid; }
 }

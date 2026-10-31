@@ -22,14 +22,45 @@ use Dompdf\Options;
 
 class ContractService
 {
+    private static function getTemplate(string $path): string
+    {
+        $html = app(CompanyIdentity::class)->tokenize(FileFacade::get($path));
+        return preg_replace_callback('/Soundfresh(?:\.id)?/i', fn () => e(app_name()), $html);
+    }
 
     public function store($data)
+    {
+        return \Illuminate\Support\Facades\DB::transaction(fn () => $this->createContract($data));
+    }
+
+    private function createContract($data)
     {
         $profileid = $data['profileid'];
         $type = $data['type'];
         $number = $data['number'];
         $month = $data['month'];
         $year = $data['year'];
+        $contractDate = null;
+
+        if ($type === 'aggregator') {
+            $contractDate = \Illuminate\Support\Facades\Validator::make([
+                'contract_date' => $data['contract_date'] ?? now()->toDateString(),
+            ], ['contract_date' => ['required', 'date_format:Y-m-d']])->validate()['contract_date'];
+            $profile = Profile::lockForUpdate()->findOrFail($profileid);
+            if ($profile->status !== 'verified' || !$profile->feature_aggregator) {
+                throw new \DomainException('Kontrak Aggregator hanya dapat dibuat untuk user terverifikasi dengan fitur Aggregator aktif.');
+            }
+            $rates = \Illuminate\Support\Facades\Validator::make([
+                'aggregator_rate' => $data['aggregator_rate'] ?? $profile->aggregator_rate,
+                'system_rate' => $data['system_rate'] ?? (100 - (int) $profile->aggregator_rate),
+            ], [
+                'aggregator_rate' => ['required', 'numeric', 'multiple_of:1', 'between:0,100'],
+                'system_rate' => ['required', 'numeric', 'multiple_of:1', 'between:0,100'],
+            ])->validate();
+            if ((int) $rates['aggregator_rate'] + (int) $rates['system_rate'] !== 100) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['aggregator_rate' => 'Total Pembagian User dan Pembagian System harus 100%.']);
+            }
+        }
 
         // Additional validation
         if (!in_array($type, ['aggregator', 'publishing', 'publishing_statement'])) {
@@ -50,11 +81,18 @@ class ContractService
             'sort' => $year . '-' . str_pad($number, 3, '0', STR_PAD_LEFT),
             'docnum' => self::prettyDocNum($type, $number, $month, $year),
             'profileid' => $profileid,
+            'contract_date' => $contractDate,
         ]);
 
         // For aggregator, set owner morph to Profile (redundant with profileid, but consistent)
         if ($type === 'aggregator') {
-            $contract->owner()->associate(Profile::findOrFail($profileid));
+            $profile->aggregator_rate = (int) $rates['aggregator_rate'];
+            $profile->save();
+            $contract->user_percentage = (int) $rates['aggregator_rate'];
+            $contract->system_percentage = (int) $rates['system_rate'];
+            $contract->setRelation('profile', $profile);
+            $contract->owner()->associate($profile);
+            $contract->generated_html = self::renderAggregatorHtml($contract);
             $contract->save();
         }
 
@@ -89,10 +127,46 @@ class ContractService
         $contract->delete();
     }
 
+    public function uploadDigitalStamp(Contract $contract, \Illuminate\Http\UploadedFile $upload): File
+    {
+        $path = Storage::disk('local')->putFile('contracts/digital-stamps', $upload);
+        if (!$path) {
+            throw new \RuntimeException('PDF bermaterai gagal disimpan. Silakan coba kembali.');
+        }
+        try {
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($contract, $upload, $path) {
+                $locked = Contract::lockForUpdate()->findOrFail($contract->id);
+                $previous = $locked->digitalStamp;
+                $file = $locked->digitalStamp()->create([
+                    'type' => 'digital_stamp', 'profileid' => $locked->profileid,
+                    'disk' => 'local', 'identifier' => $path,
+                    'original_name' => $upload->getClientOriginalName(),
+                    'mime_type' => 'application/pdf', 'size' => $upload->getSize(), 'uploaded_at' => now(),
+                ]);
+                if ($previous) {
+                    $previous->delete();
+                }
+                return $file;
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk('local')->delete($path);
+            throw $exception;
+        }
+    }
+
     /**
      * Generate contract PDF
      */
-    public static function generateAggregatorPdf(Contract $contract)
+    public static function generateAggregatorPdf(Contract $contract, bool $stream = true)
+    {
+        if ($contract->type !== 'aggregator') throw new \DomainException('Kontrak ini bukan kontrak Aggregator.');
+        $html = $contract->generated_html ?: self::renderAggregatorHtml($contract, false);
+        $date = self::prettyDate(($contract->contract_date ?? $contract->created_at ?? now())->format('Y-m-d'));
+        $html = app(AggregatorContractTemplates::class)->formatSignatureLayout($html, $date);
+        return self::prepareDomPdf($contract->id, $html, true, true, $stream);
+    }
+
+    public static function renderAggregatorHtml(Contract $contract, bool $configuredDraft = true): string
     {
         // Get contract type
         $type = null;
@@ -105,8 +179,12 @@ class ContractService
 
         // Set contract fields
         $fields = [
-            'DOCNUM' => self::prettyDocNum($contract->type, $contract->number, $contract->month, $contract->year),
-            'DATE' => self::prettyDate(date('Y-m-d')),
+            'APP_NAME' => app_name(),
+            'USER_PERCENT' => $contract->user_percentage ?? (int) $contract->profile->aggregator_rate,
+            'SYSTEM_PERCENT' => $contract->system_percentage ?? (100 - (int) $contract->profile->aggregator_rate),
+            'NPWPPERSONAL' => $contract->profile->npwppersonal_num,
+            'DOCNUM' => $contract->docnum ?: self::prettyDocNum($contract->type, $contract->number, $contract->month, $contract->year),
+            'DATE' => self::prettyDate(($contract->contract_date ?? $contract->created_at ?? now())->format('Y-m-d')),
             'FULLNAME' => strtoupper($contract->profile->full_name),
             'IDNUM' => $contract->profile->ktp_num,
             'BANKNAME' => $contract->profile->bankname,
@@ -116,30 +194,33 @@ class ContractService
             'PHONE' => $contract->profile->phone,
             'EMAIL' => $contract->profile->user->email,
 
-            'COMPANYNAME' => strtoupper($contract->profile->companyname),
+            'COMPANYNAME' => strtoupper($contract->profile->companyname ?? ''),
             'NPWPCOMPANY' => $contract->profile->npwpcompany_num,
             'NIBCOMPANY' => $contract->profile->nibcompany_num,
             'POSITION' => $contract->profile->position == 'direktur_utama' ? 'Direktur Utama' : 'Direktur',
         ];
 
         // Get html template
-        $html = FileFacade::get(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . $type . '.html'));
+        $html = $configuredDraft
+            ? app(AggregatorContractTemplates::class)->get((bool) $contract->profile->is_company)
+            : self::getTemplate(resource_path('contract/'.$type.'.html'));
+        $html = app(AggregatorContractTemplates::class)->formatSignatureLayout($html);
 
         // Replace template with contract data (live data)
         foreach ($fields as $key => $value) {
-            $html = str_replace('[' . $key . ']', $value, $html);
+            $html = str_replace('[' . $key . ']', e((string) $value), $html);
         }
 
         // Define images
         $images = [
             '[SIGNATURE1]' => [
-                'path' => storage_path('app' . DIRECTORY_SEPARATOR . 'sign.jpeg'),
-                'style' => 'width="180px" style="margin-top: 0px; margin-bottom: -60px; margin-left: 30px;"',
+                'path' => app(CompanyIdentity::class)->signaturePath(),
+                'style' => 'width="200px" style="max-width:100%;max-height:115px;margin:0;"',
                 'file' => null,
             ],
             '[SIGNATURE2]' => [
                 'path' => null,
-                'style' => 'width="180px" style="margin-top: 0px; margin-bottom: -40px; margin-right: -100px;"',
+                'style' => 'width="200px" style="max-width:100%;max-height:115px;margin:0;"',
                 'file' => $contract->profile->identities()->where('type', 'signature')->first(),
             ],
         ];
@@ -148,7 +229,7 @@ class ContractService
         $html = self::injectImages($images, $html);
 
         // Generate pdf
-        return self::prepareDomPdf($contract->id, $html, true, true);
+        return $html;
     }
 
     public static function generatePublishingContractPdf(Contract $contract, $stream = true)
@@ -212,7 +293,7 @@ class ContractService
 
         // Get html template
         $type = $publishing->sync_license_type === 'non-exclusive' ? 'publishing_non_exclusive' : 'publishing_exclusive';
-        $html = FileFacade::get(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . $type . '.html'));
+        $html = SELF::getTemplate(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . $type . '.html'));
 
         // Replace template with contract data (live data)
         foreach ($fields as $key => $value) {
@@ -222,7 +303,7 @@ class ContractService
         // Define images
         $images = array_merge($images, [
             '[SIGNATURE1]' => [
-                'path' => storage_path('app' . DIRECTORY_SEPARATOR . 'sign.jpeg'),
+                'path' => app(CompanyIdentity::class)->signaturePath(),
                 'style' => 'width="180px" style="margin-top: 0px; margin-bottom: -60px; margin-left: 30px;"',
                 'file' => null,
             ],
@@ -331,10 +412,10 @@ class ContractService
             if ($index == 1) {
                 $fields['SIGNATURES_1'] .= "<div style=\"display: inline-block; width: 33%;\">
                     <p style=\"margin: 0px; text-align: left;\"><strong>Publisher</strong></p>
-                    <p style=\"margin: 0px; text-align: left;\">PT Digital Masif Suara Visual</p>
+                    <p style=\"margin: 0px; text-align: left;\">[PROVIDER_NAME]</p>
                     <div style=\"height: 80px;\">[SIGNATURE1]</div>
-                    <p style=\"margin: 0px; text-align: left;\"><strong>FACHRY HIDAYAT</strong></p>
-                    <p style=\"margin: 0px; text-align: left;\">Direktur Utama</p>
+                    <p style=\"margin: 0px; text-align: left;\"><strong>[PROVIDER_DIRECTOR]</strong></p>
+                    <p style=\"margin: 0px; text-align: left;\">[PROVIDER_POSITION]</p>
                 </div>";
             } elseif ($index > 1 && $index % 2 == 1) {
                 $fields['SIGNATURES_1'] .= "<div style=\"display: inline-block; width: 33%;\">
@@ -399,7 +480,7 @@ class ContractService
         }
 
         // Get html template
-        $html = FileFacade::get(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . 'publishing_statement.html'));
+        $html = SELF::getTemplate(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . 'publishing_statement.html'));
 
         // Replace template with contract data (live data)
         foreach ($fields as $key => $value) {
@@ -409,7 +490,7 @@ class ContractService
         // Define images
         $images = array_merge($images, [
             '[SIGNATURE1]' => [
-                'path' => storage_path('app' . DIRECTORY_SEPARATOR . 'sign.jpeg'),
+                'path' => app(CompanyIdentity::class)->signaturePath(),
                 'style' => 'width="180px" style="margin-top: 0px; margin-bottom: -60px; margin-left: 30px;"',
                 'file' => null,
             ],
@@ -487,7 +568,7 @@ class ContractService
             if ($index == 1 || ($signatureCount == 1 && $index == 0)) {
                 $fields['SIGNATURES'] .= "<div style=\"display:inline-block;width:33%;\">
                     [SIGNATURE1]
-                    <p style=\"margin:0;text-align:left;\"><strong><u>FACHRY HIDAYAT</u></strong></p>
+                    <p style=\"margin:0;text-align:left;\"><strong><u>[PROVIDER_DIRECTOR]</u></strong></p>
                     <p style=\"margin:0;text-align:left;\">Publisher</p>
                 </div>";
             } elseif ($index > 0 && $index % 3 == 0) {
@@ -515,7 +596,7 @@ class ContractService
         }
 
         // Get html template
-        $html = FileFacade::get(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . 'publishing_nuon.html'));
+        $html = SELF::getTemplate(base_path('resources' . DIRECTORY_SEPARATOR . 'contract' . DIRECTORY_SEPARATOR . 'publishing_nuon.html'));
 
         // Replace template with contract data (live data)
         foreach ($fields as $key => $value) {
@@ -525,7 +606,7 @@ class ContractService
         // Define images
         $images = array_merge($images, [
             '[SIGNATURE1]' => [
-                'path' => storage_path('app' . DIRECTORY_SEPARATOR . 'sign.jpeg'),
+                'path' => app(CompanyIdentity::class)->signaturePath(),
                 'style' => 'style="margin-top: 0px; margin-bottom: -15px; max-height: 65px; max-width: 180px;"',
                 'file' => null,
             ],
@@ -572,7 +653,7 @@ class ContractService
 
         switch ($type) {
             case 'aggregator':
-                return str_pad($number, 3, '0', STR_PAD_LEFT) . '/' . 'PKS-DMSV' . '/' . $romans[$month] . '/' . $year;
+                return str_pad($number, 3, '0', STR_PAD_LEFT) . '/' . app(SystemSettings::class)->get('aggregator_contract_prefix') . '/' . $romans[$month] . '/' . $year;
                 break;
             case 'publishing':
                 return str_pad($number, 3, '0', STR_PAD_LEFT) . '/' . 'PKS-PUB' . '/DMSV/' . $romans[$month] . '/' . $year;
@@ -611,6 +692,9 @@ class ContractService
      */
     private static function injectImages(array $images, $html)
     {
+        $html = preg_replace('/<!--.*?-->/s', '', $html);
+        $html = app(CompanyIdentity::class)->fill($html);
+        if (isset($images['[SIGNATURE1]'])) $images['[PROVIDER_SIGNATURE]'] = $images['[SIGNATURE1]'];
         // Inject images
         foreach ($images as $placeholder => $image) {
             $file = null;
@@ -642,10 +726,25 @@ class ContractService
 
     private static function prepareDomPdf($name, $html, $header, $footer, $stream = true)
     {
+        $headerLogo = resource_path('images/logo-soundfresh-vertical.png');
+        if ($header && app(SystemSettings::class)->get('logo')) {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $headerLogo = $manager->read(public_path(app(SystemSettings::class)->get('logo')))->toPng()->toDataUri();
+        }
+        $logoWidth = 70;
+        $logoHeight = 70;
+        if ($header) {
+            $dimensions = getimagesize($headerLogo);
+            if ($dimensions && $dimensions[0] > 0 && $dimensions[1] > 0) {
+                $scale = min(100 / $dimensions[0], 70 / $dimensions[1]);
+                $logoWidth = $dimensions[0] * $scale;
+                $logoHeight = $dimensions[1] * $scale;
+            }
+        }
         // Prepare DOMPDF
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', true);
+        $options->set('isPhpEnabled', false);
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->loadHtml($html);
@@ -653,7 +752,7 @@ class ContractService
 
         // Add header and footer
         $canvas = $dompdf->getCanvas();
-        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($header, $footer) {
+        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($header, $footer, $headerLogo, $logoWidth, $logoHeight) {
 
             if ($footer) {
                 $text = "Halaman $pageNumber dari $pageCount";
@@ -667,7 +766,7 @@ class ContractService
             }
 
             if ($header) {
-                $canvas->image(resource_path('images' . DIRECTORY_SEPARATOR . 'logo-soundfresh-vertical.png'), 455, 15, 70, 70);
+                $canvas->image($headerLogo, 525 - $logoWidth, 15 + (70 - $logoHeight) / 2, $logoWidth, $logoHeight);
             }
 
         });

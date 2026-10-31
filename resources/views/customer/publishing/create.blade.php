@@ -330,7 +330,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label form-label-sm fw-semibold">Publisher
                                                     (Optional)</label>
-                                                <input type="text" class="form-control" placeholder="e.g. Soundfresh"
+                                                <input type="text" class="form-control" placeholder="e.g. {{ app_name() }}"
                                                     :name="`songwriters[${idx}][publisher]`" x-model="entry.publisher"
                                                     :readonly="idx === 0">
                                             </div>
@@ -491,7 +491,7 @@
                             role: 'author',
                             share: 0,
                             lmk: '',
-                            publisher: 'Soundfresh'
+                            publisher: @json(app_name())
                         });
                     }
 
@@ -594,7 +594,7 @@
                                         phone: '',
                                         role: w.role || 'author',
                                         lmk: '',
-                                        publisher: 'Soundfresh',
+                                        publisher: @json(app_name()),
                                         share: 0
                                     });
                                 });

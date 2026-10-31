@@ -3,7 +3,7 @@
 Create Announcement
 @endsection
 @section('header')
-    <div class="announcement-form-header"><a href="{{ route('admin.announcement.index') }}"><i class="material-icons-outlined">arrow_back</i> Kembali ke Announcements</a><h1>Create Announcement</h1><p>Bagikan informasi penting kepada pengguna Soundfresh.</p></div>
+    <div class="announcement-form-header"><a href="{{ route('admin.announcement.index') }}"><i class="material-icons-outlined">arrow_back</i> Kembali ke Announcements</a><h1>Create Announcement</h1><p>Bagikan informasi penting kepada pengguna {{ app_name() }}.</p></div>
 @endsection
 @section('content')
 <form action="{{ route('admin.announcement.store') }}" method="POST" id="announcement-form">

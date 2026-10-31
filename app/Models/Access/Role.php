@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 use App\Models\Access\Permission;
-use App\Models\User\User;
+use App\Models\User\Admin;
 
 class Role extends Model
 {
@@ -19,7 +19,7 @@ class Role extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'access_user_roles', 'role_id', 'user_id');
+        return $this->belongsToMany(Admin::class, 'access_user_roles', 'role_id', 'user_id');
     }
 
     public function permissions(): BelongsToMany

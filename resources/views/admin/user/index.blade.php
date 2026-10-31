@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('content-class', 'main-content--wide')
 @section('title')
 User Management
 @endsection
@@ -6,7 +7,7 @@ User Management
     <div class="user-management-heading">
         <div>
             <h4 class="mb-1 fs-2">User Management</h4>
-            <p class="mb-0">Manage and monitor Soundfresh users from sign up to verified creators.</p>
+            <p class="mb-0">Manage and monitor {{ app_name() }} users from sign up to verified creators.</p>
         </div>
         <form action="{{ route('admin.users.export') }}" method="POST" class="d-inline">
             @csrf

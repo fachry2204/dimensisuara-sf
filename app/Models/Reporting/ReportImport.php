@@ -31,7 +31,7 @@ class ReportImport extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'userid');
+        return $this->belongsTo(\App\Models\User\Admin::class, 'userid');
     }
 
     public function getUploaderAttribute()

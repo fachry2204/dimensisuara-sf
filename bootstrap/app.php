@@ -15,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->web(append: [\App\Http\Middleware\UseAccountGuard::class, \App\Http\Middleware\RoleMaintenance::class]);
+        $middleware->appendToPriorityList(\Illuminate\Session\Middleware\StartSession::class, \App\Http\Middleware\UseAccountGuard::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // $exceptions->render(function (HttpException $exception, Request $request) {

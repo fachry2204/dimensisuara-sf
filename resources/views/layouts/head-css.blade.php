@@ -1,3 +1,4 @@
+@include('layouts.theme-init')
 @unless (Route::is('login') || Route::is('register'))
 <!-- loader-->
 <link href="{{ URL::asset('build/css/pace.min.css') }}" rel="stylesheet">
@@ -121,7 +122,7 @@ html[data-bs-theme=light] .sf-app [class*="table-head"] {
     background-color:#f8fafc!important;
     border-color:#e2e8f0!important;
 }
-html[data-bs-theme=light] .sf-app input,
+html[data-bs-theme=light] .sf-app input:not(:where([type="radio"], [type="checkbox"], [type="hidden"], [type="range"], [type="color"], [type="submit"], [type="button"])),
 html[data-bs-theme=light] .sf-app select,
 html[data-bs-theme=light] .sf-app textarea,
 html[data-bs-theme=light] .sf-app .form-control,
@@ -269,4 +270,6 @@ html[data-bs-theme="light"] .sf-app .main-wrapper {
     z-index: 0 !important;
 }
 </style>
-<link href="{{ URL::asset('build/css/light-theme-overrides.css') }}" rel="stylesheet">
+<link href="{{ asset('build/css/light-theme-overrides.css') }}?v={{ file_exists(public_path('build/css/light-theme-overrides.css')) ? substr(hash_file('sha256', public_path('build/css/light-theme-overrides.css')), 0, 12) : '1' }}" rel="stylesheet">
+<link href="{{ asset('build/css/theme-controls.css') }}?v={{ file_exists(public_path('build/css/theme-controls.css')) ? substr(hash_file('sha256', public_path('build/css/theme-controls.css')), 0, 12) : '1' }}" rel="stylesheet">
+@include('layouts.primary-colors')

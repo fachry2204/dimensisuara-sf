@@ -18,16 +18,24 @@ class AnalyticController extends Controller
     {
         $profileId = current_user()->profile->id;
 
-        // Reports are imported by sales month. Use the newest month that actually
-        // exists for this artist rather than inventing a reporting date.
-        $latestAvailableDate = DB::table('report_aggregate_platforms')
+        // Use the artist's actual report coverage, including the first month.
+        $coverage = DB::table('report_aggregate_platforms')
             ->where('profileid', $profileId)
-            ->max('sales_month');
-        $latestAvailableDate = $latestAvailableDate
-            ? Carbon::parse($latestAvailableDate)->endOfMonth()->format('Y-m-d')
-            : Carbon::now()->subMonths(3)->endOfQuarter()->format('Y-m-d');
+            ->selectRaw('MIN(sales_month) as first_month, MAX(sales_month) as last_month')
+            ->first();
+        $latestAvailableDate = $coverage->last_month
+            ? Carbon::parse($coverage->last_month)->endOfMonth()->format('Y-m-d')
+            : null;
+        $firstAvailableDate = $coverage->first_month
+            ? Carbon::parse($coverage->first_month)->startOfMonth()->format('Y-m-d')
+            : null;
+        $latestMonth = Carbon::parse($latestAvailableDate ?: Carbon::now()->format('Y-m-d'));
 
-        $dateRange = $request->input('date_range', 'last_completed_quarter');
+        // Match My Earnings: show all available reports on the initial visit.
+        $dateRange = $request->input('date_range', 'all_time');
+        if (!in_array($dateRange, ['last_completed_quarter', 'last_6_months', 'last_12_months', 'this_year', 'last_year', 'all_time', 'custom'], true)) {
+            $dateRange = 'all_time';
+        }
         $customStart = $request->input('start_date');
         $customEnd = $request->input('end_date');
 
@@ -41,23 +49,21 @@ class AnalyticController extends Controller
                 $comparisonEnd = Carbon::now()->subMonths(6)->endOfQuarter()->format('Y-m-d');
                 break;
             case 'last_6_months':
-                // Last 6 months ending at last completed quarter
-                $startDate = Carbon::now()->subMonths(9)->startOfMonth()->format('Y-m-d');
-                $endDate = $latestAvailableDate;
-                $comparisonStart = Carbon::now()->subMonths(15)->startOfMonth()->format('Y-m-d');
-                $comparisonEnd = Carbon::now()->subMonths(9)->endOfMonth()->format('Y-m-d');
+                $startDate = $latestMonth->copy()->subMonthsNoOverflow(5)->startOfMonth()->format('Y-m-d');
+                $endDate = $latestMonth->copy()->endOfMonth()->format('Y-m-d');
+                $comparisonStart = Carbon::parse($startDate)->subMonthsNoOverflow(6)->format('Y-m-d');
+                $comparisonEnd = Carbon::parse($startDate)->subDay()->format('Y-m-d');
                 break;
             case 'last_12_months':
-                // Last 12 months ending at last completed quarter
-                $startDate = Carbon::now()->subMonths(15)->startOfMonth()->format('Y-m-d');
-                $endDate = $latestAvailableDate;
-                $comparisonStart = Carbon::now()->subMonths(27)->startOfMonth()->format('Y-m-d');
-                $comparisonEnd = Carbon::now()->subMonths(15)->endOfMonth()->format('Y-m-d');
+                $startDate = $latestMonth->copy()->subMonthsNoOverflow(11)->startOfMonth()->format('Y-m-d');
+                $endDate = $latestMonth->copy()->endOfMonth()->format('Y-m-d');
+                $comparisonStart = Carbon::parse($startDate)->subMonthsNoOverflow(12)->format('Y-m-d');
+                $comparisonEnd = Carbon::parse($startDate)->subDay()->format('Y-m-d');
                 break;
             case 'this_year':
                 // Current year up to last completed quarter
                 $startDate = Carbon::now()->startOfYear()->format('Y-m-d');
-                $endDate = $latestAvailableDate;
+                $endDate = Carbon::now()->endOfYear()->format('Y-m-d');
                 $comparisonStart = Carbon::now()->subYear()->startOfYear()->format('Y-m-d');
                 $comparisonEnd = Carbon::now()->subYear()->endOfYear()->format('Y-m-d');
                 break;
@@ -68,14 +74,14 @@ class AnalyticController extends Controller
                 $comparisonEnd = Carbon::now()->subYears(2)->endOfYear()->format('Y-m-d');
                 break;
             case 'all_time':
-                $startDate = '2000-01-01';
-                $endDate = $latestAvailableDate;
+                $startDate = $firstAvailableDate ?: $latestMonth->copy()->startOfMonth()->format('Y-m-d');
+                $endDate = $latestMonth->copy()->endOfMonth()->format('Y-m-d');
                 $comparisonStart = null;
                 $comparisonEnd = null;
                 break;
             case 'custom':
                 $startDate = $customStart ?: Carbon::now()->subMonths(12)->format('Y-m-d');
-                $endDate = $customEnd ? min($customEnd, $latestAvailableDate) : $latestAvailableDate;
+                $endDate = $customEnd ?: $latestMonth->copy()->endOfMonth()->format('Y-m-d');
                 $comparisonStart = null;
                 $comparisonEnd = null;
                 break;

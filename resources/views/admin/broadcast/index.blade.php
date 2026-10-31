@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('content-class', 'main-content--wide')
 @section('title')
 Broadcast Messages
 @endsection
@@ -6,7 +7,7 @@ Broadcast Messages
     <div class="broadcast-page-heading">
         <div>
             <h4 class="mb-1 fs-2">Broadcast Messages</h4>
-            <p class="mb-0">Send updates, announcements and important information to your Soundfresh community.</p>
+            <p class="mb-0">Send updates, announcements and important information to your {{ app_name() }} community.</p>
         </div>
         @can('broadcast')
             <a href="{{ route('admin.broadcast.create') }}" class="btn btn-primary broadcast-create-button">

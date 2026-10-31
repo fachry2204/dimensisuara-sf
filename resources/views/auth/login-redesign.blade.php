@@ -30,9 +30,9 @@
 @media(max-width:760px){.sf-story__content{padding:19px 28px}.sf-story__brand,.sf-story__intro{display:none}.sf-story h1{font-size:29px;line-height:1.1}.sf-form-side{padding:28px 28px 32px}.sf-logo{margin-bottom:24px}.sf-form-panel__intro{margin-bottom:24px}.sf-login-register{margin-top:28px}}
 </style>
 <main class="sf-login">
- <section class="sf-story" aria-label="Tentang SoundFresh">
+ <section class="sf-story" aria-label="Tentang {{ app_name() }}">
   <div class="sf-story__content">
-   <p class="sf-story__brand">SOUNDFRESH</p>
+   <p class="sf-story__brand">{{ app_name() }}</p>
    <h1>Musikmu,<br>siap didengar dunia.</h1>
    <p class="sf-story__intro">Kelola rilis, pantau progres, dan jangkau pendengar dari satu tempat.</p>
    <ul class="sf-benefits">
@@ -50,7 +50,7 @@
       'passwordError' => $errors->first('password'),
       'forgotUrl' => Route::has('password.request') ? route('password.request') : null,
       'registerUrl' => Route::has('register') ? route('register') : null,
-      'homeUrl' => url('/'), 'logoUrl' => asset('build/images/logo-soundfresh-full-white.webp'),
+      'homeUrl' => url('/'), 'appName' => app_name(), 'logoUrl' => app_logo('build/images/logo-soundfresh-full-white.webp'),
   ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}"></div>
  </section>
 </main>

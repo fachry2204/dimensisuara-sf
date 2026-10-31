@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
             'companyname'           => 'required_if:registrationtype,company|nullable|string',
             'firstname'             => 'required|string|max:100',
             'lastname'              => 'nullable|string|max:100',
-            'email'                 => 'required|string|email|max:50',
+            'email'                 => 'required|string|email|max:50|unique:user_admin,email',
             'phone'                 => 'required|string|max:20',
             'ktp_num'               => 'required|string|max:50',
             'address1'              => 'required|string|max:255',

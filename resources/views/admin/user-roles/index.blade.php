@@ -48,7 +48,7 @@ Admin Roles and Permissions
         </div>
     </div> --}}
 
-    <div class="roles-summary"><article><i class="material-icons-outlined blue">admin_panel_settings</i><div><small>Total role</small><strong>{{ $roles->count() }}</strong><span>Role tersedia</span></div></article><article><i class="material-icons-outlined purple">verified_user</i><div><small>Admin</small><strong>{{ count($admins) }}</strong><span>Akses administratif</span></div></article><article><i class="material-icons-outlined green">group</i><div><small>Pengguna</small><strong>{{ count($users) }}</strong><span>Dapat ditugaskan</span></div></article></div>
+    <div class="roles-summary"><article><i class="material-icons-outlined blue">admin_panel_settings</i><div><small>Total role</small><strong>{{ $roles->count() }}</strong><span>Role tersedia</span></div></article><article><i class="material-icons-outlined purple">verified_user</i><div><small>Admin</small><strong>{{ count($admins) }}</strong><span>Akses administratif</span></div></article><article><i class="material-icons-outlined green">group</i><div><small>Admin Nonaktif</small><strong>{{ count($users) }}</strong><span>Admin tanpa peran</span></div></article></div>
     <div class="mb-3 roles-panel-wrap">
         <div class="card roles-panel">
             <div class="card-header">
@@ -178,10 +178,10 @@ Admin Roles and Permissions
                         
                         <ul class="nav nav-pills mb-3" id="createAdmin">
                             <li class="nav-item">
-                                <button class="nav-link active" id="existing-tab" data-bs-toggle="tab" data-bs-target="#existing" type="button" role="tab" aria-controls="existing" aria-selected="true">Existing User</button>
+                                <button class="nav-link active" id="existing-tab" data-bs-toggle="tab" data-bs-target="#existing" type="button" role="tab" aria-controls="existing" aria-selected="true">Admin Nonaktif</button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link" id="new-tab" data-bs-toggle="tab" data-bs-target="#new" type="button" role="tab" aria-controls="new" aria-selected="false">New User</button>
+                                <button class="nav-link" id="new-tab" data-bs-toggle="tab" data-bs-target="#new" type="button" role="tab" aria-controls="new" aria-selected="false">Admin Baru</button>
                             </li>
                         </ul>
                         <div class="tab-content" id="createAdminContent">
@@ -190,9 +190,9 @@ Admin Roles and Permissions
                                     @csrf
                                     <input type="hidden" name="type" value="existing">
                                     <div class="mb-3">
-                                        <label for="user" class="form-label">Select Existing User</label>
+                                        <label for="user" class="form-label">Select Admin Nonaktif</label>
                                         <select class="form-control" name="userid" required>
-                                            <option value="" selected disabled>Select User</option>
+                                            <option value="" selected disabled>Pilih Admin</option>
                                             @foreach ($users as $user)
                                                 <option value="{{ $user->id }}">{{ $user->full_name }} ({{ $user->email }})</option>
                                             @endforeach
@@ -261,7 +261,7 @@ Admin Roles and Permissions
                         </div>
                         <div class="modal-body">
                             <p>Are you sure you want to revoke this admin?</p>
-                            <p>Revoking an admin will remove the admin role from the user, but will not delete the user.</p>
+                            <p>Peran admin akan dicabut. Akun tetap tersimpan di tabel admin dan tidak menjadi akun pelanggan.</p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>

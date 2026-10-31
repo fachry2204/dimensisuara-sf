@@ -23,7 +23,7 @@ class ReviewReleaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'aggregator' => 'required|in:Believe,SoundOn,Lokamusik',
+            'aggregator' => ['required', 'string', \Illuminate\Validation\Rule::in(app(\App\Services\SystemSettings::class)->aggregatorNames())],
         ];
     }
 }

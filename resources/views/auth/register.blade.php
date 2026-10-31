@@ -7,7 +7,7 @@
         'loginUrl' => route('login'),
         'pendingUrl' => route('pending'),
         'termsUrl' => route('register.tnc'),
-        'logoUrl' => asset('build/images/logo-soundfresh-full-white.webp'),
+        'appName' => app_name(), 'logoUrl' => app_logo('build/images/logo-soundfresh-full-white.webp'),
         'studioUrl' => asset('build/images/auth/login-studio.png'),
         'countries' => Monarobase\CountryList\CountryListFacade::getList(),
     ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}"></div>

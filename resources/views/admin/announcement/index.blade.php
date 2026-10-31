@@ -6,7 +6,7 @@ Announcements
     <div class="admin-list-header">
         <div>
             <h1>Announcements</h1>
-            <p>Kelola pengumuman yang akan tampil kepada komunitas Soundfresh.</p>
+            <p>Kelola pengumuman yang akan tampil kepada komunitas {{ app_name() }}.</p>
         </div>
         <a href="{{ route('admin.announcement.create') }}" class="announcement-create-btn"><i class="material-icons-outlined">add</i> Buat pengumuman</a>
     </div>

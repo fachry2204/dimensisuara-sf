@@ -62,16 +62,19 @@ class LogActivityController extends Controller
                     'logs.level as level',
                     'logs.message as message',
                     'logs.created_at as created_at',
-                    DB::raw('COALESCE(users.name, "SYSTEM") as user_name'),
-                    'logs.userid as user_id'
+                    DB::raw('COALESCE(user_admin.name, users.name, "SYSTEM") as user_name'),
+                    'logs.userid as user_id',
+                    'logs.admin_user_id'
                 )
-                ->leftJoin('users', 'users.id', '=', 'logs.userid');
+                ->leftJoin('users', 'users.id', '=', 'logs.userid')
+                ->leftJoin('user_admin', 'user_admin.id', '=', 'logs.admin_user_id');
             // Searching
             if ($search = $request->input('search.value')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('level', 'like', "%{$search}%");
                     $q->orWhere('message', 'like', "%{$search}%");
                     $q->orWhere('users.name', 'like', "%{$search}%");
+                    $q->orWhere('user_admin.name', 'like', "%{$search}%");
                 });
             }
 

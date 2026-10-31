@@ -12,13 +12,13 @@
         <form method="GET" action="{{ route('analytics.index') }}" class="analytics-period-form">
             <span class="material-icons-outlined" aria-hidden="true">calendar_month</span>
             <label for="analytics-date-range" class="visually-hidden">Pilih periode laporan</label>
-            <select name="date_range" id="analytics-date-range" aria-label="Periode laporan">
-                <option value="last_completed_quarter" @selected($dateRange === 'last_completed_quarter')>Kuartal terakhir</option>
+            <select name="date_range" id="analytics-date-range" aria-label="Periode laporan" onchange="this.form.requestSubmit()">
+                <option value="all_time" @selected($dateRange === 'all_time')>Semua waktu</option>
+                <option value="last_completed_quarter" @selected($dateRange === 'last_completed_quarter')>Kuartal kalender terakhir</option>
                 <option value="last_6_months" @selected($dateRange === 'last_6_months')>6 bulan terakhir</option>
                 <option value="last_12_months" @selected($dateRange === 'last_12_months')>12 bulan terakhir</option>
                 <option value="this_year" @selected($dateRange === 'this_year')>Tahun ini</option>
                 <option value="last_year" @selected($dateRange === 'last_year')>Tahun lalu</option>
-                <option value="all_time" @selected($dateRange === 'all_time')>Semua waktu</option>
             </select>
             <span class="analytics-period-display">{{ \Carbon\Carbon::parse($startDate)->locale('id')->isoFormat('D MMM') }} – {{ \Carbon\Carbon::parse($endDate)->locale('id')->isoFormat('D MMM YYYY') }}</span>
             <button type="submit" class="visually-hidden">Terapkan</button>
@@ -47,7 +47,16 @@
     };
 @endphp
 <div class="analytics-page">
-    <div class="analytics-data-note"><span class="material-icons-outlined">info</span>Data terakhir tersedia: <strong>{{ \Carbon\Carbon::parse($latestAvailableDate)->locale('id')->isoFormat('MMMM YYYY') }}</strong>. Laporan dapat mengalami jeda dari mitra distribusi.</div>
+    <div class="analytics-data-note"><span class="material-icons-outlined">info</span>
+        @if($latestAvailableDate)
+            Data terakhir tersedia: <strong>{{ \Carbon\Carbon::parse($latestAvailableDate)->locale('id')->isoFormat('MMMM YYYY') }}</strong>. Laporan dapat mengalami jeda dari mitra distribusi.
+        @else
+            Belum ada laporan distribusi tersedia untuk akun ini.
+        @endif
+    </div>
+    @if($latestAvailableDate && $monthsFormatted->isEmpty() && $dateRange !== 'all_time')
+        <div class="analytics-data-note mb-3"><span class="material-icons-outlined">date_range</span>Periode yang dipilih belum memiliki laporan. <a href="{{ route('analytics.index', ['date_range' => 'all_time']) }}">Lihat semua data yang tersedia</a>.</div>
+    @endif
 
     <div class="analytics-summary-grid">
         <article class="analytics-summary-card">

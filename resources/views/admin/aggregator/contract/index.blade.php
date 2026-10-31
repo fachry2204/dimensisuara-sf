@@ -65,42 +65,46 @@ Aggregator Contracts
                         <p>Please input the contract details</p>
                         <form id="create-contract-form" action="{{ route('admin.releases.contract.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
+                            @include('admin.aggregator.partials.contract-date', ['datePrefix' => 'list'])
                             <input type="hidden" name="type" value="aggregator">
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <label for="profileid">User <span class="text-danger">*</span></label>
                                     <select name="profileid" id="profileid" class="form-select form-select-sm" required>
                                         @foreach ($profiles as $profile)
-                                            <option value="{{ $profile->id }}" @disabled(!$profile->feature_aggregator)>{{ $profile->full_name }}</option>
+                                            <option value="{{ $profile->id }}" data-rate="{{ $profile->aggregator_rate ?? 70 }}" @selected((string) old('profileid') === (string) $profile->id) @disabled(!$profile->feature_aggregator || $profile->status !== 'verified')>{{ $profile->full_name }}{{ $profile->status !== 'verified' ? ' — belum terverifikasi' : '' }}</option>
                                         @endforeach
                                     </select>
 
                                     <input type="hidden" name="type" value="aggregator">
                                 </div>
+                                <div class="col-12">
+                                    @include('admin.aggregator.partials.contract-rates', ['initialUserRate' => ($profiles->firstWhere('id', old('profileid')) ?? $profiles->first(fn ($profile) => $profile->feature_aggregator && $profile->status === 'verified'))?->aggregator_rate ?? 70, 'ratePrefix' => 'list-contract'])
+                                </div>
                                 <div class="col-md-5 mb-3">
                                     <label for="number">Document Number <span class="text-danger">*</span></label>
-                                    <input type="number" name="number" class="form-control" required>
+                                    <input type="number" name="number" class="form-control" min="1" value="{{ old('number') }}" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="month">Month <span class="text-danger">*</span></label>
                                     <select type="text" name="month" class="form-control" required>
-                                        <option value="1">January (I)</option>
-                                        <option value="2">February (II)</option>
-                                        <option value="3">March (III)</option>
-                                        <option value="4">April (IV)</option>
-                                        <option value="5">May (V)</option>
-                                        <option value="6">June (VI)</option>
-                                        <option value="7">July (VII)</option>
-                                        <option value="8">August (VIII)</option>
-                                        <option value="9">September (IX)</option>
-                                        <option value="10">October (X)</option>
-                                        <option value="11">November (XI)</option>
-                                        <option value="12">December (XII)</option>
+                                        <option value="1" @selected((int) old('month', now()->month) === 1)>January (I)</option>
+                                        <option value="2" @selected((int) old('month', now()->month) === 2)>February (II)</option>
+                                        <option value="3" @selected((int) old('month', now()->month) === 3)>March (III)</option>
+                                        <option value="4" @selected((int) old('month', now()->month) === 4)>April (IV)</option>
+                                        <option value="5" @selected((int) old('month', now()->month) === 5)>May (V)</option>
+                                        <option value="6" @selected((int) old('month', now()->month) === 6)>June (VI)</option>
+                                        <option value="7" @selected((int) old('month', now()->month) === 7)>July (VII)</option>
+                                        <option value="8" @selected((int) old('month', now()->month) === 8)>August (VIII)</option>
+                                        <option value="9" @selected((int) old('month', now()->month) === 9)>September (IX)</option>
+                                        <option value="10" @selected((int) old('month', now()->month) === 10)>October (X)</option>
+                                        <option value="11" @selected((int) old('month', now()->month) === 11)>November (XI)</option>
+                                        <option value="12" @selected((int) old('month', now()->month) === 12)>December (XII)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label for="year">Year <span class="text-danger">*</span></label>
-                                    <input type="text" name="year" class="form-control" required>
+                                    <input type="number" name="year" class="form-control" min="2000" max="2100" value="{{ old('year', now()->year) }}" required>
                                 </div>
                                 @can('upload-contracts')
                                     <div class="col-12 mb-3">

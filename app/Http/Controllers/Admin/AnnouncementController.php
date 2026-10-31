@@ -77,8 +77,8 @@ class AnnouncementController extends Controller
             $orderDir = $request->input('order.0.dir', 'desc');
 
             if ($orderColumn === 'creator_name') {
-                $query->join('users', 'announcements.user_id', '=', 'users.id')
-                      ->orderBy('users.name', $orderDir)
+                $query->leftJoin('user_admin', 'announcements.user_id', '=', 'user_admin.id')
+                      ->orderBy('user_admin.name', $orderDir)
                       ->select('announcements.*');
             } else {
                 $query->orderBy($orderColumn, $orderDir);

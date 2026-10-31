@@ -1,0 +1,102 @@
+/* Final shared action palette. Colors come from validated System Settings. */
+html[data-bs-theme] body[class] :is(
+    .btn[class], .release-next-button, .release-submit-button, .release-upload-button,
+    .release-add-track, .admin-step-next, .release-create-button, .contract-create-button,
+    .dashboard-create-btn, .dashboard-upload-btn, .release-type-cta, .admin-review-action,
+    .earn-balance > a, .role-form-actions button, .announcement-form-actions button,
+    .roles-page-header > a, .announcement-create-btn, .report-apply, .login-submit,
+    .sf-login .sf-submit, .sf-register .primary, .admin-release-action,
+    .user-create-btn, .broadcast-create-btn, .button-blue, .button-primary, .release-remove-button,
+    button[type="submit"], input[type="submit"], input[type="button"]
+) {
+    --bs-btn-bg: var(--sf-primary-start);
+    --bs-btn-border-color: var(--sf-primary-start);
+    --bs-btn-color: var(--sf-on-primary);
+    --bs-btn-hover-bg: var(--sf-primary-end);
+    --bs-btn-hover-border-color: var(--sf-primary-end);
+    --bs-btn-hover-color: var(--sf-on-primary);
+    --bs-btn-active-color: var(--sf-on-primary);
+    background: var(--sf-primary-background) !important;
+    border-color: var(--sf-primary-start) !important;
+    color: var(--sf-on-primary) !important;
+    text-shadow: none;
+}
+html[data-bs-theme] body[class] :is(
+    .btn[class], .release-next-button, .release-submit-button, .release-upload-button,
+    .release-add-track, .admin-step-next, .release-create-button, .contract-create-button,
+    .dashboard-create-btn, .dashboard-upload-btn, .release-type-cta, .admin-review-action,
+    .earn-balance > a, .role-form-actions button, .announcement-form-actions button,
+    .roles-page-header > a, .announcement-create-btn, .report-apply, .login-submit,
+    .sf-login .sf-submit, .sf-register .primary, .admin-release-action,
+    .user-create-btn, .broadcast-create-btn, .button-blue, .button-primary, .release-remove-button,
+    button[type="submit"], input[type="submit"], input[type="button"]
+):is(:hover, :focus-visible, :active) {
+    background: var(--sf-primary-hover) !important;
+    color: var(--sf-on-primary) !important;
+    border-color: var(--sf-primary-end) !important;
+    filter: none;
+}
+/* Outlines and secondary actions keep their lighter weight until interaction. */
+html[data-bs-theme] body[class] :is(
+    .btn[class*="btn-outline-"], .btn.btn-link, .release-previous-button, .release-save-draft,
+    .admin-step-previous, .release-toolbar-button, .release-inline-action, .release-ipl-upload,
+    .release-add-artist-button, .admin-user-action-btn, .report-export, .earn-download,
+    .dashboard-secondary-btn, .analytics-view-button, [data-contract-preview]
+) {
+    background: var(--sf-surface) !important;
+    color: var(--sf-accent) !important;
+    border-color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body[class] :is(
+    .btn[class*="btn-outline-"], .btn.btn-link, .release-previous-button, .release-save-draft,
+    .admin-step-previous, .release-toolbar-button, .release-inline-action, .release-ipl-upload,
+    .release-add-artist-button, .admin-user-action-btn, .report-export, .earn-download,
+    .dashboard-secondary-btn, .analytics-view-button, [data-contract-preview]
+):is(:hover, :focus-visible, :active) {
+    background: var(--sf-primary-background) !important;
+    color: var(--sf-on-primary) !important;
+    border-color: var(--sf-primary-start) !important;
+}
+html[data-bs-theme] body[class] :is(.btn[class], .release-type-cta, .earn-balance > a, .sf-register .primary, .report-apply, .report-export, .analytics-view-button, .release-inline-action, .release-add-artist-button, button[type="submit"]) :is(span, i, strong, small) {
+    color: inherit !important;
+    background-color: transparent !important;
+}
+html[data-bs-theme] body[class] :is(.nav-tabs .nav-link.active, .nav-pills .nav-link.active, .earn-tab.is-active, .pagination .active > .page-link, .btn-check:checked + .btn, .btn-check:checked + .btn span) {
+    background: var(--sf-primary-background) !important;
+    color: var(--sf-on-primary) !important;
+    border-color: var(--sf-primary-start) !important;
+}
+html[data-bs-theme] body[class] :is(.nav-link.active .tab-title, .nav-link.active .tab-icon) { color: var(--sf-on-primary) !important; }
+html[data-bs-theme] body[class] .form-check-input:is(:checked, :indeterminate) {
+    background-color: var(--sf-primary-check) !important;
+    border-color: var(--sf-primary-check) !important;
+}
+/* Disabled controls retain the neutral palette and remain visibly disabled. */
+html[data-bs-theme] body[class] :is(.btn[class], .sf-register .primary, .report-apply, .report-export, .login-submit, .sf-login .sf-submit, .release-next-button, .release-submit-button, .admin-step-next):is(:disabled, .disabled) {
+    background: var(--sf-disabled) !important;
+    border-color: var(--sf-border) !important;
+    color: var(--sf-muted) !important;
+    filter: none;
+}
+
+/* Tab contents inherit the same foreground in default, hover and active states. */
+html[data-bs-theme] body[class] :is(.nav-tabs, .nav-pills) .nav-link:is(:hover, :focus-visible) {
+    background: var(--sf-accent-soft) !important;
+    color: var(--sf-accent) !important;
+    border-color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body[class] :is(.nav-tabs, .nav-pills) .nav-link.active,
+html[data-bs-theme] body[class] :is(.nav-tabs, .nav-pills) .nav-link.active:is(:hover, :focus-visible, :active) {
+    background: var(--sf-primary-background) !important;
+    color: var(--sf-on-primary) !important;
+    border-color: var(--sf-primary-start) !important;
+}
+html[data-bs-theme] body[class] :is(.nav-tabs, .nav-pills) .nav-link :is(div, span, i, strong, small) {
+    color: inherit !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body[class] :is(.nav-tabs, .nav-pills) .nav-link:focus-visible {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 2px;
+}

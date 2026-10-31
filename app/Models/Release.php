@@ -16,6 +16,10 @@ use App\Enums\ReleaseStatus;
 
 class Release extends Model
 {
+    public function scopeVisibleTo(\Illuminate\Database\Eloquent\Builder $query, \App\Models\User\User $viewer): \Illuminate\Database\Eloquent\Builder
+    {
+        return $viewer->can('view-releases-all') ? $query : $query->where('releases.status', 'released');
+    }
 
     protected $casts = [
         'releaseddate' => 'date',

@@ -18,17 +18,8 @@ class UserRolesController extends Controller
     public function index()
     {
         $roles      = Role::all();
-        $all_users  = User::all();
-        $admins     = $users = [];
-
-        foreach($all_users as $user) {
-            if( $user->roles->count() > 0 ) {
-                $admins[] = $user;
-            }
-            else {
-                $users[] = $user;
-            }
-        }
+        $admins = \App\Models\User\Admin::with('roles')->whereHas('roles')->get();
+        $users = \App\Models\User\Admin::whereDoesntHave('roles')->get();
 
         return view('admin.user-roles.index', compact('roles','admins','users'));
     }

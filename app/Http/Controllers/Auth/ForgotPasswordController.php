@@ -19,4 +19,10 @@ class ForgotPasswordController extends Controller
     */
 
     use SendsPasswordResetEmails;
+
+    public function broker()
+    {
+        $admin = \App\Models\User\Admin::where('email', request('email'))->exists();
+        return \Illuminate\Support\Facades\Password::broker($admin ? 'admins' : 'users');
+    }
 }

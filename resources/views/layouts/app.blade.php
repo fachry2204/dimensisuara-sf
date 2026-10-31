@@ -4,16 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') | SoundFresh</title>
+    <title>@yield('title') | {{ app_name() }}</title>
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ URL::asset('favicon.ico') }}" type="image/png">
-    <script>
-        // Apply saved theme before CSS loads to prevent a flash of wrong color.
-        const savedTheme = localStorage.getItem('theme');
-        const theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
-        document.documentElement.setAttribute('data-bs-theme', theme);
-    </script>
+    <link rel="icon" href="{{ app_favicon() }}">
 
     @include('layouts.head-css')
     @vite('resources/js/soundfresh.js')
@@ -29,9 +23,9 @@
         @if(session()->has('impersonate'))
             <div class="impersonation-spacer" aria-hidden="true"></div>
         @endif
-        <div class="main-content">
+        <div class="main-content @yield('content-class')">
             @if(Route::is('home'))
-                <div data-vue-app></div>
+                <div data-vue-app data-app-name="{{ app_name() }}"></div>
             @endif
             @yield('header')
 
@@ -78,7 +72,7 @@
     
     @include('layouts.offcanvas')
     @include('layouts.common-scripts')
-    <script src="{{ URL::asset('build/js/main.js') }}"></script>
+    <script src="{{ asset('build/js/main.js') }}?v={{ file_exists(public_path('build/js/main.js')) ? filemtime(public_path('build/js/main.js')) : '1' }}"></script>
 </body>
 
 </html>

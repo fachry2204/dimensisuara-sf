@@ -16,6 +16,7 @@ class ReleaseHistory extends Model
         'message',
         'type',
         'user_id',
+        'admin_user_id',
     ];
 
     public function release(): BelongsTo
@@ -25,6 +26,9 @@ class ReleaseHistory extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo('user', 'actor_type', 'actor_id');
     }
+
+    public function getActorTypeAttribute(): string { return $this->admin_user_id ? \App\Models\User\Admin::class : User::class; }
+    public function getActorIdAttribute(): ?int { return $this->admin_user_id ?? $this->user_id; }
 }

@@ -34,11 +34,12 @@ class MainController extends Controller
      */
     public function index()
     {
-        $by_type = Release::selectRaw('type, COUNT(*) as count')->groupBy('type')->pluck('count', 'type');
-        $by_type['tracks'] = Track::count();
+        $catalogue = Release::visibleTo(auth()->user());
+        $by_type = (clone $catalogue)->selectRaw('type, COUNT(*) as count')->groupBy('type')->pluck('count', 'type');
+        $by_type['tracks'] = Track::inReleaseCatalogue(auth()->user())->count();
 
-        $by_status = Release::selectRaw('status, COUNT(*) as count')->groupBy('status')->pluck('count', 'status');
-        $by_status['all'] = Release::count();
+        $by_status = (clone $catalogue)->selectRaw('status, COUNT(*) as count')->groupBy('status')->pluck('count', 'status');
+        $by_status['all'] = (clone $catalogue)->where('status', '!=', 'draft')->count();
 
         return view('admin.aggregator.index', compact('by_status', 'by_type'));
     }
@@ -80,7 +81,7 @@ class MainController extends Controller
     public function exportReleases()
     {
         try {
-            $results = Release::with('profile')->get()->map(function ($row) {
+            $results = Release::visibleTo(auth()->user())->with('profile')->get()->map(function ($row) {
                 $primaryArtists = $this->implodeArtists($row->primaryartists);
 
                 return [
@@ -160,7 +161,7 @@ class MainController extends Controller
     public function exportTracks()
     {
         try {
-            $results = Track::with(['profile', 'releases'])->get()->map(function ($row) {
+            $results = Track::inReleaseCatalogue(auth()->user())->with(['profile', 'releases' => fn ($query) => $query->visibleTo(auth()->user())])->get()->map(function ($row) {
                 $primaryArtists = $this->implodeArtists($row->primaryartists);
                 $featuredArtists = $this->implodeArtists($row->featuredartists);
 
@@ -295,6 +296,7 @@ class MainController extends Controller
         // Pre-release date must sit within 1 to 7 days before the planned release date
         $request->validate([
             'tiktok_ytmusic_rerelease_date' => ['bail', 'nullable', 'date', new PreReleaseWindow()],
+            'aggregator' => ['nullable', 'string', \Illuminate\Validation\Rule::in(app(\App\Services\SystemSettings::class)->aggregatorNames())],
             'releaseddate' => ['nullable', 'required_if:released,1', 'date'],
             'upc' => ['nullable', 'required_if:released,1', 'string', 'max:255'],
         ]);
@@ -359,6 +361,7 @@ class MainController extends Controller
         // Pre-release date must sit within 1 to 7 days before the planned release date
         $request->validate([
             'tiktok_ytmusic_rerelease_date' => ['bail', 'nullable', 'date', new PreReleaseWindow($release->releaseon)],
+            'aggregator' => ['nullable', 'string', \Illuminate\Validation\Rule::in(array_merge(app(\App\Services\SystemSettings::class)->aggregatorNames(), [$release->aggregator]))],
             'releaseddate' => ['nullable', 'required_if:released,1', 'date'],
             'upc' => ['nullable', 'required_if:released,1', 'string', 'max:255'],
         ]);
@@ -621,7 +624,7 @@ class MainController extends Controller
     {
         try {
             // Get records with certain status
-            $query = Release::query();
+            $query = Release::visibleTo(auth()->user());
             if (!auth()->user()->can('view-releases-all')) {
                 // Limited viewers (e.g. Partner) only ever see published releases.
                 $query = $query->where('releases.status', 'released');

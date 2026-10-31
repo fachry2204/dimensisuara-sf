@@ -13,10 +13,9 @@ use App\Http\Middleware\HasRole;
 use App\Http\Middleware\NoCacheMiddleware;
 use App\Http\Middleware\Publishing\SigneeToken as PublishingSigneeToken;
 
-// Redirect root to login
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+Route::get('/rilis/{release}/cover', [\App\Http\Controllers\LandingController::class, 'cover'])
+    ->whereNumber('release')->name('landing.cover');
 
 // Prevent cache for auth routes
 Route::middleware([NoCacheMiddleware::class])->group(function () {

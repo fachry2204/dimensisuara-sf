@@ -140,6 +140,10 @@ class SettlementController extends Controller
     public function upload(Request $request, $id)
     {
         $settlement = Settlement::findOrFail($id);
+        $request->validate([
+            'type' => ['required', 'in:slip,tax'],
+            'file' => ['required', 'file', 'mimes:pdf,png,jpg,jpeg,webp', 'max:10240'],
+        ]);
         $context = [];
 
         try {

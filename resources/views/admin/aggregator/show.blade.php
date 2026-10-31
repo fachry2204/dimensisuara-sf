@@ -68,6 +68,32 @@
 @push('css')
     <style>
         .admin-release-header .breadcrumb-item a{color:#78b6ff}.admin-release-header .breadcrumb-item.active{color:#b7cce2}.admin-release-header h4{color:#f6f9ff;letter-spacing:-.035em}.admin-release-header>div:last-child{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:9px}.admin-release-action{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid;border-radius:8px;font-size:.78rem;font-weight:800}.admin-release-action i{font-size:18px}.admin-release-action--edit{border-color:#f18b3a;background:rgba(230,129,39,.1);color:#ffac61}.admin-release-action--reject{border-color:#e53f84;background:#d91f70;color:#fff}.admin-release-action--review{border-color:#28c987;background:#16b978;color:#fff}.admin-release-action:hover{filter:brightness(1.1);color:#fff;transform:translateY(-1px)}
+        /* Bootstrap reads these variables for hover, keyboard focus, and pressed states. */
+        .admin-release-action {
+            --bs-btn-hover-color: #fff;
+            --bs-btn-active-color: #fff;
+        }
+        .admin-release-action--edit {
+            --bs-btn-hover-bg: #c2410c;
+            --bs-btn-hover-border-color: #c2410c;
+            --bs-btn-active-bg: #9a3412;
+            --bs-btn-active-border-color: #9a3412;
+            --bs-btn-focus-shadow-rgb: 194, 65, 12;
+        }
+        .admin-release-action--reject {
+            --bs-btn-hover-bg: #b91c5c;
+            --bs-btn-hover-border-color: #b91c5c;
+            --bs-btn-active-bg: #9d174d;
+            --bs-btn-active-border-color: #9d174d;
+            --bs-btn-focus-shadow-rgb: 185, 28, 92;
+        }
+        .admin-release-action--review {
+            --bs-btn-hover-bg: #087f5b;
+            --bs-btn-hover-border-color: #087f5b;
+            --bs-btn-active-bg: #066649;
+            --bs-btn-active-border-color: #066649;
+            --bs-btn-focus-shadow-rgb: 8, 127, 91;
+        }
     </style>
 @endpush
 @section('content')
@@ -100,10 +126,10 @@
                             @method('PUT')
                             <p>Please select an aggregator to review this release:</p>
                             <select class="form-select" name="aggregator" id="aggregator">
-                                <option value="">-- Unassigned --</option>
-                                <option value="Believe" @if($release->aggregator == 'Believe') selected @endif>Believe</option>
-                                <option value="SoundOn" @if($release->aggregator == 'SoundOn') selected @endif>SoundOn</option>
-                                <option value="Lokamusik" @if($release->aggregator == 'Lokamusik') selected @endif>Lokamusik</option>
+                                @include('admin.aggregator.partials.aggregator-options', [
+                                    'selectedAggregator' => old('aggregator', $release->aggregator),
+                                    'legacyAggregator' => null,
+                                ])
                             </select>
                         </form>
                     </div>

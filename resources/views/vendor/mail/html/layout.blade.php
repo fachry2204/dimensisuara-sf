@@ -43,7 +43,7 @@ width: 100% !important;
 <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
 <tr>
 <td class="content-cell header">
-<img src="{{ asset('build/images/logo-soundfresh-full-white.png') }}" alt="SoundFresh Logo" width="200">
+<img src="{{ app_logo('build/images/logo-soundfresh-full-white.png') }}" alt="{{ app_name() }} Logo" width="200">
 </td>
 </tr>
 <!-- Body content -->

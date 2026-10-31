@@ -312,7 +312,7 @@ Releases
         .tab-content .text-muted { color: #91a7c0 !important; }
         .tab-content .btn-outline-primary { color: #ff8050; border-color: #ff8050; border-radius: 7px; }
         .tab-content .btn-outline-primary:hover { background: #ff7043; border-color: #ff7043; color: #fff; }
-        .tab-content .alert-danger { background: #3b2027; border: 1px solid #7b3342; color: #fecdd3; border-radius: 9px; }
+        .tab-content .alert-danger { background: var(--sf-danger-bg); border: 1px solid var(--sf-danger-border); color: var(--sf-danger-text); border-radius: 9px; }
         @media (max-width: 900px) { .nav-pills { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 520px) { .sf-app .main-wrapper .main-content { padding: 18px !important; } .nav-pills { grid-template-columns: 1fr; } .tab-content { overflow-x: auto; } }
         @media (max-width: 768px) {

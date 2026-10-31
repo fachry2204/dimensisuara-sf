@@ -35,15 +35,16 @@ View Transaction
                         <h6 class="card-title mb-0 fw-bold">Actions</h6>
                     </div>
                     <div class="card-body">
-                        <ul>
-                            <li><a href="#" id="upload-slip">Upload Transaction Slip</a></li>
-                            <li><a href="#" id="upload-tax">Upload Payment Receipt</a></li>
-                        </ul>
+                        <div class="d-grid gap-3">
+                            <button type="button" id="upload-slip" class="btn btn-outline-primary settlement-upload-button"><span class="material-icons-outlined" aria-hidden="true">account_balance</span><span>Upload Bukti Transfer Bank</span></button>
+                            <button type="button" id="upload-tax" class="btn btn-outline-primary settlement-upload-button"><span class="material-icons-outlined" aria-hidden="true">receipt_long</span><span>Upload Bukti Pajak</span></button>
+                        </div>
+                        <p class="form-text mt-3 mb-0">PDF, PNG, JPG, atau WebP. Maksimal 10 MB per dokumen.</p>
 
                         <form action="{{ route('admin.releases.settlement.upload', $settlement->id) }}" method="POST" class="d-none" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="type" id="type" required>
-                            <input type="file" name="file" id="file" required>
+                            <input type="file" name="file" id="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required>
                         </form>
                     </div>
                 </div>
@@ -92,9 +93,23 @@ View Transaction
 
             $('#file').on('change', function(e) {
                 e.preventDefault();
+                if (!this.files.length) return;
                 var form = $(this).closest('form');
                 form.submit();
             });
         });
     </script>
+@endpush
+@push('css')
+<style>
+    .settlement-upload-button { display:flex;align-items:center;gap:.6rem;text-align:left;white-space:normal;min-height:48px; }
+    .settlement-upload-button .material-icons-outlined { flex-shrink:0;font-size:24px; }
+    .settlement-documents { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.5rem; }
+    .settlement-document { border:1px solid var(--sf-border);border-radius:.75rem;padding:1rem;background:var(--sf-surface-soft);min-width:0; }
+    .settlement-document-heading { display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem; }
+    .settlement-document-heading .material-icons-outlined { color:var(--sf-accent);font-size:25px; }
+    .settlement-document .btn { display:inline-flex;align-items:center;justify-content:center;gap:.4rem;white-space:normal;min-height:40px; }
+    .settlement-document small { display:block;margin-top:.5rem;overflow-wrap:anywhere; }
+    @media(max-width:767px) { .settlement-documents { grid-template-columns:1fr; } }
+</style>
 @endpush

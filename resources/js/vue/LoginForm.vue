@@ -12,6 +12,7 @@ defineProps({
     registerUrl: String,
     homeUrl: String,
     logoUrl: String,
+    appName: String,
 });
 
 const showPassword = ref(false);
@@ -19,7 +20,7 @@ const showPassword = ref(false);
 
 <template>
     <div class="sf-form-panel">
-        <a class="sf-logo" :href="homeUrl" aria-label="SoundFresh — beranda"><img :src="logoUrl" alt="SoundFresh"></a>
+        <a class="sf-logo" :href="homeUrl" :aria-label="appName + ' — beranda'"><img :src="logoUrl" :alt="appName"></a>
         <h2 id="login-heading">Selamat datang kembali</h2>
         <p class="sf-form-panel__intro">Masuk untuk melanjutkan perjalanan musikmu.</p>
         <form method="POST" :action="action">
