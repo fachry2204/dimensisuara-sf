@@ -28,7 +28,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
-        app(\App\Services\SystemSettings::class)->apply();
+        // Composer and installation commands must boot before a database exists.
+        // Runtime requests and operational commands still load database settings.
+        if ($this->shouldApplyDatabaseSettings()) {
+            app(\App\Services\SystemSettings::class)->apply();
+        }
         \Illuminate\Support\Facades\Queue::before(function () {
             app(\App\Services\SystemSettings::class)->refresh();
         });
@@ -56,5 +60,19 @@ class AppServiceProvider extends ServiceProvider
 
             return Auth::guard()->user();
         });
+    }
+
+    private function shouldApplyDatabaseSettings(): bool
+    {
+        if (!$this->app->runningInConsole()) return true;
+
+        $command = (new \Symfony\Component\Console\Input\ArgvInput)->getFirstArgument();
+        if (in_array($command, ['package:discover', 'key:generate', 'storage:link', 'storage:unlink', 'list', 'help', 'about', 'env', 'test', 'completion'], true)) return false;
+
+        foreach (['migrate', 'db:', 'schema:', 'config:', 'cache:', 'route:', 'view:', 'event:', 'optimize', 'vendor:', 'make:', 'install:', 'lang:'] as $prefix) {
+            if ($command !== null && str_starts_with($command, $prefix)) return false;
+        }
+
+        return true;
     }
 }
