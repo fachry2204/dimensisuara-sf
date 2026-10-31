@@ -45,7 +45,12 @@ class ImportPaths
         if (str_contains($path, "\0") || preg_match('~(^|/)\.\.(/|$)|^[a-zA-Z]:~', $path)) {
             throw new RuntimeException('Referensi media tidak valid.');
         }
-        $file = $this->inside($root.DIRECTORY_SEPARATOR.ltrim($path, '/'), $root);
+        $candidate = $root.DIRECTORY_SEPARATOR.ltrim($path, '/');
+        try {
+            $file = $this->inside($candidate, $root);
+        } catch (RuntimeException $e) {
+            throw new RuntimeException($e->getMessage().' Lokasi dicari: '.$candidate,0,$e);
+        }
         if (!is_file($file)) {
             throw new RuntimeException('Sumber media bukan file.');
         }

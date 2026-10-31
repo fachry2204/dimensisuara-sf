@@ -132,7 +132,7 @@ class LegacyMediaImporter
                 }
                 DB::table('legacy_import_media_results')->updateOrInsert($key, ['status' => 'copied', 'message' => 'Checksum cocok.', 'file_id' => $file->id, 'sha256' => $hash, 'created_at' => now(), 'updated_at' => now()]);
             } catch (RuntimeException $e) {
-                DB::table('legacy_import_media_results')->updateOrInsert($key, ['status' => 'issue', 'message' => $e->getMessage(), 'file_id' => null, 'sha256' => null, 'created_at' => now(), 'updated_at' => now()]);
+                DB::table('legacy_import_media_results')->updateOrInsert($key, ['status' => 'issue', 'message' => mb_substr($e->getMessage(),0,500), 'file_id' => null, 'sha256' => null, 'created_at' => now(), 'updated_at' => now()]);
             }
         }
     }

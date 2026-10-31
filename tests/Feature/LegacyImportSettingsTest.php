@@ -240,6 +240,40 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $paths->mediaRoot('');
     }
 
+    public function test_missing_media_reports_the_local_path_without_url_credentials(): void
+    {
+        try {
+            (new ImportPaths)->media('https://old.example/uploads/missing.png?token=secret',$this->directory.'/old');
+            $this->fail('Missing source accepted');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('Lokasi dicari: ',$e->getMessage());
+            $this->assertStringContainsString('uploads/missing.png',str_replace('\\','/',$e->getMessage()));
+            $this->assertStringNotContainsString('secret',$e->getMessage());
+        }
+    }
+
+    public function test_issue_pagination_uses_bootstrap_without_oversized_svg_and_preserves_selected_import(): void
+    {
+        $this->signIn();
+        $run = $this->runFor($this->data()); $run->status = 'media_issues';
+        for ($i=1;$i<=26;$i++) DB::table('legacy_import_media_results')->insert([
+            'run_id'=>$run->id,'record_id'=>$i,'field'=>'cover_art','status'=>'issue','message'=>'File tidak ditemukan',
+        ]);
+        $issues = DB::table('legacy_import_media_results')->paginate(25,['*'],'issues_page')
+            ->appends(['tab'=>'legacy','import'=>$run->id]);
+        $html = view('admin.system-settings.legacy',[
+            'importsReady'=>true,'selectedImport'=>$run,'importRuns'=>collect(),
+            'importMediaCounts'=>collect(['issue'=>26]),'importMediaIssues'=>$issues,
+            'errors'=>new \Illuminate\Support\ViewErrorBag,
+        ])->render();
+        $this->assertStringContainsString('class="page-item',$html);
+        $this->assertStringContainsString('issues_page=2',$html);
+        $this->assertStringContainsString('tab=legacy',$html);
+        $this->assertStringContainsString('import='.$run->id,$html);
+        $this->assertStringNotContainsString('<svg',$html);
+        $this->assertStringContainsString('File Manager',$html);
+    }
+
     public function test_media_mapping_survives_identical_rows_in_a_different_dump(): void
     {
         $first = $this->runFor($this->data());
