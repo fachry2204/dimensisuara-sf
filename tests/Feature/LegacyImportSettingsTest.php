@@ -276,6 +276,50 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $this->assertSame(1,DB::table('tracks')->count());
     }
 
+    public function test_direct_identity_command_resumes_without_queue_and_leaves_catalogue_untouched(): void
+    {
+        $data = $this->data();
+        $data['users'][7]['ktp_doc_path'] = '/uploads/ktp.png';
+        $data['users'][8] = array_replace($data['users'][7],['id'=>'8','email'=>'second@example.test']);
+        $data['releases'][11]['cover_art'] = '/uploads/cover-must-not-be-read.png';
+        $data['tracks'][12]['audio_file'] = '/uploads/wav-must-not-be-read.wav';
+        file_put_contents($this->directory.'/old/uploads/ktp.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8R8AAAAASUVORK5CYII='));
+        $run = $this->runFor($data); $run->update(['status'=>'apply_queued']);
+        (new RunLegacyImport($run->id,'apply'))->handle();
+        $run->refresh()->update(['status'=>'identities_queued','started_at'=>null]);
+        $this->artisan('legacy:import-identities',['run'=>$run->id,'--limit'=>1])
+            ->expectsOutputToContain('WAV, cover art, dan IPL dilewati')
+            ->expectsOutputToContain('Belum selesai')->assertSuccessful();
+        $this->assertSame(1,(int) $run->fresh()->media_processed);
+        $this->assertSame('identities_queued',$run->fresh()->status);
+        $this->artisan('legacy:import-identities',['run'=>$run->id])
+            ->expectsOutputToContain('Import dokumen identitas selesai')->assertSuccessful();
+        $this->assertSame('identities_complete',$run->fresh()->status);
+        $this->assertSame(2,(int) $run->fresh()->media_processed);
+        $this->assertSame(2,DB::table('filestorage')->where('type','ktp')->count());
+        $this->assertSame(0,DB::table('filestorage')->whereIn('type',['cover','full'])->count());
+        Bus::assertNotDispatched(RunLegacyImport::class);
+        // Running again retains already copied documents rather than duplicating them.
+        $this->artisan('legacy:import-identities',['run'=>$run->id])->assertSuccessful();
+        $this->assertSame(2,DB::table('filestorage')->count());
+        $this->assertSame(2,$run->fresh()->mediaResults()->where('status','kept')->count());
+    }
+
+    public function test_direct_identity_command_reports_missing_sources_and_rejects_unimported_runs(): void
+    {
+        $data = $this->data(); $data['users'][7]['ktp_doc_path'] = '/uploads/missing-ktp.png';
+        $run = $this->runFor($data);
+        $this->artisan('legacy:import-identities',['run'=>$run->id])
+            ->expectsOutputToContain('Database harus selesai diimpor')->assertFailed();
+        $run->update(['status'=>'apply_queued']);
+        (new RunLegacyImport($run->id,'apply'))->handle();
+        $this->artisan('legacy:import-identities',['run'=>$run->id])
+            ->expectsOutputToContain('Lokasi dicari:')->assertSuccessful();
+        $this->assertSame('identities_issues',$run->fresh()->status);
+        $this->assertSame(0,DB::table('filestorage')->count());
+        Bus::assertNotDispatched(RunLegacyImport::class);
+    }
+
     public function test_paths_reject_traversal_empty_root_and_sibling_prefix(): void
     {
         $paths = new ImportPaths;

@@ -24,6 +24,7 @@ class RunLegacyImport implements ShouldQueue
     public int $tries = 1000;
     public int $timeout = 900;
     public bool $failOnTimeout = true;
+    private bool $dispatchNext = true;
 
     public function __construct(public int $runId, public string $phase)
     {
@@ -105,6 +106,13 @@ class RunLegacyImport implements ShouldQueue
         }
     }
 
+    /** Bounded Artisan recovery uses the same mapping without creating queue jobs. */
+    public function handleInline(): void
+    {
+        $this->dispatchNext = false;
+        $this->handle();
+    }
+
     private function media(LegacyImportRun $run): void
     {
         $root = app(ImportPaths::class)->mediaRoot($run->media_root ?? '');
@@ -121,7 +129,7 @@ class RunLegacyImport implements ShouldQueue
         }
         app(LegacyMediaImporter::class)->importRecord($run, $record, $this->phase === 'identities');
         $run->update(['media_cursor' => $record->id, 'media_processed' => $run->media_processed + 1]);
-        self::dispatch($run->id, $this->phase);
+        if ($this->dispatchNext) self::dispatch($run->id, $this->phase);
     }
 
     /** Older runs linked only catalogue rows. Recover exact user mappings from their original dump. */

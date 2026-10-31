@@ -46,6 +46,18 @@ Setelah deploy, restart worker lalu buka riwayat impor yang sudah selesai dan kl
 
 Isi folder utama website lama yang memuat path dokumen pada SQL. Pemetaan pengguna yang dahulu belum terhubung ke fase media dipulihkan dari SQL asli yang checksumnya cocok dan baris pengguna yang sama persis dengan arsip terenkripsi. Pertahankan SQL asli di inbox sampai pelengkapan selesai. Pengguna dan rilisan tidak dibuat ulang. File yang hilang atau berbeda dilaporkan per field; file tujuan berbeda tidak ditimpa. Tombol **Periksa dan Ulangi Media** tetap tersedia jika memang ingin memeriksa seluruh media.
 
+### Menjalankan langsung ketika antrean tidak mengambil job
+
+Di tab Artisan Laravel Toolkit Plesk aplikasi baru, masukkan tanpa awalan `php artisan`:
+
+```text
+legacy:import-identities 1 --media-root="/var/www/vhosts/dimensisuara.id/httpdocs"
+```
+
+Ganti `1` dengan ID riwayat impor. Untuk terminal SSH, tambahkan awalan `php artisan`. Perintah ini tidak mengirim job ke antrean, hanya memproses dokumen pengguna, dan mencetak folder aplikasi/database yang dipakai serta progres dan kendala. WAV, cover, dan IPL dilewati. Impor yang sedang memproses file tetap dilindungi kunci impor; perintah menolak berjalan bersamaan dengan worker aktif. Permintaan media lama yang masih menunggu dapat dialihkan ke dokumen identitas saja dengan aman setelah kunci tersedia.
+
+Batas bawaan adalah 50 pengguna atau 45 detik (diperiksa di antara pengguna). Jika output menyatakan belum selesai, ulangi perintah yang sama: cursor dan progres dilanjutkan dari database. Opsi `--limit` (1–500) dan `--max-time` (1–600 detik) tersedia untuk terminal dengan batas eksekusi berbeda. Jika selesai dengan kendala, periksa daftar lokasi file yang dicetak dan hasil pada halaman impor; jangan menganggap semua dokumen tersedia hanya karena perintah selesai.
+
 ## Cakupan dan integritas
 
 - Pelanggan/profil, metadata rilis, lagu, kredit dan relasi memakai pemetaan SQL yang sudah tersedia. Admin sumber tidak otomatis menjadi admin aplikasi baru; email yang bertabrakan dengan `users` maupun `user_admin` dilewati.

@@ -34,6 +34,13 @@
         @if($selectedImport->started_at)<p class="form-text">Worker pertama memproses tahap ini: {{ $selectedImport->started_at->format('d-m-Y H:i:s') }}. Aktivitas terakhir: {{ $selectedImport->updated_at->format('d-m-Y H:i:s') }}. Jika waktu ini tidak berubah, periksa worker dan log hosting.</p>@else<p class="form-text">Worker belum mulai memproses tahap ini.</p>@endif
     @endif
     @if($selectedImport->error)<div class="alert alert-danger">{{ $selectedImport->error }}</div>@endif
+    @if(in_array($selectedImport->status,['imported','media_queued','media_failed','media_issues','complete','identities_queued','identities_failed','identities_issues','identities_complete'],true))
+        <details class="mb-3"><summary>Jalankan dokumen identitas langsung jika antrean tidak berjalan</summary>
+            <p class="mt-2">Di tab Artisan Laravel Toolkit Plesk, masukkan perintah berikut tanpa awalan <code>php artisan</code>. Perintah ini langsung memproses dokumen pengguna, menampilkan progres, dan melewati WAV, cover art, serta IPL.</p>
+            <pre class="border rounded p-3 text-wrap"><code>legacy:import-identities {{ $selectedImport->id }}</code></pre>
+            <p class="form-text">Jika perintah memberi pesan belum selesai, jalankan kembali perintah yang sama untuk melanjutkan. Untuk terminal SSH, tambahkan awalan <code>php artisan</code>. Folder sumber menggunakan pengaturan impor tersimpan; dapat diganti dengan opsi <code>--media-root="/var/www/vhosts/dimensisuara.id/httpdocs"</code>.</p>
+        </details>
+    @endif
     @if($selectedImport->status === 'trial_ready')<p class="form-text">Percobaan dibatalkan kembali sehingga pelanggan dan katalog belum ditambahkan. Nomor urut database dapat bertambah selama percobaan. Hasil berikut menunjukkan data yang akan diproses.</p>@endif
     @if($selectedImport->stats)
         <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Pemeriksaan</th><th class="text-end">Jumlah</th></tr></thead><tbody>@foreach($selectedImport->stats as $name=>$count)<tr><td>{{ $name }}</td><td class="text-end">{{ $count }}</td></tr>@endforeach</tbody></table></div>
