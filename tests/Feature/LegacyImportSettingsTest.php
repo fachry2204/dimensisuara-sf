@@ -229,6 +229,53 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $this->assertSame('npwppersonal',\App\Models\User\Profile::first()->identities()->sole()->type);
     }
 
+    public function test_identity_only_import_does_not_process_catalogue_files_or_replace_existing_identity(): void
+    {
+        $data = $this->data();
+        $data['users'][7]['ktp_doc_path'] = '/uploads/ktp.png';
+        $data['users'][7]['signature_doc_path'] = '/uploads/signature-no-longer-on-source.png';
+        $data['releases'][11]['cover_art'] = '/uploads/do-not-read-cover.png';
+        $data['tracks'][12]['audio_file'] = '/uploads/do-not-read-master.wav';
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8R8AAAAASUVORK5CYII=');
+        file_put_contents($this->directory.'/old/uploads/ktp.png',$png);
+        $run = $this->runFor($data); $run->update(['status'=>'apply_queued']);
+        (new RunLegacyImport($run->id,'apply'))->handle();
+        $profile = \App\Models\User\Profile::first();
+        $release = \App\Models\Release::first(); $track = \App\Models\Track::first();
+        $ids = [];
+        foreach ([[$profile,'signature'],[$release,'cover'],[$track,'full']] as [$owner,$type]) {
+            $path = 'existing/'.$type; Storage::disk('local')->put($path,'existing '.$type);
+            $file = \App\Models\File::create(['disk'=>'local','identifier'=>$path,'type'=>$type,'original_name'=>$type,
+                'mime_type'=>'application/octet-stream','size'=>15,'profileid'=>$profile->id,'owner_id'=>$owner->id,'owner_type'=>$owner->getMorphClass()]);
+            $ids[] = $file->id;
+        }
+        $before = DB::table('filestorage')->whereIn('id',$ids)->orderBy('id')->get()->toJson();
+        $releaseRecord = DB::table('legacy_import_records')->where('entity','releases')->first();
+        DB::table('legacy_import_media_results')->insert(['run_id'=>$run->id,'record_id'=>$releaseRecord->id,'field'=>'cover_art','status'=>'issue','message'=>'Old cover issue']);
+        $userRecord = DB::table('legacy_import_records')->where('entity','users')->first();
+        DB::table('legacy_import_run_records')->where('run_id',$run->id)->where('record_id',$userRecord->id)->delete();
+        $run->refresh()->update(['status'=>'media_issues']);
+        $url = route('admin.system-settings.legacy.action',[$run->id,'identities']);
+        $this->signIn(false); $this->post($url,['media_root'=>$run->media_root])->assertForbidden();
+        $this->signIn(); $this->post($url,['media_root'=>$run->media_root])->assertSessionHasNoErrors()->assertRedirect();
+        Bus::assertDispatched(RunLegacyImport::class,fn ($job) => $job->phase === 'identities');
+        for ($i=0;$i<2;$i++) (new RunLegacyImport($run->id,'identities'))->handle();
+        $run->refresh();
+        $this->assertSame('identities_complete',$run->status);
+        $this->assertSame(1,(int) $run->media_processed);
+        $this->assertSame($before,DB::table('filestorage')->whereIn('id',$ids)->orderBy('id')->get()->toJson());
+        $this->assertSame('existing full',Storage::disk('local')->get('existing/full'));
+        $this->assertSame('existing cover',Storage::disk('local')->get('existing/cover'));
+        $this->assertSame('existing signature',Storage::disk('local')->get('existing/signature'));
+        $this->assertSame(1,$run->mediaResults()->where('status','copied')->count());
+        $this->assertSame(1,$run->mediaResults()->where('status','kept')->count());
+        $this->assertSame(0,$run->mediaResults()->where('status','issue')->count());
+        $this->assertSame(1,DB::table('legacy_import_media_results')->where('status','issue')->count());
+        $this->assertSame(1,DB::table('users')->count());
+        $this->assertSame(1,DB::table('releases')->count());
+        $this->assertSame(1,DB::table('tracks')->count());
+    }
+
     public function test_paths_reject_traversal_empty_root_and_sibling_prefix(): void
     {
         $paths = new ImportPaths;
@@ -266,6 +313,36 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $this->assertSame(realpath($this->directory.'/old/uploads/cover.png'),$paths->media('/uploads/cover.png',$this->directory.'/old'));
         $this->expectException(RuntimeException::class);
         $paths->media('/uploads/../../outside.pdf',$this->directory.'/old');
+    }
+
+    public function test_retry_normalizes_uploads_root_and_tracks_when_the_worker_actually_starts(): void
+    {
+        File::makeDirectory($this->directory.'/old/public/uploads',0700,true);
+        file_put_contents($this->directory.'/old/public/uploads/cover.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8R8AAAAASUVORK5CYII='));
+        $data = $this->data(); $data['releases'][11]['cover_art'] = '/uploads/cover.png';
+        $run = $this->runFor($data); $run->update(['status'=>'apply_queued']);
+        (new RunLegacyImport($run->id,'apply'))->handle();
+        $record = DB::table('legacy_import_records')->where('entity','releases')->first();
+        DB::table('legacy_import_media_results')->insert(['run_id'=>$run->id,'record_id'=>$record->id,'field'=>'cover_art','status'=>'issue','message'=>'Hasil lama']);
+        $run->refresh()->update(['status'=>'media_issues','started_at'=>now()->subHour(),'media_processed'=>690]);
+        $this->signIn();
+        $this->post(route('admin.system-settings.legacy.action',[$run->id,'media']),['media_root'=>$this->directory.'/old/public/uploads'])
+            ->assertSessionHasNoErrors()->assertRedirect();
+        $run->refresh();
+        $this->assertNull($run->started_at);
+        $this->assertSame(0,(int) $run->media_processed);
+        $this->assertSame(realpath($this->directory.'/old'),$run->media_root);
+        $this->assertSame('Menunggu worker impor',$run->mediaQueueLabel());
+        $this->assertSame(1,DB::table('legacy_import_media_results')->where('status','issue')->count());
+        (new RunLegacyImport($run->id,'media'))->handle();
+        $started = $run->fresh()->started_at;
+        $this->assertNotNull($started);
+        $this->assertSame('Penyalinan media belum selesai',$run->fresh()->mediaQueueLabel());
+        $this->travel(3)->seconds();
+        (new RunLegacyImport($run->id,'media'))->handle();
+        $this->assertTrue($started->equalTo($run->fresh()->started_at));
+        $this->assertSame(0,DB::table('legacy_import_media_results')->where('status','issue')->count());
+        $this->assertSame(1,DB::table('legacy_import_media_results')->where('status','copied')->count());
     }
 
     public function test_issue_pagination_uses_bootstrap_without_oversized_svg_and_preserves_selected_import(): void

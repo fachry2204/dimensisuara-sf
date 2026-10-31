@@ -63,7 +63,7 @@ class LegacyImportController extends Controller
     public function action(Request $request, int $run, string $action)
     {
         $this->ensureSchemaReady();
-        abort_unless(in_array($action, ['apply', 'trial', 'media'], true), 404);
+        abort_unless(in_array($action, ['apply', 'trial', 'media', 'identities'], true), 404);
         $request->validate(['media_root' => ['nullable', 'string', 'max:1000']]);
         if ($action === 'apply') $request->validate(['backup_confirmed' => ['accepted']]);
         DB::transaction(function () use ($request, $run, $action) {
@@ -71,10 +71,10 @@ class LegacyImportController extends Controller
             $allowed = match ($action) {
                 'apply' => ['trial_ready'],
                 'trial' => ['trial_failed', 'apply_failed'],
-                'media' => ['imported', 'media_failed', 'media_issues', 'complete'],
+                'media', 'identities' => ['imported', 'media_failed', 'media_issues', 'complete', 'identities_failed', 'identities_issues', 'identities_complete'],
             };
             abort_unless(in_array($item->status, $allowed, true), 409, 'Tahap impor belum sesuai atau masih berjalan.');
-            if ($action === 'media') {
+            if (in_array($action,['media','identities'],true)) {
                 try {
                     $root = app(ImportPaths::class)->mediaRoot($request->input('media_root') ?: ($item->media_root ?? ''));
                 } catch (RuntimeException $e) {
@@ -87,6 +87,7 @@ class LegacyImportController extends Controller
             $item->status = $action.'_queued';
             $item->error = null;
             $item->finished_at = null;
+            $item->started_at = null;
             $item->save();
             RunLegacyImport::dispatch($item->id, $action);
         });

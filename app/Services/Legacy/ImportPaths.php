@@ -30,6 +30,11 @@ class ImportPaths
         if (!is_dir($path)) {
             throw new RuntimeException('Sumber media harus berupa folder.');
         }
+        // The old site's uploads folder was often entered instead of its app root.
+        // Normalize this exact layout, within the configured hosting boundary.
+        if (basename($path) === 'uploads' && basename(dirname($path)) === 'public') {
+            $path = $this->inside(dirname($path,2),config('legacy-import.allowed_root'));
+        }
         return $path;
     }
 

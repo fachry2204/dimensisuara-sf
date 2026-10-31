@@ -28,7 +28,7 @@ class LegacyMediaImporter
     }
 
     /** One source record per job bounds memory and allows progress/retry between WAV files. */
-    public function importRecord(LegacyImportRun $run, object $record): void
+    public function importRecord(LegacyImportRun $run, object $record, bool $missingOnly = false): void
     {
         $row = unserialize(Crypt::decryptString($record->payload), ['allowed_classes' => false]);
         if (!is_array($row)) {
@@ -55,6 +55,11 @@ class LegacyMediaImporter
                 }
                 if (!$owner) {
                     throw new RuntimeException('Pemilik media tidak ditemukan di database baru.');
+                }
+                $existing = $owner->morphMany(File::class,'owner')->where('type',$type)->first();
+                if ($missingOnly && $owner instanceof Profile && $existing && $existing->disk === 'local' && Storage::disk('local')->exists($existing->identifier)) {
+                    DB::table('legacy_import_media_results')->updateOrInsert($key,['status'=>'kept','message'=>'Dokumen tujuan sudah ada; dipertahankan.','file_id'=>$existing->id,'sha256'=>null,'created_at'=>now(),'updated_at'=>now()]);
+                    continue;
                 }
                 $source = app(ImportPaths::class)->media($reference, $run->media_root);
                 $extension = strtolower(pathinfo($source, PATHINFO_EXTENSION));

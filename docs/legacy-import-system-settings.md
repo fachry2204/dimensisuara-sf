@@ -38,9 +38,13 @@ Tab **System Setting → Import Data Lama** memakai pemetaan `DimensiImporter`, 
 5. Setelah database berhasil, klik **Salin Dokumen, Gambar, Audio & IPL**. Satu job memproses satu pengguna/rilis/lagu, kemudian menjadwalkan job berikutnya. Klik **Perbarui Progres** untuk melihat hasil; halaman dapat ditutup tanpa menghentikan worker.
 6. Tinjau kendala per ID pemetaan/field. Perbaiki folder atau sumber yang hilang, lalu ulangi media. File yang sudah ada dengan checksum cocok tidak diduplikasi. Media tujuan berbeda tidak ditimpa. Data lama dan file aslinya tidak dihapus.
 
+Saat mengulang media, hitungan data diproses dimulai dari nol. Hasil file sebelumnya tetap disimpan dan diperbarui satu per satu oleh worker; angka kendala lama bukan bukti pemeriksaan baru sudah selesai. Status **Menunggu worker impor** berarti tahap baru belum mulai diproses. Sesudah worker mulai, halaman menampilkan waktu mulai dan aktivitas terakhir. Jalankan worker khusus `legacy-import` dari folder aplikasi baru, bukan folder website sumber; setelah deploy, restart worker agar menggunakan kode terbaru. Input yang persis menunjuk folder `public/uploads` dinormalkan ke folder aplikasi di atasnya, dengan batas `LEGACY_IMPORT_ALLOWED_ROOT` tetap diperiksa.
+
 ## Melengkapi dokumen dari impor sebelumnya
 
-Setelah deploy, restart worker lalu buka riwayat impor yang sudah selesai dan klik **Periksa dan Ulangi Media**. Isi folder utama website lama yang memuat path dokumen pada SQL. Pemetaan pengguna yang dahulu belum terhubung ke fase media dipulihkan dari SQL asli yang checksumnya cocok dan baris pengguna yang sama persis dengan arsip terenkripsi. Pertahankan SQL asli di inbox sampai pelengkapan selesai. Pengguna dan rilisan tidak dibuat ulang. File yang hilang atau berbeda dilaporkan per field; file tujuan berbeda tidak ditimpa.
+Setelah deploy, restart worker lalu buka riwayat impor yang sudah selesai dan klik **Import Dokumen Identitas Saja** jika WAV dan cover art sudah tersedia. Mode ini hanya memproses pemetaan pengguna, mempertahankan dokumen lokal yang sudah tersedia, dan melengkapi dokumen yang belum ada. Rilis, track, WAV, cover art, dan IPL tidak diperiksa atau disalin ulang. Hitungan, status selesai, dan daftar kendala pada mode ini hanya mencakup dokumen pengguna; hasil lama media katalog tetap disimpan. Tidak perlu migration database tambahan.
+
+Isi folder utama website lama yang memuat path dokumen pada SQL. Pemetaan pengguna yang dahulu belum terhubung ke fase media dipulihkan dari SQL asli yang checksumnya cocok dan baris pengguna yang sama persis dengan arsip terenkripsi. Pertahankan SQL asli di inbox sampai pelengkapan selesai. Pengguna dan rilisan tidak dibuat ulang. File yang hilang atau berbeda dilaporkan per field; file tujuan berbeda tidak ditimpa. Tombol **Periksa dan Ulangi Media** tetap tersedia jika memang ingin memeriksa seluruh media.
 
 ## Cakupan dan integritas
 

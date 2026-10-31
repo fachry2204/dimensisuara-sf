@@ -41,10 +41,10 @@ class RunLegacyImport implements ShouldQueue
         }
         try {
             $run->refresh();
-            $expected = ['trial' => 'trial_queued', 'apply' => 'apply_queued', 'media' => 'media_queued'][$this->phase] ?? null;
+            $expected = ['trial' => 'trial_queued', 'apply' => 'apply_queued', 'media' => 'media_queued', 'identities'=>'identities_queued'][$this->phase] ?? null;
             if (!$expected || $run->status !== $expected) return;
-            $run->update(['started_at' => now(), 'error' => null]);
-            if ($this->phase === 'media') {
+            $run->update(['started_at' => $run->started_at ?? now(), 'error' => null]);
+            if (in_array($this->phase,['media','identities'],true)) {
                 $this->media($run);
                 return;
             }
@@ -107,19 +107,21 @@ class RunLegacyImport implements ShouldQueue
 
     private function media(LegacyImportRun $run): void
     {
-        app(ImportPaths::class)->mediaRoot($run->media_root ?? '');
+        $root = app(ImportPaths::class)->mediaRoot($run->media_root ?? '');
+        if ($root !== $run->media_root) $run->update(['media_root'=>$root]);
         if ((int) $run->media_cursor === 0) $this->attachUserDocuments($run);
         $record = DB::table('legacy_import_records')->where('source', 'dimensisuara_legacy')
             ->whereIn('id', DB::table('legacy_import_run_records')->where('run_id', $run->id)->select('record_id'))->where('status', 'imported')
-            ->whereIn('entity', ['users', 'releases', 'tracks'])->where('id', '>', $run->media_cursor)->orderBy('id')->first();
+            ->whereIn('entity', $this->phase === 'identities' ? ['users'] : ['users', 'releases', 'tracks'])->where('id', '>', $run->media_cursor)->orderBy('id')->first();
         if (!$record) {
-            $hasIssues = DB::table('legacy_import_media_results')->where('run_id', $run->id)->where('status', 'issue')->exists();
-            $run->update(['status' => $hasIssues ? 'media_issues' : 'complete', 'finished_at' => now()]);
+            $hasIssues = $run->mediaResults()->where('status', 'issue')->exists();
+            $status = $this->phase === 'identities' ? ($hasIssues ? 'identities_issues' : 'identities_complete') : ($hasIssues ? 'media_issues' : 'complete');
+            $run->update(['status' => $status, 'finished_at' => now()]);
             return;
         }
-        app(LegacyMediaImporter::class)->importRecord($run, $record);
+        app(LegacyMediaImporter::class)->importRecord($run, $record, $this->phase === 'identities');
         $run->update(['media_cursor' => $record->id, 'media_processed' => $run->media_processed + 1]);
-        self::dispatch($run->id, 'media');
+        self::dispatch($run->id, $this->phase);
     }
 
     /** Older runs linked only catalogue rows. Recover exact user mappings from their original dump. */
