@@ -273,6 +273,23 @@ html[data-bs-theme] body.soundfresh-login .login-input-wrap:focus-within {
     outline: 2px solid var(--sf-accent);
     outline-offset: 2px;
 }
+/* WebKit paints glyphs using text-fill-color, independently from color. */
+html[data-bs-theme] body.soundfresh-login .login-input-wrap input {
+    background-color: var(--sf-input) !important;
+    color: var(--sf-text) !important;
+    -webkit-text-fill-color: var(--sf-text) !important;
+    caret-color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.soundfresh-login .login-input-wrap input:is(:autofill, :-webkit-autofill) {
+    -webkit-text-fill-color: var(--sf-text) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--sf-input) inset !important;
+    box-shadow: 0 0 0 1000px var(--sf-input) inset !important;
+}
+html[data-bs-theme] body.soundfresh-login .login-input-wrap input::selection {
+    background: var(--sf-text);
+    color: var(--sf-input);
+    -webkit-text-fill-color: var(--sf-input);
+}
 html[data-bs-theme] body.soundfresh-login :is(.login-heading h2, .login-field label, .login-input-wrap, .login-options label),
 html[data-bs-theme] .sf-login :is(.sf-form-panel h2, .sf-field label) { color: var(--sf-text) !important; }
 html[data-bs-theme] body.soundfresh-login :is(.login-heading p, .login-input-wrap > span, .login-input-wrap button, .login-signup p),
