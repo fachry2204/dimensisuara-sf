@@ -727,9 +727,10 @@ class ContractService
     private static function prepareDomPdf($name, $html, $header, $footer, $stream = true)
     {
         $headerLogo = resource_path('images/logo-soundfresh-vertical.png');
-        if ($header && app(SystemSettings::class)->get('logo')) {
+        $brandingLogo = app(BrandingAssets::class)->path(app(SystemSettings::class)->get('logo'));
+        if ($header && $brandingLogo) {
             $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-            $headerLogo = $manager->read(public_path(app(SystemSettings::class)->get('logo')))->toPng()->toDataUri();
+            $headerLogo = $manager->read($brandingLogo)->toPng()->toDataUri();
         }
         $logoWidth = 70;
         $logoHeight = 70;

@@ -21,6 +21,7 @@ class SystemSettingsTest extends TestCase
             'database.connections.settings_testing' => ['driver'=>'sqlite','database'=>':memory:','prefix'=>'','foreign_key_constraints'=>false],
             'system-settings.path' => $this->directory.'/settings.enc',
             'system-settings.company_signatures_path' => $this->directory.'/signatures',
+            'system-settings.branding_path' => $this->directory.'/branding',
             'mail.default' => 'array',
             'mail.mailers.smtp.password' => null,
             'system-settings.whatsapp.token' => null,
@@ -97,17 +98,21 @@ class SystemSettingsTest extends TestCase
         $settings = app(SystemSettings::class);
         $logo = $settings->get('logo');
         $favicon = $settings->get('favicon');
-        $this->assertFileExists(public_path($logo));
-        $this->assertFileExists(public_path($favicon));
+        $logoPath = app(\App\Services\BrandingAssets::class)->path($logo);
+        $faviconPath = app(\App\Services\BrandingAssets::class)->path($favicon);
+        $this->assertFileExists($logoPath);
+        $this->assertFileExists($faviconPath);
         $this->app->forgetInstance(SystemSettings::class);
         $this->assertSame('Dimensi Suara', app(SystemSettings::class)->get('app_name'));
         auth()->logout();
-        $this->get(route('login'))->assertOk()->assertSee('Dimensi Suara')->assertSee(asset($logo), false)->assertSee(asset($favicon), false);
+        $this->get(route('login'))->assertOk()->assertSee('Dimensi Suara')->assertSee(app_logo(), false)->assertSee(app_favicon(), false);
+        $this->get(app_logo())->assertOk()->assertHeader('Content-Type','image/png');
+        $this->get(app_favicon())->assertOk()->assertHeader('Content-Type','image/png');
         $this->signIn();
         $this->put(route('admin.system-settings.update'), ['section' => 'branding', 'app_name' => 'Dimensi Suara', 'remove_logo' => 1, 'remove_favicon' => 1])->assertSessionHasNoErrors();
         $this->assertNull(app(SystemSettings::class)->get('logo'));
-        $this->assertFileDoesNotExist(public_path($logo));
-        $this->assertFileDoesNotExist(public_path($favicon));
+        $this->assertFileDoesNotExist($logoPath);
+        $this->assertFileDoesNotExist($faviconPath);
     }
 
     public function test_smtp_secrets_are_encrypted_preserved_and_never_rendered_or_flashed(): void
@@ -174,6 +179,54 @@ class SystemSettingsTest extends TestCase
             'section' => 'branding', 'app_name' => 'Changed', 'logo' => UploadedFile::fake()->create('logo.php', 1, 'text/plain'),
         ])->assertSessionHasErrors('logo');
         $this->assertFileDoesNotExist(config('system-settings.path'));
+    }
+
+    public function test_missing_branding_displays_a_fallback_and_reupload_message(): void
+    {
+        $this->signIn();
+        $settings = app(SystemSettings::class);
+        $settings->save(['logo'=>'uploads/branding/logo-11111111-1111-1111-1111-111111111111.png']);
+        $this->assertSame(asset('build/images/logo-soundfresh-full-white.webp'), app_logo());
+        $this->get(route('admin.system-settings.index'))->assertOk()->assertSee('tidak ditemukan di server ini');
+    }
+
+    public function test_legacy_branding_is_accessible_without_a_storage_symlink(): void
+    {
+        $this->signIn();
+        $relative = 'uploads/branding/logo-22222222-2222-2222-2222-222222222222.png';
+        File::ensureDirectoryExists(dirname(public_path($relative)));
+        UploadedFile::fake()->image('old-logo.png', 100, 50)->move(dirname(public_path($relative)), basename($relative));
+        app(SystemSettings::class)->save(['logo'=>$relative]);
+        $url = app_logo();
+        $this->assertStringContainsString('/branding/logo/', $url);
+        auth()->logout();
+        $this->get($url)->assertOk()->assertHeader('Content-Type','image/png');
+    }
+
+    public function test_storage_failure_does_not_replace_saved_settings_or_delete_old_logo(): void
+    {
+        $this->signIn();
+        $this->put(route('admin.system-settings.update'), ['section'=>'branding','app_name'=>'Original','logo'=>UploadedFile::fake()->image('logo.png')])->assertSessionHasNoErrors();
+        $stored = app(SystemSettings::class)->get('logo');
+        $path = app(\App\Services\BrandingAssets::class)->path($stored);
+        $blocked = $this->directory.'/not-a-directory';
+        File::put($blocked, 'occupied');
+        config(['system-settings.branding_path'=>$blocked]);
+        $this->put(route('admin.system-settings.update'), ['section'=>'branding','app_name'=>'Should not save','logo'=>UploadedFile::fake()->image('new.png')])->assertSessionHasErrors('branding');
+        $this->assertSame($stored, app(SystemSettings::class)->get('logo'));
+        $this->assertSame('Original', app(SystemSettings::class)->get('app_name'));
+        $this->assertFileExists($path);
+    }
+
+    public function test_branding_endpoint_cannot_expose_arbitrary_files(): void
+    {
+        $this->signIn();
+        $stored = '../../.env';
+        app(SystemSettings::class)->save(['logo'=>$stored]);
+        $version = app(\App\Services\BrandingAssets::class)->version($stored);
+        auth()->logout();
+        $this->get(route('branding.show',['kind'=>'logo','version'=>$version]))->assertNotFound();
+        $this->get('/branding/company_signature/'.$version)->assertNotFound();
     }
 
     public function test_queue_workers_refresh_settings_saved_by_another_process(): void

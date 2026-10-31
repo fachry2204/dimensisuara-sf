@@ -23,6 +23,9 @@
     <div class="card mb-4"><div class="card-body p-4">
         <h5 class="d-flex align-items-center gap-2"><span class="material-icons-outlined">palette</span> Identitas Aplikasi</h5>
         <p class="text-secondary">Nama, logo, dan favicon digunakan di seluruh halaman aplikasi dan template email.</p>
+        @if(!empty($missingBranding))
+            <div class="alert alert-warning" role="alert">Berkas {{ implode(' dan ', $missingBranding) }} yang sebelumnya disimpan tidak ditemukan di server ini. Unggah ulang gambar di bawah, lalu klik Simpan Identitas Aplikasi.</div>
+        @endif
         <form action="{{ route('admin.system-settings.update') }}" method="POST" enctype="multipart/form-data">
             @csrf @method('PUT')
             <input type="hidden" name="section" value="branding">
@@ -45,6 +48,7 @@
                     @if($settings['favicon'])<div class="form-check mt-2"><input id="remove_favicon" class="form-check-input" type="checkbox" name="remove_favicon" value="1"><label class="form-check-label" for="remove_favicon">Kembalikan favicon bawaan</label></div>@endif
                 </div>
             </div>
+            <p class="form-text mt-3">Setelah memilih gambar, klik Simpan Identitas Aplikasi agar logo dan favicon tersimpan.</p>
             <button class="btn btn-primary mt-4" type="submit">Simpan Identitas Aplikasi</button>
         </form>
     </div></div>

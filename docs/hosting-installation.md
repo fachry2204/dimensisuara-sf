@@ -30,6 +30,14 @@ The installation tests run package discovery, key generation, and configuration 
 
 The source repository does not contain live database data, `.env`, uploaded branding, private signatures, or backups. These runtime files/settings must be provisioned or transferred separately when moving an existing installation.
 
+## Uploaded logos and favicon
+
+New branding uploads are stored in `storage/app/public/branding`; their relative references are encrypted in `system_settings`. The application serves only the configured logo/favicon through `/branding/{kind}/{version}`, so these images do not depend on a storage symlink, a static uploads location, or an asset CDN URL. Keep the storage directory persistent across deployments and writable by the PHP user. Legacy files in `public/uploads/branding` remain supported.
+
+If an imported database points to a logo file that was not transferred, the UI uses its default image and System Settings displays a reupload message. Select the logo/favicon again and click **Simpan Identitas Aplikasi**. Choosing a file only previews it; the form must be submitted. A storage failure retains the old saved settings and displays an error.
+
+Run `npm run build` after pulling source changes. The asset-copy phase excludes the Vue source entry and component directory so it cannot overwrite Vite's compiled `soundfresh.js` with raw `import ... from 'vue'` code.
+
 If deployment still fails, inspect the final lines of the Laravel Toolkit task log. Package extraction messages alone do not establish whether the failure is a missing extension, filesystem permission, database connection, migration, or another Composer script error. This fix addresses the reproduced bootstrap dependency; it does not claim to diagnose an unseen hosting log.
 
 Reference: [Plesk Laravel Toolkit documentation](https://docs.plesk.com/en-US/obsidian/administrator-guide/website-management/laravel-toolkit.80010/).

@@ -15,6 +15,7 @@ class SystemSettingsController extends Controller
     {
         $templates = app(\App\Services\AggregatorContractTemplates::class);
         return view('admin.system-settings.index', [
+            'missingBranding' => collect(['logo'=>'Logo', 'favicon'=>'Favicon'])->filter(fn ($label, $key) => $settings->get($key) && !app(\App\Services\BrandingAssets::class)->path($settings->get($key)))->values()->all(),
             'settings' => $settings->publicValues(),
             'contractDrafts' => ['personal' => $templates->get(false), 'company' => $templates->get(true)],
             'hasCompanySignature' => app(\App\Services\CompanyIdentity::class)->signaturePath() !== null,
@@ -152,21 +153,22 @@ class SystemSettingsController extends Controller
             }
         }
         if ($section === 'branding') {
-            foreach (['logo', 'favicon'] as $key) {
-                unset($values[$key], $values['remove_'.$key]);
-                if ($request->hasFile($key)) {
-                    $directory = public_path('uploads/branding');
-                    File::ensureDirectoryExists($directory);
-                    $file = $request->file($key);
-                    $filename = $key.'-'.\Illuminate\Support\Str::uuid().'.'.$file->extension();
-                    $file->move($directory, $filename);
-                    $values[$key] = 'uploads/branding/'.$filename;
-                    $newFiles[] = $values[$key];
-                    $oldFiles[] = $settings->get($key);
-                } elseif ($request->boolean('remove_'.$key)) {
-                    $values[$key] = null;
-                    $oldFiles[] = $settings->get($key);
+            try {
+                foreach (['logo', 'favicon'] as $key) {
+                    unset($values[$key], $values['remove_'.$key]);
+                    if ($request->hasFile($key)) {
+                        $values[$key] = app(\App\Services\BrandingAssets::class)->store($key, $request->file($key));
+                        $newFiles[] = $values[$key];
+                        $oldFiles[] = $settings->get($key);
+                    } elseif ($request->boolean('remove_'.$key)) {
+                        $values[$key] = null;
+                        $oldFiles[] = $settings->get($key);
+                    }
                 }
+            } catch (\Throwable $exception) {
+                foreach ($newFiles as $path) app(\App\Services\BrandingAssets::class)->delete($path);
+                report($exception);
+                return back()->withErrors(['branding'=>'Gambar gagal disimpan. Pastikan folder storage aplikasi dapat ditulis, lalu unggah ulang.'])->withInput($request->only('app_name', 'section'));
             }
         }
         if ($section === 'smtp') {
@@ -185,15 +187,13 @@ class SystemSettingsController extends Controller
         } catch (\Throwable $exception) {
             if ($newSignaturePath) File::delete($newSignaturePath);
             foreach ($newFiles as $path) {
-                File::delete(public_path($path));
+                app(\App\Services\BrandingAssets::class)->delete($path);
             }
             throw $exception;
         }
         if ($oldSignaturePath) File::delete($oldSignaturePath);
         foreach ($oldFiles as $path) {
-            if ($path && preg_match('#^uploads/branding/(logo|favicon)-[a-f0-9-]+\.(png|jpg|jpeg|webp|ico)$#', $path)) {
-                File::delete(public_path($path));
-            }
+            app(\App\Services\BrandingAssets::class)->delete($path);
         }
 
         $tab = $section === 'contract_prefix' ? 'contracts' : $section;

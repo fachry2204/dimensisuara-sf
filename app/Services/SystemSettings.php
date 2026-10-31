@@ -153,11 +153,15 @@ class SystemSettings
 
     public function logoUrl(string $fallback = 'build/images/logo-soundfresh-full-white.webp'): string
     {
-        return asset($this->get('logo') ?: $fallback);
+        $stored = $this->get('logo');
+        $assets = app(BrandingAssets::class);
+        return $assets->path($stored) ? $assets->url('logo', $stored) : asset($fallback);
     }
 
     public function faviconUrl(): string
     {
-        return asset($this->get('favicon') ?: 'favicon.ico');
+        $stored = $this->get('favicon');
+        $assets = app(BrandingAssets::class);
+        return $assets->path($stored) ? $assets->url('favicon', $stored) : asset('favicon.ico');
     }
 }

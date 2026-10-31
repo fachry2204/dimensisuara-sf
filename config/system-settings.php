@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'branding_path' => storage_path('app/public/branding'),
     // Legacy source used only by the one-time database migration, never by runtime settings.
     'path' => storage_path('app/private/system-settings.enc'),
     'company_signatures_path' => storage_path('app/private/company-signatures'),

@@ -14,6 +14,8 @@ use App\Http\Middleware\NoCacheMiddleware;
 use App\Http\Middleware\Publishing\SigneeToken as PublishingSigneeToken;
 
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+Route::get('/branding/{kind}/{version}', [\App\Http\Controllers\BrandingController::class, 'show'])
+    ->where('kind', 'logo|favicon')->where('version', '[a-f0-9]{20}')->name('branding.show');
 Route::get('/rilis/{release}/cover', [\App\Http\Controllers\LandingController::class, 'cover'])
     ->whereNumber('release')->name('landing.cover');
 

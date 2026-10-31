@@ -49,12 +49,15 @@ export default defineConfig({
                     await Promise.all([
                         fs.copy(folder.src_assets + 'images', folder.dist_assets + 'images'),
                         fs.copy(folder.src_assets + 'fonts', folder.dist_assets + 'fonts'),
-                        fs.copy(folder.src_assets + 'js', folder.dist_assets + 'js'),
+                        fs.copy(folder.src_assets + 'js', folder.dist_assets + 'js', {
+                            // Keep compiled entry points; raw imports cannot run in a browser.
+                            filter: source => !source.endsWith('soundfresh.js') && !source.replaceAll('\\', '/').includes('/js/vue'),
+                        }),
                         fs.copy(folder.src_assets + 'css', folder.dist_assets + 'css'),
                         fs.copy(folder.src_assets + 'plugins', folder.dist_assets + 'plugins'),
                     ]);
                 } catch (error) {
-                    console.error('Error copying assets:', error);
+                    throw new Error('Failed to copy required assets', { cause: error });
                 }
             },
         },
