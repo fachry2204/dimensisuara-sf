@@ -252,6 +252,22 @@ class LegacyImportSettingsTest extends LegacyImportTest
         }
     }
 
+    public function test_application_root_resolves_public_uploads_and_private_documents_without_leaving_root(): void
+    {
+        File::makeDirectory($this->directory.'/old/public/uploads',0700,true);
+        File::makeDirectory($this->directory.'/old/storage/private',0700,true);
+        file_put_contents($this->directory.'/old/public/uploads/cover.png','cover');
+        file_put_contents($this->directory.'/old/storage/private/contract.pdf','private contract');
+        $paths = new ImportPaths;
+        $this->assertSame(realpath($this->directory.'/old/public/uploads/cover.png'),$paths->media('/uploads/cover.png',$this->directory.'/old'));
+        $this->assertSame(realpath($this->directory.'/old/storage/private/contract.pdf'),$paths->media('/storage/private/contract.pdf',$this->directory.'/old'));
+        // Existing document-root layouts retain their explicit source location.
+        file_put_contents($this->directory.'/old/uploads/cover.png','original');
+        $this->assertSame(realpath($this->directory.'/old/uploads/cover.png'),$paths->media('/uploads/cover.png',$this->directory.'/old'));
+        $this->expectException(RuntimeException::class);
+        $paths->media('/uploads/../../outside.pdf',$this->directory.'/old');
+    }
+
     public function test_issue_pagination_uses_bootstrap_without_oversized_svg_and_preserves_selected_import(): void
     {
         $this->signIn();

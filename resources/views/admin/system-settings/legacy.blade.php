@@ -45,7 +45,7 @@
     @if(in_array($selectedImport->status, ['imported', 'media_failed', 'media_issues', 'complete'], true))
         <form class="mt-3" method="POST" action="{{ route('admin.system-settings.legacy.action', [$selectedImport->id, 'media']) }}">@csrf<input type="hidden" name="section" value="legacy">
             <label class="form-label" for="legacy-retry-root">Folder utama media website lama</label><input class="form-control mb-2" id="legacy-retry-root" name="media_root" value="{{ $selectedImport->media_root }}" required>
-            <p class="form-text">Dokumen klien, sampul, dan audio dipasangkan melalui ID sumber yang sudah dipetakan. WAV disalin utuh dan checksum diverifikasi. Media tujuan yang berbeda tidak ditimpa. Setelah memperbaiki folder atau file hilang, Anda dapat mengulang penyalinan.</p>
+            <p class="form-text">Pilih folder utama aplikasi lama, misalnya <code>/var/www/vhosts/dimensisuara.id/httpdocs</code>, yang berisi <code>public/uploads</code> dan <code>storage/private</code>. Jangan isi sampai <code>uploads</code>. Referensi <code>/uploads/...</code> juga diperiksa di <code>public/uploads</code>. Dokumen klien, sampul, dan audio dipasangkan melalui ID sumber yang sudah dipetakan. WAV disalin utuh dan checksum diverifikasi. Media tujuan yang berbeda tidak ditimpa. Setelah memperbaiki folder atau file hilang, Anda dapat mengulang penyalinan.</p>
             <button class="btn btn-primary" type="submit">{{ $selectedImport->status === 'imported' ? 'Salin Dokumen, Gambar, Audio & IPL' : 'Periksa dan Ulangi Media' }}</button>
         </form>
     @endif

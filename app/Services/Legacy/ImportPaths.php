@@ -46,6 +46,13 @@ class ImportPaths
             throw new RuntimeException('Referensi media tidak valid.');
         }
         $candidate = $root.DIRECTORY_SEPARATOR.ltrim($path, '/');
+        // Legacy deployments expose /uploads from public/uploads, while private
+        // contracts stay in storage/private under the same application root.
+        // Resolve only this known public prefix, never search by filename.
+        if (str_starts_with(ltrim($path,'/'),'uploads/') && !file_exists($candidate) && !is_link($candidate)) {
+            $publicCandidate = $root.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.ltrim($path,'/');
+            if (file_exists($publicCandidate) || is_link($publicCandidate)) $candidate = $publicCandidate;
+        }
         try {
             $file = $this->inside($candidate, $root);
         } catch (RuntimeException $e) {
