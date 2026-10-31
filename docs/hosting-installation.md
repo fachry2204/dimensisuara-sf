@@ -2,6 +2,8 @@
 
 The project requires PHP 8.2 or newer, as specified by `composer.json`. Configure the domain document root to the application's `public` directory. Use the same PHP version for the website and Composer/Artisan commands.
 
+The repository includes `public/.htaccess` for Apache routing. It forwards URLs such as `/login` to `public/index.php` while allowing real assets and directories to be served directly. Ensure hidden files are deployed as well. A Plesk-generated 404 can indicate an incorrect document root or missing server rewrite rules; Artisan cache clearing does not replace those server rules. For an nginx-only configuration, configure the equivalent front-controller fallback in the hosting's nginx settings.
+
 ## Composer bootstrap fix
 
 Composer runs `php artisan package:discover` after building the autoloader. Previously, `AppServiceProvider` loaded encrypted system settings from the database before Artisan could start. A new hosting account without a configured database or SQLite file therefore failed during installation.

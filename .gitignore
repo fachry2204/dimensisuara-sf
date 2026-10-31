@@ -30,7 +30,6 @@ yarn-error.log
 ._*
 
 # Production configuration
-/public/.htaccess
 /public/.user.ini
 /public/.php.ini
 /public/error_log
