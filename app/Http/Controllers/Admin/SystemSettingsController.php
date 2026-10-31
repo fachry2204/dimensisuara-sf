@@ -15,7 +15,7 @@ class SystemSettingsController extends Controller
     {
         $templates = app(\App\Services\AggregatorContractTemplates::class);
         $driveReady = \Illuminate\Support\Facades\Schema::hasTable('drive_transfers');
-        $importsReady = \Illuminate\Support\Facades\Schema::hasTable('legacy_import_runs');
+        $importsReady = \App\Models\LegacyImportRun::schemaReady();
         $importRuns = $importsReady ? \App\Models\LegacyImportRun::latest('id')->limit(20)->get() : collect();
         $selectedImport = $importsReady && request('import') ? \App\Models\LegacyImportRun::find(request('import')) : $importRuns->first();
         return view('admin.system-settings.index', [

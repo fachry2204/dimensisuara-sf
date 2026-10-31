@@ -15,6 +15,7 @@ class LegacyImportController extends Controller
 {
     public function store(Request $request, ImportPaths $paths)
     {
+        $this->ensureSchemaReady();
         $request->validate([
             'sql' => ['nullable', 'file', 'max:'.config('legacy-import.max_sql_kb')],
             'server_sql' => ['nullable', 'string', 'max:1000'],
@@ -61,6 +62,7 @@ class LegacyImportController extends Controller
 
     public function action(Request $request, int $run, string $action)
     {
+        $this->ensureSchemaReady();
         abort_unless(in_array($action, ['apply', 'trial', 'media'], true), 404);
         $request->validate(['media_root' => ['nullable', 'string', 'max:1000']]);
         if ($action === 'apply') $request->validate(['backup_confirmed' => ['accepted']]);
@@ -89,6 +91,13 @@ class LegacyImportController extends Controller
             RunLegacyImport::dispatch($item->id, $action);
         });
         return $this->back($run);
+    }
+
+    private function ensureSchemaReady(): void
+    {
+        if (!LegacyImportRun::schemaReady()) {
+            throw ValidationException::withMessages(['sql' => 'Tabel impor belum siap. Jalankan php artisan migrate --force di hosting, lalu muat ulang halaman.']);
+        }
     }
 
     private function back(int $id)

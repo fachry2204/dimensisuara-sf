@@ -2,16 +2,18 @@
     <h4>Import Data Lama</h4>
     <p class="text-secondary">Pindahkan pelanggan, rilis, lagu, sampul, audio, dan dokumen IPL dari website Dimensi lama. File sumber tetap berada di website lama; salinannya disimpan privat di aplikasi ini.</p>
     @if(!$importsReady)
-        <div class="alert alert-warning">Jalankan <code>php artisan migrate --force</code> setelah memperbarui aplikasi untuk menyiapkan tabel impor.</div>
-    @else
+        <div class="alert alert-warning" role="alert"><strong>Tabel impor belum siap.</strong> Form unggah tersedia di bawah, tetapi belum dapat digunakan. Di terminal hosting, jalankan <code>php artisan migrate --force</code> dari folder aplikasi, lalu muat ulang halaman ini. Pada tab Artisan Laravel Toolkit Plesk, cukup masukkan <code>migrate --force</code> karena awalan <code>php artisan</code> sudah disediakan.</div>
+    @endif
         <div class="alert alert-info">Mulai dengan pemeriksaan SQL. Data pelanggan dan katalog baru disimpan setelah Anda menekan <strong>Import ke Database</strong>. Akun admin lama tidak diaktifkan otomatis. Konflik email, UPC, dan ISRC dilaporkan, bukan ditimpa.</div>
         @if($errors->any())<div class="alert alert-danger" role="alert"><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
         <form method="POST" action="{{ route('admin.system-settings.legacy.store') }}" enctype="multipart/form-data">
             @csrf<input type="hidden" name="section" value="legacy">
-            <div class="mb-3"><label class="form-label" for="legacy-sql">Unggah SQL lama</label><input class="form-control" id="legacy-sql" type="file" name="sql" accept=".sql"><div class="form-text">Ekspor phpMyAdmin (.sql) dengan INSERT beserta nama kolom. Batas aplikasi 100 MB; batas unggah hosting juga berlaku.</div></div>
+            <fieldset @disabled(!$importsReady) aria-describedby="legacy-upload-help">
+            <div class="mb-3"><label class="form-label" for="legacy-sql">Upload File Database Lama (.sql)</label><input class="form-control" id="legacy-sql" type="file" name="sql" accept=".sql"><div class="form-text" id="legacy-upload-help">Pilih file database hasil ekspor phpMyAdmin (.sql) dengan INSERT beserta nama kolom. Batas aplikasi 100 MB; batas unggah hosting juga berlaku.</div></div>
             <div class="mb-3"><label class="form-label" for="legacy-server-sql">Atau nama file SQL di server</label><input class="form-control" id="legacy-server-sql" name="server_sql" value="{{ old('server_sql') }}" placeholder="database-lama.sql"><div class="form-text">Untuk melewati batas unggah browser, letakkan SQL melalui File Manager/SFTP di <code class="text-break">{{ config('legacy-import.inbox') }}</code>, lalu masukkan nama filenya.</div></div>
             <div class="mb-3"><label class="form-label" for="legacy-media-root">Folder utama media website lama (opsional)</label><input class="form-control" id="legacy-media-root" name="media_root" value="{{ old('media_root') }}" placeholder="/var/www/vhosts/domain-lama/httpdocs"><div class="form-text">Isi path absolut pada server. Contoh: jika SQL menyimpan <code>/uploads/covers/lagu.jpg</code>, pilih folder yang berisi <code>uploads</code>. URL hanya dibaca sebagai path; file disalin langsung dari disk.</div></div>
             <button class="btn btn-primary" type="submit"><span class="material-icons-outlined align-middle me-1" aria-hidden="true">fact_check</span>Periksa SQL Lama</button>
+            </fieldset>
         </form>
         <details class="mt-4"><summary>Persiapan hosting dan worker impor</summary>
             <p class="mt-2">Worker khusus ini harus aktif agar pemeriksaan, impor, dan penyalinan WAV berjalan. Gunakan PHP CLI yang sama dengan aplikasi.</p>
@@ -20,7 +22,6 @@
             <pre class="border rounded p-3 text-wrap"><code>php artisan queue:work legacy-import --queue=legacy-import --timeout=900 --tries=1 --stop-when-empty --max-time=50</code></pre>
             <p class="form-text">Folder sumber harus terbaca oleh PHP dan berada di dalam <code class="text-break">{{ config('legacy-import.allowed_root') }}</code>. Jika website lama berada di luar folder tersebut, administrator server dapat mengatur <code>LEGACY_IMPORT_ALLOWED_ROOT</code> di .env lalu menjalankan <code>php artisan config:clear</code>. Arsip SQL disimpan privat; hapus salinannya setelah migrasi terverifikasi.</p>
         </details>
-    @endif
 </div></div>
 @if($importsReady && $selectedImport)
 @php($statusLabels = ['trial_queued'=>'Menunggu / menjalankan pemeriksaan SQL', 'trial_ready'=>'Pemeriksaan selesai', 'trial_failed'=>'Pemeriksaan gagal', 'apply_queued'=>'Menunggu / menjalankan impor database', 'apply_failed'=>'Impor database gagal', 'imported'=>'Database berhasil diimpor; media belum disalin', 'media_queued'=>'Menunggu / menyalin media', 'media_failed'=>'Penyalinan media terhenti', 'media_issues'=>'Penyalinan selesai dengan kendala', 'complete'=>'Database dan referensi media selesai diproses'])

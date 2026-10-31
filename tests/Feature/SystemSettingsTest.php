@@ -56,6 +56,15 @@ class SystemSettingsTest extends TestCase
         $this->actingAs($user);
     }
 
+    public function test_sql_upload_remains_visible_before_migration_and_requests_fail_gracefully(): void
+    {
+        $this->signIn();
+        $this->get(route('admin.system-settings.index', ['tab'=>'legacy']))->assertOk()
+            ->assertSee('Upload File Database Lama (.sql)')->assertSee('Tabel impor belum siap.')
+            ->assertSee('fieldset disabled', false)->assertSee('migrate --force');
+        $this->post(route('admin.system-settings.legacy.store'), ['server_sql'=>'test.sql'])->assertSessionHasErrors('sql');
+    }
+
     public function test_legacy_import_tab_renders_with_database_history_and_private_sql_selection(): void
     {
         (require base_path('database/migrations/2026_10_31_100000_create_legacy_import_runs.php'))->up();
