@@ -126,3 +126,17 @@ html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content > .row > 
     flex: 0 0 100%;
     max-width: 100%;
 }
+/* Analytics cards need their own surface while the surrounding workspace stays fluid. */
+html[data-bs-theme="light"] .admin-analytics {
+    --aa-surface: #fff;
+    --sf-surface-soft: #f4f7fb;
+}
+html[data-bs-theme="dark"] .admin-analytics {
+    --aa-surface: #111e31;
+    --sf-surface-soft: #17263c;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .admin-analytics :is(.aa-panel,.aa-tabs) {
+    background: var(--aa-surface) !important;
+    border: 1px solid var(--sf-border) !important;
+    box-shadow: 0 4px 18px rgba(15,23,42,.04) !important;
+}

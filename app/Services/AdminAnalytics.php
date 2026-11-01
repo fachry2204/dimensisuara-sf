@@ -21,9 +21,11 @@ class AdminAnalytics
             'profile'=>['nullable','integer','exists:user_profiles,id'],
             'platform'=>['nullable','string','max:100'], 'country'=>['nullable','string','max:100'],
             'compare'=>['nullable','in:previous,year,none'],
-            'tab'=>['nullable','in:overview,releases,artists,geography,quality'],
+            'tab'=>['nullable','in:overview,releases,artists,platforms,countries,geography,quality'],
             'q'=>['nullable','string','max:150'], 'sort'=>['nullable','in:streams,revenue,user_revenue,system_revenue,title'],
         ]);
+        // Preserve older bookmarks for the former combined tab.
+        if (($input['tab'] ?? null) === 'geography') $input['tab'] = 'platforms';
         $coverage = $this->published()->selectRaw('MIN(sales_month) as first_month, MAX(sales_month) as last_month')->first();
         $end = isset($input['end']) ? CarbonImmutable::createFromFormat('!Y-m',$input['end'])->endOfMonth() : CarbonImmutable::parse($coverage->last_month ?: now())->endOfMonth();
         $start = isset($input['start']) ? CarbonImmutable::createFromFormat('!Y-m',$input['start'])->startOfMonth() : $end->subMonthsNoOverflow(11)->startOfMonth();

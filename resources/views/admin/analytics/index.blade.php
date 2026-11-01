@@ -13,7 +13,7 @@
         return ($change>0?'+':'').number_format($change,1,',','.').'%';
     };
     $link = fn ($tab) => route('admin.analytics.index',array_merge(request()->except(['release_page','track_page','user_page','artist_page','q']),['tab'=>$tab]));
-    $tabs=['overview'=>'Ringkasan','releases'=>'Rilis & Lagu','artists'=>'Artis & User','geography'=>'Platform & Negara','quality'=>'Kualitas Data'];
+    $tabs=['overview'=>'Ringkasan','releases'=>'Rilis & Lagu','artists'=>'Artis & User','platforms'=>'Platform','countries'=>'Negara','quality'=>'Kualitas Data'];
     $countryName = fn ($value) => \App\Support\CountryName::display($value);
     $maxCountry = max(1,(float)$countries->max('streams'));
 @endphp
@@ -29,7 +29,7 @@
     @if($filters['tab']==='overview')
         <div class="aa-chart-grid">
             <article class="aa-panel"><div class="aa-section-title"><h2>Tren Performa</h2><select id="aa-metric" class="form-select" aria-label="Metrik grafik"><option value="streams">Stream / Unit</option><option value="revenue">Pendapatan</option></select></div><div id="aa-trend" class="aa-chart" aria-label="Grafik tren performa"></div><p class="aa-note">{{ $filters['start'] }} s.d. {{ $filters['end'] }}@if($filters['compare']!=='none') dibandingkan {{ substr($filters['previous_from'],0,7) }} s.d. {{ substr($filters['previous_to'],0,7) }}@endif. Bulan tanpa laporan ditampilkan 0.</p></article>
-            <article class="aa-panel"><h2>Sumber Pendapatan</h2><div id="aa-platform-chart" class="aa-chart" aria-label="Kontribusi pendapatan platform"></div><p class="aa-note">Kontribusi positif per platform. Koreksi negatif tetap dihitung dalam total dan tabel.</p><a class="aa-more" href="{{ $link('geography') }}">Lihat semua platform →</a></article>
+            <article class="aa-panel"><h2>Sumber Pendapatan</h2><div id="aa-platform-chart" class="aa-chart" aria-label="Kontribusi pendapatan platform"></div><p class="aa-note">Kontribusi positif per platform. Koreksi negatif tetap dihitung dalam total dan tabel.</p><a class="aa-more" href="{{ $link('platforms') }}">Lihat semua platform →</a></article>
         </div>
         <div class="aa-halves">
             <article class="aa-panel"><div class="aa-section-title"><h2>Rilis Teratas</h2><span class="aa-note">Berdasarkan stream / unit</span></div>
@@ -38,7 +38,7 @@
             </article>
             <article class="aa-panel"><h2>Negara Pendengar</h2><p class="aa-note">Distribusi quantity sesuai negara pada laporan.</p>
                 @forelse($countries->take(7) as $country)<div class="aa-country"><span>{{ $countryName($country->country) }}</span><div><i style="width:{{ max(0,min(100,100*(float)$country->streams/$maxCountry)) }}%"></i></div><strong>{{ $number($country->streams) }}</strong></div>@empty<p class="aa-empty">Belum ada data negara.</p>@endforelse
-                <a class="aa-more" href="{{ $link('geography') }}">Lihat semua negara →</a>
+                <a class="aa-more" href="{{ $link('countries') }}">Lihat semua negara →</a>
             </article>
         </div>
     @endif
@@ -46,7 +46,7 @@
         <section class="aa-quality aa-panel"><div><h2>Kualitas Data</h2><p class="aa-note">Sesuai periode dan filter aktif.</p></div><div><strong>{{ $number($quality['completed']) }}</strong><small>Laporan selesai</small></div><div><strong>{{ $number($quality['waiting']) }}</strong><small>Menunggu calculation</small></div><div><strong>{{ $number($quality['incomplete']) }}</strong><small>ISRC belum punya akun</small></div><a href="{{ $link('quality') }}">Tinjau data →</a></section>
     @endif
     @if(in_array($filters['tab'],['overview','releases'])) @include('admin.analytics.releases') @endif
-    @if($filters['tab']==='artists' || $filters['tab']==='geography') @include('admin.analytics.breakdown') @endif
+    @if(in_array($filters['tab'],['artists','platforms','countries'])) @include('admin.analytics.breakdown') @endif
     @if($filters['tab']==='quality') @include('admin.analytics.quality') @endif
     <footer class="aa-note">Koreksi negatif dipertahankan. Nilai IDR dibulatkan hanya untuk tampilan; ekspor mempertahankan nilai sumber.</footer>
 </div>

@@ -147,7 +147,7 @@ class AdminAnalyticsTest extends TestCase
     public function test_all_tabs_render_and_no_data_is_a_valid_state(): void
     {
         $source=str_replace("@extends('layouts.app')",'',file_get_contents(resource_path('views/admin/analytics/index.blade.php')))."\n@yield('content') @stack('css') @stack('script')";
-        foreach (['overview','releases','artists','geography','quality'] as $tab) {
+        foreach (['overview','releases','artists','platforms','countries','quality'] as $tab) {
             $html=Blade::render($source,$this->data(['tab'=>$tab]));
             $this->assertStringContainsString('Analitik Semua Rilis',$html);
         }
@@ -198,6 +198,19 @@ class AdminAnalyticsTest extends TestCase
         $this->assertStringContainsString('2000',$export->streamedContent());
     }
 
+    public function test_platform_and_country_tabs_show_only_their_own_table_and_keep_filters(): void
+    {
+        $query = ['start'=>'2026-01','end'=>'2026-02','platform'=>'Spotify'];
+        $this->get(route('admin.analytics.index', $query + ['tab'=>'platforms']))
+            ->assertOk()->assertSee('Performa Platform')->assertDontSee('Performa Negara')
+            ->assertDontSee('Platform &amp; Negara', false)->assertSee('tab=countries', false)
+            ->assertSee('platform=Spotify', false)->assertSee('name="tab" value="platforms"', false);
+        $this->get(route('admin.analytics.index', $query + ['tab'=>'countries']))
+            ->assertOk()->assertSee('Performa Negara')->assertDontSee('Performa Platform')
+            ->assertSee('name="tab" value="countries"', false);
+        $this->assertSame('platforms', $this->data(['tab'=>'geography'])['filters']['tab']);
+    }
+
     public function test_country_codes_display_names_and_keep_raw_filter_values(): void
     {
         foreach (['ID'=>'Indonesia','MY'=>'Malaysia','AU'=>'Australia','US'=>'Amerika Serikat','KR'=>'Korea Selatan'] as $code=>$name) {
@@ -211,7 +224,7 @@ class AdminAnalyticsTest extends TestCase
         DB::table('report_rows')->where('country','Malaysia')->update(['country'=>'MY']);
         $data=$this->data(['country'=>'ID']);
         $this->assertEquals(950,$data['totals']->revenue);
-        $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02','tab'=>'geography']))
+        $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02','tab'=>'countries']))
             ->assertOk()->assertSee('value="ID"',false)->assertSee('Indonesia')->assertSee('Malaysia')->assertDontSee('>ID</td>',false);
         $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02']))->assertOk()->assertSee('Indonesia')->assertSee('Malaysia');
     }
