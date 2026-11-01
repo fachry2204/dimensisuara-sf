@@ -378,7 +378,7 @@
                         </a>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete this report?</p>
+                        <p>Hapus batch laporan ini beserta seluruh barisnya? Ringkasan pendapatan dan stream akan dihitung ulang dari laporan yang tersisa. Batch lain, akun user, rilis, WAV, dan cover art tetap dipertahankan.</p>
                     </div>
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>

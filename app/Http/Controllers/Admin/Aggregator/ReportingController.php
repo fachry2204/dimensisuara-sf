@@ -144,25 +144,8 @@ class ReportingController extends Controller
     public function destroy($id)
     {
         try {
-            // Find report
-            $report = ReportImport::findOrFail($id);
-
-            DB::transaction(function () use ($report) {
-
-                // Delete file
-                $filename   = $report->original_filename;
-                $path       = 'app' . DIRECTORY_SEPARATOR . 'reports';
-                $filepath   = storage_path($path . DIRECTORY_SEPARATOR . $filename);
-                FileFacade::delete($filepath);
-
-                // Delete report
-                $report->delete();
-
-                // Run aggregate
-                ProcessAggregate::dispatch();
-            });
-            
-            return redirect()->back()->with('success', 'Report deleted. Aggregate data will be recalculated.');
+            ReportService::deleteImport((int) $id);
+            return redirect()->back()->with('success', 'Laporan dihapus. Ringkasan pendapatan dan stream sudah diperbarui dari laporan yang tersisa.');
 
         } catch (\Throwable $th) {
             Log::error($th->getMessage(), ['stack' => $th->getTraceAsString()]);

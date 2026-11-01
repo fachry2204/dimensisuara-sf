@@ -39,7 +39,8 @@ class ContractController extends Controller
             ->whereDoesntHave('contracts', fn ($query) => $query->where('type', 'aggregator'))
             ->count();
 
-        return view('admin.aggregator.contract.index', compact('profiles', 'generatedContractUsers', 'usersWithoutContract'));
+        $contractsWithoutStamp = Contract::where('type','aggregator')->whereDoesntHave('digitalStamp')->count();
+        return view('admin.aggregator.contract.index', compact('profiles', 'generatedContractUsers', 'usersWithoutContract', 'contractsWithoutStamp'));
     }
 
     public function store(CreateContractRequest $request)
@@ -228,10 +229,12 @@ class ContractController extends Controller
      */
     public function get_data(Request $request)
     {
+        $request->validate(['filter'=>['nullable','in:all,unstamped']]);
         try {
             // Get records with certain status
             $query = Contract::where('type', 'aggregator');
-            $recordsTotal = $query->get()->count();
+            if ($request->input('filter') === 'unstamped') $query->whereDoesntHave('digitalStamp');
+            $recordsTotal = $query->count();
 
             // Searching
             $query = $query
@@ -244,9 +247,11 @@ class ContractController extends Controller
                     'contracts.year as year',
                     'contracts.sort as sort',
                     'contracts.docnum as docnum',
+                    'user_profiles.userid as user_id',
                     DB::raw("CONCAT_WS(' ', user_profiles.firstname, user_profiles.lastname) AS fullname")
                 )
-                ->leftJoin('user_profiles', 'user_profiles.id', '=', 'contracts.profileid');
+                ->leftJoin('user_profiles', 'user_profiles.id', '=', 'contracts.profileid')
+                ->withExists(['file','digitalStamp as has_digital_stamp']);
 
             // Searching
             if ($search = $request->input('search.value')) {
@@ -261,21 +266,21 @@ class ContractController extends Controller
             
             // Sorting
             $columns        = ['fullname','sort','created_at'];
-            $orderColumn    = $columns[$request->input('order.0.column')];
-            $orderDir       = $request->input('order.0.dir');
+            $orderColumn    = $columns[(int) $request->input('order.0.column',2)] ?? 'created_at';
+            $orderDir       = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
             $query->orderBy($orderColumn, $orderDir);
 
             // Pagination
-            $recordsFiltered    = $query->get()->count();
+            $recordsFiltered    = $query->count();
 
             $data = $query
-                ->skip($request->input('start'))
-                ->take($request->input('length'))
+                ->skip(max(0,(int) $request->input('start',0)))
+                ->take(min(100,max(1,(int) $request->input('length',10))))
                 ->get();
 
             $data->transform(function($item) {
-                $contract = Contract::find($item->id);
-                $item->file   = $contract->file ? true : false;
+                $item->file = (bool) $item->file_exists;
+                $item->makeHidden(['fields']);
                 return $item;
             });
             
@@ -298,80 +303,21 @@ class ContractController extends Controller
 
     public function get_data_per_user(Request $request)
     {
-        try {
-            // Get records with certain status
-            $query = Profile::where('feature_aggregator', 1)
-                ->leftJoin('contracts', function ($join) {
-                    $join->on('contracts.profileid', '=', 'user_profiles.id')
-                        ->where('contracts.type', '=', 'aggregator');
-                });
-
-            $recordsTotal = $query->get()->count();
-
-            // Searching
-            $query = $query
-                ->select(
-                    'contracts.id as id',
-                    'contracts.created_at as created_at',
-                    'contracts.type as type',
-                    'contracts.number as number',
-                    'contracts.month as month',
-                    'contracts.year as year',
-                    'contracts.sort as sort',
-                    'contracts.docnum as docnum',
-                    'user_profiles.firstname as firstname',
-                    'user_profiles.lastname as lastname',
-                    DB::raw("CONCAT_WS(' ', user_profiles.firstname, user_profiles.lastname) AS fullname")
-                );
-
-            // Searching
-            if ($search = $request->input('search.value')) {
-                $query->where(function($q) use ($search) {
-                    $q->where('number', 'like', "%{$search}%");
-                    $q->orWhere('month', 'like', "%{$search}%");
-                    $q->orWhere('year', 'like', "%{$search}%");
-                    $q->orWhere('docnum', 'like', "%{$search}%");
-                    $q->orWhereRaw("CONCAT_WS(' ', user_profiles.firstname, user_profiles.lastname) LIKE ?", ["%{$search}%"]);
-                });
-            }
-            
-            // Sorting
-            $columns        = ['fullname','sort','created_at'];
-            $orderColumn    = $columns[$request->input('order.0.column')];
-            $orderDir       = $request->input('order.0.dir');
-            $query->orderBy($orderColumn, $orderDir);
-
-            // Pagination
-            $recordsFiltered    = $query->get()->count();
-
-            $data = $query
-                ->skip($request->input('start'))
-                ->take($request->input('length'))
-                ->get();
-
-            $data->transform(function($item) {
-                $contract = Contract::find($item->id);
-                if($contract) {
-                    $item->file   = $contract->file ? true : false;
-                }
-                
-                return $item;
-            });
-            
-            return response()->json([
-                'draw'              => intval($request->input('draw')),
-                'recordsTotal'      => $recordsTotal,
-                'recordsFiltered'   => $recordsFiltered,
-                'data'              => $data,
-            ], 200);
+        // Retain the existing AJAX URL while replacing the former per-user listing.
+        $query = Profile::where('feature_aggregator',1)
+            ->whereDoesntHave('aggregator_contracts');
+        $total = $query->count();
+        if ($search = $request->input('search.value')) {
+            $query->whereRaw("CONCAT_WS(' ', firstname, lastname) LIKE ?",['%'.$search.'%']);
         }
-        catch (\Throwable $th) {
-            Log::error($th->getMessage(), ['stack' => $th->getTraceAsString()]);
-
-            return response()->json([
-                'success'   => false ,
-                'errors'    => $th->getMessage()
-            ], 500);
-        }
+        $filtered = $query->count();
+        $columns = ['fullname','status','created_at'];
+        $order = $columns[(int) $request->input('order.0.column',2)] ?? 'created_at';
+        $direction = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
+        $data = $query->select('id','userid','status','created_at',DB::raw("CONCAT_WS(' ', firstname, lastname) AS fullname"))
+            ->orderBy($order,$direction)->orderBy('id')
+            ->skip(max(0,(int) $request->input('start',0)))
+            ->take(min(100,max(1,(int) $request->input('length',10))))->get()->each->setAppends([]);
+        return response()->json(['draw'=>(int) $request->input('draw'),'recordsTotal'=>$total,'recordsFiltered'=>$filtered,'data'=>$data]);
     }
 }

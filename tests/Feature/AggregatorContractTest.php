@@ -76,6 +76,36 @@ class AggregatorContractTest extends TestCase
         return app(ContractService::class)->store(['profileid' => 1, 'type' => 'aggregator', 'number' => $number, 'month' => 10, 'year' => 2026]);
     }
 
+    public function test_contract_tabs_separate_missing_users_and_contracts_without_digital_stamp(): void
+    {
+        DB::connection()->getPdo()->sqliteCreateFunction('CONCAT_WS',static fn ($separator,...$values) => implode($separator,array_filter($values,static fn ($value) => $value !== null)),-1);
+        foreach ([2,3,4] as $id) {
+            DB::table('users')->insert(['id'=>$id,'email'=>'client'.$id.'@example.test','name'=>'Client '.$id]);
+            DB::table('user_profiles')->insert(['id'=>$id,'userid'=>$id,'firstname'=>'Client '.$id,'status'=>'verified','feature_aggregator'=>$id === 4 ? 0 : 1]);
+        }
+        $contract = $this->generate();
+        $stamped = $this->generate(2);
+        DB::table('filestorage')->insert([
+            'owner_type'=>Contract::class,'owner_id'=>$contract->id,'type'=>null,'profileid'=>1,
+            'disk'=>'local','identifier'=>'contracts/manual.pdf','original_name'=>'manual.pdf','mime_type'=>'application/pdf','size'=>1,'uploaded_at'=>now(),
+        ]);
+        DB::table('filestorage')->insert([
+            'owner_type'=>Contract::class,'owner_id'=>$stamped->id,'type'=>'digital_stamp','profileid'=>1,
+            'disk'=>'local','identifier'=>'contracts/stamp.pdf','original_name'=>'stamp.pdf','mime_type'=>'application/pdf','size'=>1,'uploaded_at'=>now(),
+        ]);
+        // A Publishing contract does not satisfy the Aggregator contract requirement.
+        DB::table('contracts')->insert(['profileid'=>2,'type'=>'publishing','number'=>9,'month'=>10,'year'=>2026,'sort'=>'2026-009','docnum'=>'PUB-9']);
+        $query = ['draw'=>1,'start'=>0,'length'=>10,'order'=>[['column'=>0,'dir'=>'asc']]];
+        $missing = $this->getJson(route('admin.releases.contract.get_data_per_user',$query))->assertOk();
+        $missing->assertJsonPath('recordsTotal',2)->assertJsonPath('recordsFiltered',2);
+        $this->assertSame([2,3],array_column($missing->json('data'),'id'));
+        $unstamped = $this->getJson(route('admin.releases.contract.get_data',array_merge($query,['filter'=>'unstamped'])))->assertOk();
+        $unstamped->assertJsonPath('recordsTotal',1)->assertJsonPath('data.0.id',$contract->id)->assertJsonPath('data.0.file',true);
+        $this->getJson(route('admin.releases.contract.get_data',array_merge($query,['filter'=>'all'])))->assertOk()->assertJsonPath('recordsTotal',2);
+        $this->getJson(route('admin.releases.contract.get_data_per_user',array_merge($query,['search'=>['value'=>'Client 3']])))->assertOk()->assertJsonPath('recordsFiltered',1)->assertJsonPath('data.0.id',3);
+        $this->getJson(route('admin.releases.contract.get_data',['filter'=>'invalid']))->assertUnprocessable();
+    }
+
     private function draft(string $title): string
     {
         return '<h1>'.$title.'</h1><p>[FULLNAME] [USER_PERCENT]% / [SYSTEM_PERCENT]% [COMPANYNAME]</p>';

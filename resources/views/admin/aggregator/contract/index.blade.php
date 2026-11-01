@@ -21,7 +21,10 @@ Aggregator Contracts
             <button class="nav-link active" id="contracts-tab" data-bs-toggle="tab" data-bs-target="#contracts" type="button" role="tab" aria-controls="contracts" aria-selected="true">All Contracts</button>
         </li>
         <li class="nav-item" id="per-user">
-            <button class="nav-link" id="per-users-tab" data-bs-toggle="tab" data-bs-target="#per-users" type="button" role="tab" aria-controls="per-users" aria-selected="false">Per User</button>
+            <button class="nav-link" id="per-users-tab" data-bs-toggle="tab" data-bs-target="#per-users" type="button" role="tab" aria-controls="per-users" aria-selected="false">User Not Contract</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="unstamped-tab" data-bs-toggle="tab" data-bs-target="#unstamped-contracts" type="button" role="tab" aria-controls="unstamped-contracts" aria-selected="false">Contract Not Materai <span class="badge bg-warning text-dark ms-1">{{ number_format($contractsWithoutStamp) }}</span></button>
         </li>
     </ul>
 
@@ -37,14 +40,15 @@ Aggregator Contracts
             </table>
         </div>
         <div class="tab-pane fade" id="per-users" role="tabpanel" aria-labelledby="per-users-tab">
-            <p>This table only list all user with aggregator feature enabled and their contracts.</p>
+            <p>User dengan fitur Aggregator aktif yang belum memiliki kontrak Aggregator.</p>
             <table class="table table-striped table-sm" style="width:100%" id="user-table">
-                <thead>
-                    <th>User</th>
-                    <th>Document Number</th>
-                    <th>Date Created</th>
-                    <th>Actions</th>
-                </thead>
+                <thead><tr><th>User</th><th>Status Profil</th><th>Tanggal Daftar</th><th>Actions</th></tr></thead>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="unstamped-contracts" role="tabpanel" aria-labelledby="unstamped-tab">
+            <p>Kontrak Aggregator yang belum memiliki PDF bermaterai digital. PDF manual biasa tidak dihitung sebagai dokumen bermaterai.</p>
+            <table class="table table-striped" id="unstamped-table" style="width:100%">
+                <thead><tr><th>User</th><th>Document Number</th><th>Date Created</th><th>Actions</th></tr></thead>
             </table>
         </div>
     </div>
@@ -146,117 +150,64 @@ Aggregator Contracts
     <script src="{{ URL::asset('build/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            $('#review-users').on('click', function () { $('#per-users-tab').tab('show'); });
-            $('#all-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('admin.releases.contract.get_data') }}",
-                pageLength: 10,
-                lengthChange: true,
-                columnDefs: [
-                    { responsivePriority: 1, targets: 0 },
-                    { responsivePriority: 2, targets: 1 },
-                    { responsivePriority: 3, targets: 2 },
-                    { responsivePriority: 4, targets: 3 },
-                    { targets: 3, orderable: false, searchable: false },
-                ],
-
-                order: [[ 2, "desc" ]],
-                columns: [
-                    { data: 'fullname' },
-                    {
-                        data: 'docnum',
-                        render: {
-                            display: function(data, type, row) {
-                                return data ? data : '-';
-                            },
-                            sort: function(data, type, row) {
-                                return row.sort;
+            const canViewUsers = @json(auth()->user()->can('view-users'));
+            const canGenerate = @json(auth()->user()->can('generate-contracts'));
+            const safeText = $.fn.dataTable.render.text();
+            const dateColumn = { data:'created_at', render: function(value,type) {
+                return type === 'display' && value ? new Date(value).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : (value || '—');
+            }};
+            function contractTable(selector, filter) {
+                return $(selector).DataTable({
+                    processing:true, serverSide:true, pageLength:10, order:[[2,'desc']],
+                    ajax:{url:@json(route('admin.releases.contract.get_data')),data:{filter}},
+                    columns:[
+                        {data:'fullname',defaultContent:'—',render:safeText},
+                        {data:'docnum',defaultContent:'—',render:safeText},
+                        dateColumn,
+                        {data:'id',orderable:false,searchable:false,render:function(id,type,row) {
+                            if (type !== 'display') return id;
+                            const view = @json(route('admin.releases.contract.view_raw', ':id')).replace(':id',Number(id));
+                            const pdf = @json(route('admin.releases.contract.view_uploaded', ':id')).replace(':id',Number(id));
+                            let buttons = `<a href="${view}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">View Contract</a>`;
+                            if (row.file) buttons += `<a href="${pdf}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">PDF</a>`;
+                            if (canViewUsers && row.user_id) {
+                                const user = @json(route('admin.users.show', ':id')).replace(':id',Number(row.user_id));
+                                buttons += `<a href="${user}" class="btn btn-outline-primary btn-sm">${filter === 'unstamped' ? 'Buka User / Materai' : 'Buka User'}</a>`;
                             }
-                        }
-                    },
-                    {
-                        data: "created_at",
-                        render: {
-                            display: function(data, type, row) {
-                                return data ? new Date(data).toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' }) : '-';
-                            },
-                            sort: function(data, type, row) {
-                                return data;
-                            }
-                        }
-                    },
-                    {
-                        data: 'id',
-                        render: function(data, type, row) {
-                            if(data) {
-                                var generate_url = "{{ route('admin.releases.contract.view_raw', ':id') }}".replace(':id', data);
-                                var generate = `<a href="${generate_url}" target="_blank" class="btn btn-outline-primary btn-sm">View Contract</a>`;
-                                var pdf_url = "{{ route('admin.releases.contract.view_uploaded', ':id') }}".replace(':id', data);
-                                var pdf = row.file ? `<a href="${pdf_url}" target="_blank" class="btn btn-outline-primary btn-sm">PDF</a>` : '';
-                                return `<div class="d-flex justify-content-end" style="width: fit-content; gap: 5px">` + generate + pdf + `</div>`;
-                            }
-                        }
-                    }
-                ]
-            });
-
+                            return `<div class="d-flex flex-wrap gap-2">${buttons}</div>`;
+                        }}
+                    ]
+                });
+            }
+            contractTable('#all-table','all');
+            contractTable('#unstamped-table','unstamped');
             $('#user-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('admin.releases.contract.get_data_per_user') }}",
-                pageLength: 10,
-                lengthChange: true,
-                columnDefs: [
-                    { responsivePriority: 1, targets: 0 },
-                    { responsivePriority: 2, targets: 1 },
-                    { responsivePriority: 3, targets: 2 },
-                    { responsivePriority: 4, targets: 3 },
-                    { targets: 3, orderable: false, searchable: false },
-                ],
-
-                order: [[ 2, "desc" ]],
-                columns: [
-                    { data: 'fullname' },
-                    {
-                        defaultContent: "",
-                        data: 'docnum',
-                        render: {
-                            display: function(data, type, row) {
-                                return data ? data : '-';
-                            },
-                            sort: function(data, type, row) {
-                                return row.sort;
-                            }
+                processing:true,serverSide:true,pageLength:10,order:[[2,'desc']],
+                ajax:@json(route('admin.releases.contract.get_data_per_user')),
+                columns:[
+                    {data:'fullname',render:safeText},
+                    {data:'status',render:safeText},
+                    dateColumn,
+                    {data:'id',orderable:false,searchable:false,render:function(id,type,row) {
+                        if (type !== 'display') return id;
+                        let buttons = '';
+                        if (canViewUsers && row.userid) {
+                            const user = @json(route('admin.users.show', ':id')).replace(':id',Number(row.userid));
+                            buttons += `<a href="${user}" class="btn btn-outline-primary btn-sm">Buka User</a>`;
                         }
-                    },
-                    {
-                        defaultContent: "",
-                        data: "created_at",
-                        render: {
-                            display: function(data, type, row) {
-                                return data ? new Date(data).toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' }) : '-';
-                            },
-                            sort: function(data, type, row) {
-                                return data;
-                            }
-                        }
-                    },
-                    {
-                        defaultContent: "",
-                        data: 'id',
-                        render: function(data, type, row) {
-                            if(data) {
-                                var generate_url = "{{ route('admin.releases.contract.view_raw', ':id') }}".replace(':id', data);
-                                var generate = `<a href="${generate_url}" target="_blank" class="btn btn-outline-primary btn-sm">View</a>`;
-                                var pdf_url = "{{ route('admin.releases.contract.view_uploaded', ':id') }}".replace(':id', data);
-                                var pdf = row.file ? `<a href="${pdf_url}" target="_blank" class="btn btn-outline-primary btn-sm">PDF</a>` : '';
-                                return `<div class="d-flex justify-content-end" style="width: fit-content; gap: 5px">` + generate + pdf + `</div>`;
-                            }
-                        }
-                    }
+                        if (canGenerate && row.status === 'verified') buttons += `<button type="button" class="btn btn-primary btn-sm create-user-contract" data-profile="${Number(id)}">Generate Kontrak</button>`;
+                        return `<div class="d-flex flex-wrap gap-2">${buttons || '—'}</div>`;
+                    }}
                 ]
             });
+            $('#review-users').on('click',function() { bootstrap.Tab.getOrCreateInstance(document.getElementById('per-users-tab')).show(); });
+            $('#user-table').on('click','.create-user-contract',function() {
+                const profile = document.getElementById('profileid');
+                profile.value = this.dataset.profile;
+                profile.dispatchEvent(new Event('change',{bubbles:true}));
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('create-contract-modal')).show();
+            });
+            $('[data-bs-toggle="tab"]').on('shown.bs.tab',function() { $.fn.dataTable.tables({visible:true,api:true}).columns.adjust(); });
         });
     </script>
 @endpush

@@ -181,11 +181,13 @@ class ReportService
     {
         DB::transaction(function () use ($rows) {
 
-            // Calculate aggregator and client share
-            foreach($rows as $row) {
-
-                // Getting report import/batch
-                $report = $row->batch;
+            $lockedReports = [];
+            foreach ($rows as $candidate) {
+                $reportId = $candidate->report_import_id;
+                $report = $lockedReports[$reportId] ??= ReportImport::whereKey($reportId)->lockForUpdate()->first();
+                if (!$report || $report->status !== 'pending_calculation') continue;
+                $row = ReportRow::whereKey($candidate->id)->where('report_import_id',$reportId)->lockForUpdate()->first();
+                if (!$row) continue;
                 if(!$report->idr_rate) {
                     throw new \Exception("IDR rate is not set for this batch");
                 }
@@ -236,17 +238,17 @@ class ReportService
                 // Dispatch the batch
                 $batch = Bus::batch($jobs)
                     ->then(function ($batch) use ($report) {
-                        $report->update([
+                        $changed = ReportImport::whereKey($report->id)->where('status','pending_calculation')->where('batch_id',$batch->id)->update([
                             'status'    => 'completed',
                             'batch_id'  => null
                         ]);
 
                         $batch->delete();
-                        ProcessAggregate::dispatch();
+                        if ($changed) ProcessAggregate::dispatch();
                         Log::info("Report calculation ID {$report->id}, Batch {$batch->id} completed");
                     })
                     ->catch(function ($batch, $e) use ($report) {
-                        $report->update(['status' => 'failed']);
+                        ReportImport::whereKey($report->id)->where('status','pending_calculation')->where('batch_id',$batch->id)->update(['status' => 'failed']);
                         Log::error("Report calculation ID {$report->id}, Batch {$batch->id} failed: {$e->getMessage()}");
                     })
                     ->name("Report calculation ID {$report->id}")
@@ -319,127 +321,97 @@ class ReportService
         return $count;
     }
 
-    public static function aggregate()
+    /** Replace derived summaries atomically, including groups that no longer have source rows. */
+    public static function aggregate(): void
     {
-        DB::transaction(function () {
+        self::withAggregateLock(fn () => DB::transaction(fn () => self::rebuildAggregates()));
+    }
 
-            // Multi dimensional aggregate - Process in chunks to avoid memory issues
-            ReportRow::baseAggregateQuery()
-                ->orderBy('profileid')
-                ->orderBy('trackid')
-                ->chunk(1000, function ($rows) {
-                $batchData = [];
-
-                foreach($rows as $row) {
-                    $batchData[] = [
-                        'profileid'                 => $row->profileid,
-                        'trackid'                   => $row->trackid,
-                        'platform'                  => $row->platform,
-                        'country'                   => $row->country,
-                        'sales_type'                => $row->sales_type ?? 'Stream_Failback',
-                        'reporting_month'           => $row->reporting_month,
-                        'sales_month'               => $row->sales_month,
-                        'artist_name'               => $row->artist_name,
-                        'quantity'                  => $row->quantity,
-                        'rupiah_exact'              => $row->rupiah_exact,
-                        'aggregator_rupiah_exact'   => $row->aggregator_rupiah_exact,
-                        'client_rupiah_exact'       => $row->client_rupiah_exact
-                    ];
+    public static function deleteImport(int $id): void
+    {
+        $fileIds = self::withAggregateLock(function () use ($id) {
+            return DB::transaction(function () use ($id) {
+                $report = ReportImport::whereKey($id)->lockForUpdate()->firstOrFail();
+                if ($report->batch_id && \Illuminate\Support\Facades\Schema::hasTable('job_batches')) {
+                    Bus::findBatch($report->batch_id)?->cancel();
                 }
-
-                // Batch upsert - much more efficient than individual updateOrInsert
-                if (!empty($batchData)) {
-                    DB::table('report_aggregate_multi')->upsert(
-                        $batchData,
-                        ['profileid', 'trackid', 'platform', 'country', 'sales_type', 'reporting_month', 'sales_month', 'artist_name'],
-                        ['quantity', 'rupiah_exact', 'aggregator_rupiah_exact', 'client_rupiah_exact']
-                    );
-                }
+                $files = \App\Models\File::where('owner_type',$report->getMorphClass())->where('owner_id',$id)->pluck('id')->all();
+                $rows = $report->rows()->count();
+                $report->rows()->delete(); // Also supports imported schemas without the cascade FK.
+                $report->delete();
+                self::rebuildAggregates();
+                Log::info('Laporan impor dihapus dan ringkasan diperbarui.',[
+                    'report_id'=>$id,'filename'=>$report->original_filename,'deleted_rows'=>$rows,
+                    'audit_subject'=>['type'=>'Laporan impor','id'=>$id,'name'=>$report->original_filename,
+                        'details'=>[
+                            ['label'=>'Baris dihapus','value'=>(string) $rows],
+                            ['label'=>'Ringkasan','value'=>'Dibangun ulang dari laporan yang tersisa'],
+                        ]],
+                ]);
+                return $files;
             });
-
-            $aggregates = [
-                'tracks'    => 'trackid',
-                'platforms' => 'platform',
-                'countries' => 'country',
-                'artists'   => 'artist_name',
-                'sales'     => 'sales_type',
-                'monthly'   => ''
-            ];
-
-            foreach($aggregates as $table => $column) {
-                // Build query based on table type
-                if($table == 'monthly') {
-                    $query = DB::table('report_aggregate_multi')
-                        ->select(
-                            'profileid',
-                            'reporting_month',
-                            'sales_month',
-                            DB::raw('SUM(quantity) as quantity'),
-                            DB::raw('SUM(rupiah_exact) as rupiah_exact'),
-                            DB::raw('SUM(aggregator_rupiah_exact) as aggregator_rupiah_exact'),
-                            DB::raw('SUM(client_rupiah_exact) as client_rupiah_exact'),
-                        )
-                        ->groupBy('profileid', 'reporting_month', 'sales_month')
-                        ->orderBy('profileid')
-                        ->orderBy('reporting_month');
-                }
-                else {
-                    $query = DB::table('report_aggregate_multi')
-                        ->select(
-                            'profileid',
-                            $column,
-                            'reporting_month',
-                            'sales_month',
-                            DB::raw('SUM(quantity) as quantity'),
-                            DB::raw('SUM(rupiah_exact) as rupiah_exact'),
-                            DB::raw('SUM(aggregator_rupiah_exact) as aggregator_rupiah_exact'),
-                            DB::raw('SUM(client_rupiah_exact) as client_rupiah_exact'),
-                        )
-                        ->groupBy('profileid', $column, 'reporting_month', 'sales_month')
-                        ->orderBy('profileid')
-                        ->orderBy($column);
-                }
-
-                // Process in chunks and batch upsert for performance
-                $query->chunk(1000, function ($aggregate) use ($table, $column) {
-                    $batchData = [];
-
-                    foreach($aggregate as $row) {
-                        $rowData = [
-                            'profileid'                 => $row->profileid,
-                            'reporting_month'           => $row->reporting_month,
-                            'sales_month'               => $row->sales_month,
-                            'quantity'                  => $row->quantity,
-                            'rupiah_exact'              => $row->rupiah_exact,
-                            'aggregator_rupiah_exact'   => $row->aggregator_rupiah_exact,
-                            'client_rupiah_exact'       => $row->client_rupiah_exact,
-                        ];
-
-                        // Add dimension column if not monthly aggregate
-                        if($table != 'monthly') {
-                            $rowData[$column] = $row->$column;
-                        }
-
-                        $batchData[] = $rowData;
-                    }
-
-                    // Batch upsert - much more efficient than individual updateOrInsert
-                    if (!empty($batchData)) {
-                        $uniqueKeys = $table == 'monthly'
-                            ? ['profileid', 'reporting_month', 'sales_month']
-                            : ['profileid', $column, 'reporting_month', 'sales_month'];
-
-                        DB::table('report_aggregate_'.$table)->upsert(
-                            $batchData,
-                            $uniqueKeys,
-                            ['quantity', 'rupiah_exact', 'aggregator_rupiah_exact', 'client_rupiah_exact']
-                        );
-                    }
-                });
-            }
-
         });
-    
+        // Physical cleanup follows commit: a failed rebuild must leave the source file intact.
+        foreach ($fileIds as $fileId) {
+            try { \App\Models\File::find($fileId)?->delete(); }
+            catch (\Throwable $exception) {
+                Log::warning('Berkas sumber laporan yang dihapus belum dibersihkan.',['report_id'=>$id,'file_id'=>$fileId]);
+            }
+        }
+    }
+
+    private static function withAggregateLock(callable $callback): mixed
+    {
+        $db = DB::connection();
+        $mysql = $db->getDriverName() === 'mysql';
+        if ($mysql && !(int) $db->selectOne('SELECT GET_LOCK(?, 30) AS acquired',['report_aggregate_rebuild'])->acquired) {
+            throw new \RuntimeException('Ringkasan laporan sedang diperbarui. Tunggu lalu coba kembali.');
+        }
+        try { return $callback(); }
+        finally { if ($mysql) $db->select('SELECT RELEASE_LOCK(?)',['report_aggregate_rebuild']); }
+    }
+
+    private static function aggregateSource()
+    {
+        return DB::table('report_rows')->whereNotNull('profileid')->where('status','finalized')
+            ->whereExists(fn ($query) => $query->selectRaw('1')->from('report_imports')
+                ->whereColumn('report_imports.id','report_rows.report_import_id')
+                ->whereIn('report_imports.status',['pending_rate','completed']));
+    }
+
+    private static function rebuildAggregates(): void
+    {
+        $dimensions = [
+            'multi'=>['profileid','trackid','platform','country','sales_type','artist_name','reporting_month','sales_month'],
+            'tracks'=>['profileid','trackid','reporting_month','sales_month'],
+            'platforms'=>['profileid','platform','reporting_month','sales_month'],
+            'countries'=>['profileid','country','reporting_month','sales_month'],
+            'artists'=>['profileid','artist_name','reporting_month','sales_month'],
+            'sales'=>['profileid','sales_type','reporting_month','sales_month'],
+            'monthly'=>['profileid','reporting_month','sales_month'],
+        ];
+        $releaseTable = \Illuminate\Support\Facades\Schema::hasTable('report_aggregate_releases');
+        if ($releaseTable) $dimensions['releases']=['profileid','releaseid','reporting_month','sales_month'];
+        $metrics = ['quantity','rupiah_exact','aggregator_rupiah_exact','client_rupiah_exact'];
+        foreach ($dimensions as $name=>$keys) {
+            $table = 'report_aggregate_'.$name;
+            // DELETE stays transactional; TRUNCATE would commit the deletion on MySQL.
+            DB::table($table)->delete();
+            if ($name === 'releases' && !\Illuminate\Support\Facades\Schema::hasColumn('report_rows','releaseid')) continue;
+            $query = in_array($name,['multi','releases'],true) ? self::aggregateSource() : DB::table('report_aggregate_multi');
+            foreach ($keys as $key) {
+                $expression = match ($key) {
+                    'sales_type'=>"COALESCE(sales_type, 'Stream_Failback')",
+                    'platform','country','artist_name'=>"COALESCE($key, '')",
+                    default=>$key,
+                };
+                $query->selectRaw($expression.' AS '.$key)->groupByRaw($expression);
+            }
+            if ($name === 'tracks') $query->whereNotNull('trackid');
+            if ($name === 'releases') $query->whereNotNull('releaseid');
+            foreach ($metrics as $metric) $query->selectRaw('COALESCE(SUM('.$metric.'), 0) AS '.$metric);
+            DB::table($table)->insertUsing(array_merge($keys,$metrics),$query);
+        }
     }
 
     /**
