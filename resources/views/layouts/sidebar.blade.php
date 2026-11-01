@@ -142,6 +142,15 @@
                     </a>
                 </li>
 
+                @can('view-reporting')
+                    <li>
+                        <a href="{{ route('admin.analytics.index') }}">
+                            <div class="parent-icon"><span class="material-icons-outlined">insights</span></div>
+                            <div class="menu-title">Analitik</div>
+                        </a>
+                    </li>
+                @endcan
+
                 {{-- Aggregator --}}
                 @can('view-releases')
                     <li>

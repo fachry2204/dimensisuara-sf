@@ -30,7 +30,7 @@ class SettlementController extends Controller
     public function index()
     {
         $userprofiles   = Profile::all()->sortBy('full_name');
-        $years          = Settlement::distinct()->orderByDesc('year')->pluck('year');
+        $years          = Settlement::where('type','aggregator')->distinct()->orderByDesc('year')->pluck('year');
 
         return view('admin.aggregator.settlement.index', compact('userprofiles','years'));
     }
@@ -248,12 +248,12 @@ class SettlementController extends Controller
     {
         $request->validate([
             'userid'    => ['nullable', 'integer', 'exists:user_profiles,id'],
-            'year'      => ['nullable', 'string', 'max:4'],
+            'year'      => ['nullable', 'integer', 'min:1900', 'max:2200'],
             'quarter'   => ['nullable', 'integer', 'in:1,2,3,4'],
-            'status'    => ['nullable', 'string', 'in:pending,completed,carried_over'],
+            'status'    => ['nullable', 'string', 'in:pending,transferred,carried_over,cancelled'],
         ]);
         
-        $query = Settlement::with('profile');
+        $query = Settlement::with('profile')->where('type','aggregator');
         if($request->userid) {
             $query->where('profileid', $request->input('userid'));
         }
@@ -278,17 +278,28 @@ class SettlementController extends Controller
         $total_client       = $total_gross - $total_aggregator;
 
         return response()->json([
+            'summary' => [
+                'count'=>$results->count(),
+                'pending'=>$results->where('status','pending')->count(),
+                'transferred'=>$results->where('status','transferred')->count(),
+                'carried_over'=>$results->where('status','carried_over')->count(),
+                'cancelled'=>$results->where('status','cancelled')->count(),
+                'pending_amount'=>$results->where('status','pending')->sum('total'),
+                'transferred_amount'=>$results->where('status','transferred')->sum('total'),
+            ],
             'sum_total'         => number_format($total_gross, 0, ',', '.'),
             'sum_aggregator'    => number_format($total_aggregator, 0, ',', '.'),
             'sum_client'        => number_format($total_client, 0, ',', '.'),
             'results'   => $results->map(function ($row) {
                 return [
                     'id'            => $row->id,
-                    'profile_name'  => $row->profile->full_name,
+                    'profile_name'  => $row->profile?->full_name ?? 'Akun tidak tersedia',
                     'year'          => $row->year,
                     'quarter'       => $row->quarter,
                     'status'        => $row->status,
                     'total'         => $row->total,
+                    'gross' => $row->gross, 'aggregator' => $row->aggregator,
+                    'tax' => (float)$row->tax + (float)$row->tax2,
                     'created_at'    => $row->created_at,
                 ];
             }),
@@ -300,12 +311,12 @@ class SettlementController extends Controller
         try {
             $request->validate([
                 'userid'    => ['nullable', 'integer', 'exists:user_profiles,id'],
-                'year'      => ['nullable', 'string', 'max:4'],
+                'year'      => ['nullable', 'integer', 'min:1900', 'max:2200'],
                 'quarter'   => ['nullable', 'integer', 'in:1,2,3,4'],
-                'status'    => ['nullable', 'string', 'in:pending,completed,carried_over'],
+                'status'    => ['nullable', 'string', 'in:pending,transferred,carried_over,cancelled'],
             ]);
             
-            $query = Settlement::with('profile');
+            $query = Settlement::with('profile')->where('type','aggregator');
             if($request->userid) {
                 $query->where('profileid', $request->input('userid'));
             }
@@ -322,10 +333,10 @@ class SettlementController extends Controller
 
             $results    = $query->get()->map(function ($row) {
                 return [
-                    $row->profile->full_name,
+                    $row->profile?->full_name ?? 'Akun tidak tersedia',
                     $row->year,
                     $row->quarter,
-                    (floatval($row->subtotal) + floatval($row->carryover)),
+                    (floatval($row->subtotal)),
                     (floatval($row->tax)),
                     (floatval($row->total)),
                     $row->status,
@@ -365,7 +376,7 @@ class SettlementController extends Controller
                         return $field;
                     }, $row);
 
-                    fputcsv($handle, $convertedRow, ';', '"'); // still use ; as separator
+                    fputcsv($handle, $convertedRow, ';', '"', ''); // still use ; as separator
                 }
 
                 fclose($handle);

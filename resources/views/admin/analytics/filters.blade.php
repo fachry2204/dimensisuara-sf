@@ -1,0 +1,11 @@
+<form method="GET" action="{{ route('admin.analytics.index') }}" class="aa-panel aa-filter">
+    <input type="hidden" name="tab" value="{{ $filters['tab'] }}">
+    <div><label for="aa-start">Bulan penjualan mulai</label><input type="month" class="form-control" id="aa-start" name="start" value="{{ $filters['start'] }}" required></div>
+    <div><label for="aa-end">Sampai bulan</label><input type="month" class="form-control" id="aa-end" name="end" value="{{ $filters['end'] }}" required></div>
+    <div><label for="aa-compare">Bandingkan</label><select class="form-select" name="compare" id="aa-compare"><option value="previous" @selected($filters['compare']==='previous')>Periode sebelumnya</option><option value="year" @selected($filters['compare']==='year')>Tahun sebelumnya</option><option value="none" @selected($filters['compare']==='none')>Tanpa perbandingan</option></select></div>
+    <div><label for="aa-profile">User</label><select class="form-select" name="profile" id="aa-profile"><option value="">Semua user</option>@foreach($options['profiles'] as $profile)<option value="{{ $profile->id }}" @selected((string)$filters['profile']===(string)$profile->id)>{{ $name($profile) }}</option>@endforeach</select></div>
+    <div><label for="aa-platform">Platform</label><select class="form-select" name="platform" id="aa-platform"><option value="">Semua platform</option>@foreach($options['platforms'] as $platform)<option @selected($filters['platform']===$platform)>{{ $platform }}</option>@endforeach</select></div>
+    <div><label for="aa-country">Negara</label><select class="form-select" name="country" id="aa-country"><option value="">Semua negara</option>@foreach($options['countries'] as $country)<option @selected($filters['country']===$country)>{{ $country }}</option>@endforeach</select></div>
+    <div class="aa-filter-actions"><button class="btn btn-primary">Terapkan</button><a href="{{ route('admin.analytics.index') }}" class="btn btn-outline-primary">Reset</a></div>
+    <p class="aa-filter-note">Dasar periode: bulan penjualan, bukan tanggal upload. IDR mengikuti kurs masing-masing laporan. Penjualan terakhir: {{ $filters['coverage']??'belum tersedia' }}. Stream / unit adalah quantity laporan, termasuk jenis penjualan selain streaming.</p>
+</form>

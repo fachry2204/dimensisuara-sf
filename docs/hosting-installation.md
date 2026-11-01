@@ -36,7 +36,7 @@ New branding uploads are stored in `storage/app/public/branding`; their relative
 
 If an imported database points to a logo file that was not transferred, the UI uses its default image and System Settings displays a reupload message. Select the logo/favicon again and click **Simpan Identitas Aplikasi**. Choosing a file only previews it; the form must be submitted. A storage failure retains the old saved settings and displays an error.
 
-Run `npm run build` after pulling source changes. The asset-copy phase excludes the Vue source entry and component directory so it cannot overwrite Vite's compiled `soundfresh.js` with raw `import ... from 'vue'` code.
+Run `npm run build` after pulling source changes. The asset-copy phase excludes the Vue source entry and component directory so it cannot overwrite Vite's compiled `dimensisuara.js` with raw `import ... from 'vue'` code.
 
 If deployment still fails, inspect the final lines of the Laravel Toolkit task log. Package extraction messages alone do not establish whether the failure is a missing extension, filesystem permission, database connection, migration, or another Composer script error. This fix addresses the reproduced bootstrap dependency; it does not claim to diagnose an unseen hosting log.
 

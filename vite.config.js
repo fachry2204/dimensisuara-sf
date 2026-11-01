@@ -33,7 +33,7 @@ export default defineConfig({
         vue(),
         laravel({
             input: [
-                'resources/js/soundfresh.js',
+                'resources/js/dimensisuara.js',
                 'resources/sass/main.scss',
                 'resources/sass/dark-theme.scss',
                 'resources/sass/responsive.scss',
@@ -51,7 +51,7 @@ export default defineConfig({
                         fs.copy(folder.src_assets + 'fonts', folder.dist_assets + 'fonts'),
                         fs.copy(folder.src_assets + 'js', folder.dist_assets + 'js', {
                             // Keep compiled entry points; raw imports cannot run in a browser.
-                            filter: source => !source.endsWith('soundfresh.js') && !source.replaceAll('\\', '/').includes('/js/vue'),
+                            filter: source => !source.endsWith('dimensisuara.js') && !source.replaceAll('\\', '/').includes('/js/vue'),
                         }),
                         fs.copy(folder.src_assets + 'css', folder.dist_assets + 'css'),
                         fs.copy(folder.src_assets + 'plugins', folder.dist_assets + 'plugins'),

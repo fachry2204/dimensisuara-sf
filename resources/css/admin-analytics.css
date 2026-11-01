@@ -1,0 +1,56 @@
+/* Admin catalogue analytics: shared theme variables keep both palettes consistent. */
+.admin-analytics{display:grid;gap:22px;min-width:0;color:var(--sf-text)}
+.admin-analytics h1{font-size:clamp(1.6rem,2.2vw,2.2rem);font-weight:750;letter-spacing:-.04em;margin:0 0 8px}
+.admin-analytics h2{font-size:1.08rem;font-weight:700;margin:0 0 14px}
+.admin-analytics h3{font-size:1rem;font-weight:650;margin-top:24px}
+.aa-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.aa-heading p{color:var(--sf-muted);margin:0;font-size:.94rem}
+.aa-heading .btn{display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.aa-heading .material-icons-outlined{font-size:20px}
+.aa-tabs{display:flex;gap:8px;padding:5px 10px;border-radius:14px;background:var(--sf-surface);border:1px solid var(--sf-border);overflow-x:auto}
+.aa-tabs a{display:block;white-space:nowrap;padding:13px 16px;color:var(--sf-muted);border-bottom:3px solid transparent;text-decoration:none;font-size:.88rem}
+.aa-tabs a.active{color:#7041ed;border-color:#7041ed;font-weight:700}
+.aa-panel{background:var(--sf-surface);border:1px solid var(--sf-border);border-radius:16px;padding:22px;box-shadow:0 5px 18px rgba(15,23,42,.025);min-width:0}
+.aa-filter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.aa-filter label{display:block;font-size:.78rem;font-weight:600;margin-bottom:6px}
+.aa-filter .form-control,.aa-filter .form-select{font-size:.86rem;min-height:40px}
+.aa-filter-actions{display:flex;gap:8px;align-items:end}
+.aa-filter-note{margin:0;grid-column:1/-1;color:var(--sf-muted);font-size:.76rem;line-height:1.6}
+.aa-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.aa-kpi>div{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--sf-muted);margin-bottom:12px}
+.aa-icon{display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;color:#7041ed;background:rgba(112,65,237,.13);border-radius:12px}
+.aa-kpi:nth-child(2) .aa-icon{color:#ea580c;background:rgba(249,115,22,.12)}
+.aa-kpi>strong{display:block;font-size:clamp(1.25rem,1.6vw,1.8rem);font-weight:750;letter-spacing:-.03em;overflow-wrap:anywhere}
+.aa-kpi small{display:block;font-size:.72rem;color:var(--sf-muted);margin-top:8px}
+.aa-chart-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px}
+.aa-halves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.aa-section-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px}
+.aa-section-title h2{margin-bottom:0}
+.aa-section-title .form-select{width:155px;font-size:.8rem}
+.aa-chart{min-height:300px}
+.aa-note{font-size:.76rem;color:var(--sf-muted);line-height:1.6;margin:7px 0 0}
+.aa-empty{padding:32px 10px!important;text-align:center;color:var(--sf-muted)}
+.aa-more{display:block;text-align:right;margin-top:16px;color:#7041ed;font-size:.8rem;text-decoration:none}
+.aa-ranking{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--sf-border)}
+.aa-ranking>div:nth-child(2){flex:1;min-width:0}
+.aa-ranking img,.aa-release img{width:46px;height:46px;aspect-ratio:1;object-fit:contain;border-radius:7px;background:var(--sf-surface-soft);flex-shrink:0}
+.aa-ranking strong{display:block;font-size:.82rem;overflow-wrap:anywhere}
+.aa-ranking small,.aa-table small,.aa-quality small{display:block;color:var(--sf-muted);font-size:.72rem;margin-top:4px}
+.aa-ranking-value{text-align:right;white-space:nowrap}
+.aa-country{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1.4fr) auto;align-items:center;gap:15px;padding:15px 0;border-bottom:1px solid var(--sf-border);font-size:.8rem}
+.aa-country>div{height:10px;border-radius:3px;background:var(--sf-surface-soft);overflow:hidden}
+.aa-country i{display:block;height:100%;background:linear-gradient(90deg,#9161ff,#5919e7);border-radius:3px}
+.aa-quality{display:flex;align-items:center;justify-content:space-between;gap:20px;background:var(--sf-accent-soft)}
+.aa-quality h2{margin:0}.aa-quality strong{font-size:1.45rem}.aa-quality a{color:var(--sf-text);font-size:.8rem}
+.aa-search{display:flex;gap:10px;margin:18px 0}.aa-search .form-control{flex:1;min-width:120px}.aa-search .form-select{width:200px}.aa-search .btn{white-space:nowrap}
+.aa-table{font-size:.8rem;margin-bottom:12px}
+.aa-table th{background:var(--sf-surface-soft);font-size:.75rem;padding:13px 10px;white-space:nowrap}
+.aa-table td{padding:15px 10px;vertical-align:middle;white-space:nowrap}
+.aa-table td:first-child{white-space:normal;min-width:160px;max-width:330px;overflow-wrap:anywhere}
+.aa-release{display:flex;align-items:center;gap:10px;min-width:190px}.aa-release strong{font-size:.8rem}
+.aa-definitions{display:grid;grid-template-columns:minmax(160px,1fr) 3fr;gap:15px;font-size:.88rem;margin-top:20px;line-height:1.7}
+.aa-definitions dt{font-weight:650}.aa-definitions dd{margin:0;color:var(--sf-muted)}
+html[data-bs-theme="dark"] .aa-tabs a.active,html[data-bs-theme="dark"] .aa-more{color:#bc9aff}
+@media(min-width:1500px){.aa-filter{grid-template-columns:repeat(6,minmax(0,1fr))}.aa-filter-actions{grid-column:1/-1}.aa-filter-note{grid-row:3}.aa-filter-actions{grid-row:2}}
+@media(max-width:1100px){.aa-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.aa-chart-grid,.aa-halves{grid-template-columns:1fr}.aa-quality{flex-wrap:wrap}}
+@media(max-width:600px){.aa-panel{padding:16px}.aa-heading{align-items:flex-start;flex-direction:column}.aa-heading .btn{font-size:.8rem}.aa-filter{grid-template-columns:repeat(2,minmax(0,1fr))}.aa-filter-actions{grid-column:1/-1}.aa-kpis{gap:10px}.aa-kpi>div{font-size:.7rem;gap:7px}.aa-kpi>strong{font-size:1.2rem}.aa-icon{width:32px;height:32px;font-size:20px}.aa-search{flex-wrap:wrap}.aa-search .form-control{flex-basis:100%}.aa-search .form-select{flex:1}.aa-ranking-value{white-space:normal;max-width:100px}.aa-definitions{grid-template-columns:1fr;gap:7px}.aa-definitions dd{margin-bottom:15px}.aa-country{gap:8px;grid-template-columns:minmax(80px,1fr) 1fr auto}.aa-section-title{flex-wrap:wrap}.aa-quality>div{flex-basis:40%}}

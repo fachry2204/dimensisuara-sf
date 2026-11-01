@@ -10,7 +10,7 @@
     <x-favicon />
 
     @include('layouts.head-css')
-    @vite('resources/js/soundfresh.js')
+    @vite('resources/js/dimensisuara.js')
 </head>
 
 <body class="{{ isset($bodyClass) ? $bodyClass : '' }}">

@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import LoginForm from './vue/LoginForm.vue';
 import AppEnhancements from './vue/AppEnhancements.vue';
 import RegisterWizard from './vue/RegisterWizard.vue';
-import '../css/soundfresh-vue.css';
+import '../css/dimensisuara-vue.css';
 import '../css/register-vue.css';
 
 const login = document.querySelector('[data-vue-login]');

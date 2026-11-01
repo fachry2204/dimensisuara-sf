@@ -28,17 +28,18 @@ class ReportingController extends Controller
     public function index()
     {
         $userprofiles   = Profile::all()->sortBy('full_name');
-        $years          = ReportRow::where('status', 'finalized')->distinct()->orderByDesc('year')->pluck(DB::raw('YEAR(reporting_month) as year'));
+        $years          = ReportRow::where('status', 'finalized')->selectRaw('SUBSTR(reporting_month,1,4) as report_year')->distinct()->orderByDesc('report_year')->pluck('report_year');
         $platforms      = ReportRow::where('status', 'finalized')->distinct()->orderBy('platform')->pluck('platform');
         $regions        = ReportRow::where('status', 'finalized')->distinct()->orderBy('region')->pluck('region');
         $artists        = ReportRow::where('status', 'finalized')->distinct()->orderBy('artist_name')->pluck('artist_name');
 
-        $batches = ReportImport::all();
+        $batches = ReportImport::with('user:id,name')->latest('created_at')->get();
         $reportingSummary = [
             'total_batches' => $batches->count(),
             'total_rows' => $batches->sum('total_rows'),
             'completed' => $batches->where('status', 'completed')->count(),
             'needs_attention' => $batches->whereNotIn('status', ['completed'])->count(),
+            'statuses' => $batches->countBy('status')->all(),
         ];
 
         return view('admin.aggregator.reporting.index', compact(
@@ -193,14 +194,14 @@ class ReportingController extends Controller
             'isrc'      => ['nullable', 'string', 'max:50'],
             'platform'  => ['nullable', 'string', 'max:100'],
             'region'    => ['nullable', 'string', 'max:100'],
-            'period'    => ['nullable', 'string', 'max:255'],
+            'period'    => ['nullable', 'integer', 'min:1900', 'max:2200'],
             'quarter'   => ['nullable', 'integer', 'in:1,2,3,4'],
         ]);
         
         $query = ReportRow::query()
-            ->select('*', DB::raw('Month(reporting_month) as month'))
+            ->select('report_rows.*', DB::raw('Month(reporting_month) as month'))
             ->leftJoin('report_imports', 'report_imports.id', '=', 'report_rows.report_import_id')
-            ->whereIn('report_imports.status', ['pending_rate','completed']);
+            ->whereIn('report_imports.status', ['pending_rate','completed'])->where('report_rows.status','finalized')->whereNotNull('report_rows.profileid');
 
         if($request->profileid) {
             $query->where('profileid', $request->input('profileid'));
@@ -210,7 +211,7 @@ class ReportingController extends Controller
             $query->where('artist_name', 'like', "%{$request->artist}%");
         }
         
-        $query->whereYear('reporting_month', (int) $request->input('period'));
+        if ($request->filled('period')) $query->whereYear('reporting_month', (int) $request->input('period'));
 
         if($request->quarter) {
             $query->whereMonth('reporting_month', '>=', $request->input('quarter') * 3 - 2);
@@ -267,7 +268,7 @@ class ReportingController extends Controller
                 'isrc'      => ['nullable', 'string', 'max:50'],
                 'platform'  => ['nullable', 'string', 'max:100'],
                 'region'    => ['nullable', 'string', 'max:100'],
-                'period'    => ['nullable', 'string', 'max:255'],
+                'period'    => ['nullable', 'integer', 'min:1900', 'max:2200'],
                 'quarter'   => ['nullable', 'integer', 'in:1,2,3,4'],
             ]);
 
@@ -275,7 +276,7 @@ class ReportingController extends Controller
                 ->select('report_rows.*', DB::raw('Month(reporting_month) as month'), 'user_profiles.firstname', 'user_profiles.lastname')
                 ->leftJoin('report_imports', 'report_imports.id', '=', 'report_rows.report_import_id')
                 ->leftJoin('user_profiles', 'user_profiles.id', '=', 'report_rows.profileid')
-                ->whereIn('report_imports.status', ['pending_rate','completed']);
+                ->whereIn('report_imports.status', ['pending_rate','completed'])->where('report_rows.status','finalized')->whereNotNull('report_rows.profileid');
 
             if($request->profileid) {
                 $query->where('profileid', $request->input('profileid'));
@@ -285,7 +286,7 @@ class ReportingController extends Controller
                 $query->where('artist_name', 'like', "%{$request->artist}%");
             }
 
-            $query->whereYear('reporting_month', (int) $request->input('period'));
+            if ($request->filled('period')) $query->whereYear('reporting_month', (int) $request->input('period'));
 
             if($request->quarter) {
                 $query->whereMonth('reporting_month', '>=', $request->input('quarter') * 3 - 2);

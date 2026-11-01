@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('content-class','main-content--wide finance-workspace finance-reporting')
 @section('title')
     Aggregator Reporting
 @endsection
@@ -6,7 +7,7 @@
     <div class="reporting-page-heading">
         <div>
             <h4 class="mb-1 fs-2">Aggregator Reporting</h4>
-            <p class="mb-0">Upload, review, and manage your aggregator reporting batches.</p>
+            <p class="mb-0">Kelola impor, pencocokan akun, kurs, dan perhitungan pendapatan dalam satu alur.</p>
         </div>
         @can('upload-reporting')
             <div class="reporting-page-actions">
@@ -22,35 +23,38 @@
     <div class="reporting-summary-grid">
         <article class="reporting-summary-card reporting-summary-card--batches">
             <div class="reporting-summary-icon"><i class="material-icons-outlined">inventory_2</i></div>
-            <div><span>Total Report Batches</span><strong>{{ number_format($reportingSummary['total_batches']) }}</strong><small>All uploaded report files</small></div>
+            <div><span>File Laporan</span><strong>{{ number_format($reportingSummary['total_batches']) }}</strong><small>Seluruh file yang telah di-upload</small></div>
         </article>
         <article class="reporting-summary-card reporting-summary-card--rows">
             <div class="reporting-summary-icon"><i class="material-icons-outlined">table_rows</i></div>
-            <div><span>Rows Processed</span><strong>{{ number_format($reportingSummary['total_rows']) }}</strong><small>Total rows across all batches</small></div>
+            <div><span>Baris Diimpor</span><strong>{{ number_format($reportingSummary['total_rows']) }}</strong><small>Jumlah baris sumber, bukan progres calculation</small></div>
         </article>
         <article class="reporting-summary-card reporting-summary-card--completed">
             <div class="reporting-summary-icon"><i class="material-icons-outlined">task_alt</i></div>
-            <div><span>Completed</span><strong>{{ number_format($reportingSummary['completed']) }}</strong><small>Ready to use in reporting</small></div>
+            <div><span>Completed</span><strong>{{ number_format($reportingSummary['completed']) }}</strong><small>Perhitungan pendapatan selesai</small></div>
         </article>
         <article class="reporting-summary-card reporting-summary-card--attention">
             <div class="reporting-summary-icon"><i class="material-icons-outlined">warning_amber</i></div>
-            <div><span>Needs Attention</span><strong>{{ number_format($reportingSummary['needs_attention']) }}</strong><small>Awaiting a processing step</small></div>
+            <div><span>Perlu Tindakan</span><strong>{{ number_format($reportingSummary['needs_attention']) }}</strong><small>Masih menunggu tahap berikutnya</small></div>
         </article>
     </div>
 
+    @include('admin.aggregator.reporting.pipeline')
+    <div id="finance-load-error" class="alert alert-danger d-none" role="alert"></div>
     <ul class="nav nav-pills reporting-tabs fw-bold" id="batch">
         <li class="nav-item">
             <button class="nav-link active" id="batches-tab" data-bs-toggle="tab" data-bs-target="#batches" type="button"
-                role="tab" aria-controls="batches" aria-selected="true">Report Batches</button>
+                role="tab" aria-controls="batches" aria-selected="true">File & Progres</button>
         </li>
         <li class="nav-item" id="row">
             <button class="nav-link" id="rows-tab" data-bs-toggle="tab" data-bs-target="#rows" type="button" role="tab"
-                aria-controls="rows" aria-selected="false">Data</button>
+                aria-controls="rows" aria-selected="false">Rincian Pendapatan</button>
         </li>
     </ul>
 
     <div class="tab-content">
         <div class="tab-pane fade show active" id="batches" role="tabpanel" aria-labelledby="batches-tab">
+            <div class="finance-table-heading"><div><h2>Daftar File Laporan</h2><p>Buka detail untuk melanjutkan tahap yang belum selesai.</p></div><div><label for="report-batch-status">Status laporan</label><select id="report-batch-status" class="form-select"><option value="">Semua status</option><option value="pending_import">Pending Import</option><option value="pending_review">Pending Review</option><option value="pending_rate">Pending Rate</option><option value="pending_calculation">Pending Calculation</option><option value="completed">Completed</option><option value="failed">Failed</option></select></div></div>
             <div class="reporting-table-shell">
             <div class="table-responsive">
                 <table id="batches-table" class="table table-stripped table-sm" style="width: 100%">
@@ -72,11 +76,10 @@
                 <div class="col-12">
                     <div class="card rounded-4 reporting-filter-card">
                         <div class="card-header p-3">
-                            <h6 class="card-title mb-0 fw-bold">Earnings Report Filter</h6>
+                            <h6 class="card-title mb-0 fw-bold">Filter Rincian Pendapatan</h6>
                         </div>
                         <div class="card-body">
-                            <p>Use the filter below to view detailed earnings report. The data is filtered based on the
-                                reporting month.</p>
+                            <p>Periode memakai bulan pelaporan (reporting month). Hanya baris yang sudah terhubung ke akun pada batch Completed atau Pending Rate yang ditampilkan. Batch Pending Rate masih menunggu kurs dan calculation.</p>
                             <form id="filter-report">
                                 {{-- <div class="row mb-3">
                                     <div class="col-lg-4 mb-3 mb-lg-0">
@@ -100,7 +103,7 @@
                                     <div class="col-lg-3 mb-3 mb-lg-0">
                                         <label for="profileid" class="form-label">User</label>
                                         <select name="profileid" id="profileid" class="form-select form-select-sm">
-                                            <option value="">Any</option>
+                                            <option value="">Semua</option>
                                             @foreach ($userprofiles as $userprofile)
                                                 <option value="{{ $userprofile->id }}">{{ $userprofile->full_name }}</option>
                                             @endforeach
@@ -109,7 +112,7 @@
                                     <div class="col-lg-3 mb-3 mb-lg-0">
                                         <label for="artist" class="form-label">Artist</label>
                                         <select name="artist" id="artist" class="form-select form-select-sm">
-                                            <option value="">Any</option>
+                                            <option value="">Semua</option>
                                             @foreach ($artists as $artist)
                                                 <option value="{{ $artist }}">{{ $artist }}</option>
                                             @endforeach
@@ -120,6 +123,7 @@
                                     <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0">
                                         <label for="period" class="form-label">Period</label>
                                         <select name="period" id="period" class="form-select form-select-sm">
+                                            <option value="">Semua tahun</option>
                                             @foreach ($years as $year)
                                                 <option value="{{ $year }}">{{ $year }}</option>
                                             @endforeach
@@ -127,7 +131,7 @@
                                     </div>
                                     <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0">
                                         <label for="quarter" class="form-label">Quarter</label>
-                                        <select name="quarter" id="quarter" class="form-select form-select-sm">
+                                        <select name="quarter" id="quarter" class="form-select form-select-sm"><option value="">Semua kuartal</option>
                                             <option value="1">Q1</option>
                                             <option value="2">Q2</option>
                                             <option value="3">Q3</option>
@@ -137,7 +141,7 @@
                                     <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0">
                                         <label for="platform" class="form-label">Platform</label>
                                         <select name="platform" id="platform" class="form-select form-select-sm">
-                                            <option value="">Any</option>
+                                            <option value="">Semua</option>
                                             @foreach ($platforms as $platform)
                                                 <option value="{{ $platform }}">{{ $platform }}</option>
                                             @endforeach
@@ -146,7 +150,7 @@
                                     <div class="col-lg-3 col-sm-6 mb-3 mb-lg-0">
                                         <label for="region" class="form-label">Country/Region</label>
                                         <select name="region" id="region" class="form-select form-select-sm">
-                                            <option value="">Any</option>
+                                            <option value="">Semua</option>
                                             @foreach ($regions as $region)
                                                 <option value="{{ $region }}">{{ $region }}</option>
                                             @endforeach
@@ -154,7 +158,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <button type="submit" class="btn btn-primary btn-sm">Get Data</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Terapkan Filter</button>
                                     <button type="submit" form="export-report" class="btn btn-outline-secondary btn-sm">
                                         <i class="material-icons-outlined material-symbols-outlined me-1"
                                             style="font-size: 16px; vertical-align: middle;">download</i>
@@ -187,7 +191,7 @@
                                             <span class="material-icons-outlined">payments</span>
                                         </div>
                                         <div class="">
-                                            <h5 class="mb-0" id="sum-total">Waiting for data...</h5>
+                                            <h5 class="mb-0" id="sum-total">Memuat…</h5>
                                             <p class="mb-0">Total Revenue</p>
                                         </div>
                                     </div>
@@ -204,7 +208,7 @@
                                             <span class="material-icons-outlined">corporate_fare</span>
                                         </div>
                                         <div class="">
-                                            <h5 class="mb-0" id="sum-aggregator">Waiting for data...</h5>
+                                            <h5 class="mb-0" id="sum-aggregator">Memuat…</h5>
                                             <p class="mb-0">Aggregator Share</p>
                                         </div>
                                     </div>
@@ -221,7 +225,7 @@
                                             <span class="material-symbols-outlined">artist</span>
                                         </div>
                                         <div class="">
-                                            <h5 class="mb-0" id="sum-client">Waiting for data...</h5>
+                                            <h5 class="mb-0" id="sum-client">Memuat…</h5>
                                             <p class="mb-0">Client Share</p>
                                         </div>
                                     </div>
@@ -413,6 +417,7 @@
     </div>
 @endpush
 @push('css')
+<link rel="stylesheet" href="{{ asset('build/css/admin-finance.css') }}?v={{ file_exists(public_path('build/css/admin-finance.css'))?filemtime(public_path('build/css/admin-finance.css')):1 }}">
 <link href="{{ URL::asset('build/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
 <style>
     .reporting-page-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem; margin-bottom:2rem; }
@@ -470,6 +475,7 @@
     @media (max-width: 1100px) { .reporting-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media (max-width: 700px) { .reporting-page-heading { flex-direction:column; } .reporting-summary-grid { grid-template-columns:1fr; } .reporting-page-actions { width:100%; } .reporting-page-actions .btn { flex:1; justify-content:center; } .reporting-table-shell { padding:.65rem; } }
 </style>
+@endpush
 @push('script')
     <script src="{{ URL::asset('build/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ URL::asset('build/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
@@ -497,6 +503,8 @@
             $('#delete-modal').modal('show');
         }
         $(document).ready(function () {
+            $.fn.dataTable.ext.errMode = 'none';
+            $('#rows-table,#batches-table').on('error.dt',()=>$('#finance-load-error').removeClass('d-none').text('Data laporan gagal dimuat. Periksa koneksi lalu terapkan filter kembali.'));
             $('#source').change(function (e) {
                 $('.source-alert').removeClass('fade show');
                 $('.source-alert').addClass('d-none');
@@ -504,14 +512,14 @@
                 $('#alert-' + e.target.value).addClass('fade show');
             });
 
-            $('#batches-table').DataTable({
+            const batchTable = $('#batches-table').DataTable({
                 data: JSON.parse(document.getElementById('json-batches').textContent),
                 order: [[4, 'desc']],
                 columns: [
-                    { data: 'original_filename' },
-                    { data: 'sheet' },
+                    { data: 'original_filename', render: $.fn.dataTable.render.text() },
+                    { data: 'sheet', defaultContent:'—', render: $.fn.dataTable.render.text() },
                     { data: 'total_rows' },
-                    { data: 'uploader' },
+                    { data: 'uploader', render: $.fn.dataTable.render.text() },
                     {
                         data: "created_at",
                         render: {
@@ -527,7 +535,8 @@
                         data: 'status',
                         render: {
                             display: function (data, type, row) {
-                                return badge_reporting(data);
+                                const next = {pending_import:'Cocokkan lagu & akun',pending_review:'Tinjau lalu finalisasi',pending_rate:'Isi kurs laporan',pending_calculation:'Worker / Calculation Manual',completed:'Pendapatan selesai dihitung',failed:'Periksa detail kegagalan'};
+                                return badge_reporting(data) + `<small class="finance-next-step">${next[data] || 'Buka detail laporan'}</small>`;
                             },
                             sort: function (data, type, row) {
                                 return data;
@@ -536,16 +545,17 @@
                     },
                     {
                         render: function (data, type, row) {
+                            const actionLabel = {pending_import:'Proses Impor',pending_review:'Tinjau Laporan',pending_rate:'Isi Kurs',pending_calculation:'Calculation',failed:'Periksa',completed:'Lihat Hasil'}[row.status] || 'Lihat';
                             @can('delete-reporting')
                                 var url = "{{ route('admin.releases.reporting.show', ':id') }}".replace(':id', row.id);
                                 return `<div class="d-flex justify-content-end">
-                                                                                    <a href="${url}" class="btn btn-outline-primary btn-sm mx-1 w-100">View</a>
+                                                                                    <a href="${url}" class="btn btn-outline-primary btn-sm mx-1 w-100">${actionLabel}</a>
                                                                                     <button class="btn btn-outline-danger btn-sm mx-1 w-100" onclick="deleteReport(${row.id})">Delete</button>
                                                                                 </div>`;
                             @else
                                                                         var url = "{{ route('admin.releases.reporting.show', ':id') }}".replace(':id', row.id);
                                 return `<div class="d-flex justify-content-end">
-                                                                                    <a href="${url}" class="btn btn-outline-primary btn-sm mx-1 w-100">View</a>
+                                                                                    <a href="${url}" class="btn btn-outline-primary btn-sm mx-1 w-100">${actionLabel}</a>
                                                                                 </div>`;
                             @endcan
                                             }
@@ -553,15 +563,26 @@
                 ],
             });
 
+            $('#report-batch-status').on('change',function(){
+                batchTable.column(5).search(this.value ? '^'+this.value+'$' : '',true,false).draw();
+                $('.finance-stage').removeClass('active').filter(`[data-report-status="${this.value}"]`).addClass('active');
+            });
+            $('[data-report-status]').on('click',function(){
+                bootstrap.Tab.getOrCreateInstance(document.getElementById('batches-tab')).show();
+                $('#report-batch-status').val(this.dataset.reportStatus).trigger('change');
+            });
+            $('#batch button').on('shown.bs.tab',()=>$.fn.dataTable.tables({visible:true,api:true}).columns.adjust());
+
             $('#rows-table').DataTable({
                 "ajax": {
                     "url": "{{ route('admin.releases.reporting.get_data') }}",
                     "dataType": "json",
                     "type": "GET",
                     "dataSrc": function (json) {
-                        $('#sum-total').text(json.sum_total);
-                        $('#sum-aggregator').text(json.sum_aggregator);
-                        $('#sum-client').text(json.sum_client);
+                        $('#sum-total').text('Rp '+json.sum_total);
+                        $('#finance-load-error').addClass('d-none');
+                        $('#sum-aggregator').text('Rp '+json.sum_aggregator);
+                        $('#sum-client').text('Rp '+json.sum_client);
                         return json.results;
                     },
                     "data": function (d) {
@@ -578,13 +599,13 @@
                 "columns": [
                     { "data": "quarter" },
                     { "data": "month" },
-                    { "data": "track_title" },
-                    { "data": "artist_name" },
-                    { "data": "upc" },
-                    { "data": "isrc" },
-                    { "data": "platform" },
+                    { "data": "track_title", render: $.fn.dataTable.render.text() },
+                    { "data": "artist_name", render: $.fn.dataTable.render.text() },
+                    { "data": "upc", render: $.fn.dataTable.render.text() },
+                    { "data": "isrc", render: $.fn.dataTable.render.text() },
+                    { "data": "platform", render: $.fn.dataTable.render.text() },
                     { "data": "views" },
-                    { "data": "region" },
+                    { "data": "region", render: $.fn.dataTable.render.text() },
                     {
                         "data": "rupiah",
                         // "render": function(data, type, row) {

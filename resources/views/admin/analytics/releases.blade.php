@@ -1,0 +1,15 @@
+<section class="aa-panel">
+    <div class="aa-section-title"><div><h2>Performa Semua Rilis</h2><p class="aa-note">Seluruh katalog, termasuk rilis tanpa aktivitas (0). Pencarian hanya memfilter tabel dan ekspor rilis.</p></div></div>
+    <form method="GET" class="aa-search">
+        @foreach(request()->except(['q','sort','release_page']) as $key=>$value) @if(is_scalar($value))<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif @endforeach
+        <input class="form-control" name="q" aria-label="Cari rilis" placeholder="Cari judul / ISRC / UPC" value="{{ $filters['q'] }}">
+        <select name="sort" class="form-select" aria-label="Urutkan rilis">@foreach(['streams'=>'Stream / Unit','revenue'=>'Pendapatan','user_revenue'=>'Bagian User','system_revenue'=>'Bagian Sistem','title'=>'Judul A–Z'] as $value=>$label)<option value="{{ $value }}" @selected($filters['sort']===$value)>{{ $label }}</option>@endforeach</select><button class="btn btn-outline-primary">Cari / Urutkan</button>
+    </form>
+    <div class="table-responsive"><table class="table aa-table"><thead><tr><th>Rilis / UPC</th><th>User</th><th>Stream / Unit</th><th>Pendapatan</th><th>Bagian User</th><th>Bagian Sistem</th><th>Tren stream</th><th>Detail</th></tr></thead><tbody>
+    @forelse($releases as $release)<tr><td><div class="aa-release"><img src="{{ $covers[$release->id] }}" alt="" loading="lazy"><div><strong>{{ $release->title }}</strong><small>{{ $release->upc?:'UPC belum diisi' }}</small></div></div></td><td>{{ $name($release) }}</td><td>{{ $number($release->streams) }}</td><td>{{ $money($release->revenue) }}</td><td>{{ $money($release->user_revenue) }}</td><td>{{ $money($release->system_revenue) }}</td><td>{{ $delta($release->streams,$release->previous_streams??0) }}</td><td>@can('view-releases')<a class="btn btn-outline-primary btn-sm" href="{{ route('admin.releases.show',$release->id) }}" aria-label="Lihat rilis {{ $release->title }}">→</a>@else<span>—</span>@endcan</td></tr>
+    @empty<tr><td colspan="8" class="aa-empty">Tidak ada rilis yang sesuai pencarian.</td></tr>@endforelse
+    </tbody></table></div>{{ $releases->links() }}
+</section>
+@if($filters['tab']==='releases')
+<section class="aa-panel"><h2>Performa Lagu</h2><p class="aa-note">Judul dan kredit artis mengikuti laporan. Satu ISRC dapat memiliki variasi metadata.</p><div class="table-responsive"><table class="table aa-table"><thead><tr><th>Lagu / Artis</th><th>ISRC</th><th>Stream / Unit</th><th>Pendapatan</th><th>Bagian User</th><th>Bagian Sistem</th></tr></thead><tbody>@forelse($tracks as $track)<tr><td><strong>{{ $track->track_title?:'Tanpa judul' }}</strong><small>{{ $track->artist_name }}</small></td><td>{{ $track->isrc }}</td><td>{{ $number($track->streams) }}</td><td>{{ $money($track->revenue) }}</td><td>{{ $money($track->user_revenue) }}</td><td>{{ $money($track->system_revenue) }}</td></tr>@empty<tr><td colspan="6" class="aa-empty">Belum ada data lagu.</td></tr>@endforelse</tbody></table></div>{{ $tracks->links() }}</section>
+@endif

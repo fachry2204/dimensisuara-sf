@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('content-class','main-content--wide finance-workspace finance-transactions')
 @section('title')
 Aggregator Transactions
 @endsection
@@ -6,7 +7,7 @@ Aggregator Transactions
     <div class="transaction-page-heading">
         <div>
             <h4 class="mb-1 fs-2">Aggregator Transactions</h4>
-            <p class="mb-0">View and manage revenue transactions from aggregator partners.</p>
+            <p class="mb-0">Pantau pembagian pendapatan, kewajiban pembayaran, dan riwayat transfer aggregator.</p>
         </div>
         @can('generate-transactions')
             <button type="button" class="btn btn-primary transaction-generate-btn" data-bs-toggle="modal" data-bs-target="#generate-transaction-modal"><i class="material-icons-outlined">add_circle_outline</i>Generate Transaction</button>
@@ -14,20 +15,22 @@ Aggregator Transactions
     </div>
 @endsection
 @section('content')
+    <div id="finance-load-error" class="alert alert-danger d-none" role="alert"></div>
+    @include('admin.aggregator.settlement.summary')
     <div class="row g-4 transaction-page">
         <div class="col-12 mb-3">
             <div class="card rounded-4 transaction-filter-card">
                 <div class="card-header p-3">
-                    <h6 class="card-title mb-0 fw-bold"><i class="material-icons-outlined">filter_alt</i>Transaction Filter</h6>
+                    <h6 class="card-title mb-0 fw-bold"><i class="material-icons-outlined">filter_alt</i>Filter Transaksi</h6>
                 </div>
                 <div class="card-body">
-                    <p>Use the filter below to view transactions based on the selected criteria.</p>
+                    <p>Pilih akun, periode pendapatan, dan status pembayaran. Ringkasan mengikuti filter yang diterapkan.</p>
                     <form id="filter-report">
                         <div class="row mb-3 justify-content-center align-items-end">
                             <div class="col-lg-3 col-sm-6 mb-3 mb-lg-0">
                                 <label for="userid" class="form-label">User</label>
                                 <select name="userid" id="userid" class="form-select form-select-sm">
-                                    <option value="">Any</option>
+                                    <option value="">Semua</option>
                                     @foreach ($userprofiles as $userprofile)
                                         <option value="{{ $userprofile->id }}">{{ $userprofile->full_name }}</option>
                                     @endforeach
@@ -36,6 +39,7 @@ Aggregator Transactions
                             <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0">
                                 <label for="year" class="form-label">Year</label>
                                 <select name="year" id="year" class="form-select form-select-sm">
+                                    <option value="">Semua tahun</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
@@ -44,7 +48,7 @@ Aggregator Transactions
                             <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0">
                                 <label for="quarter" class="form-label">Quarter</label>
                                 <select name="quarter" id="quarter" class="form-select form-select-sm">
-                                    <option value="">Any</option>
+                                    <option value="">Semua</option>
                                     <option value="1">Q1</option>
                                     <option value="2">Q2</option>
                                     <option value="3">Q3</option>
@@ -54,87 +58,25 @@ Aggregator Transactions
                             <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0">
                                 <label for="status" class="form-label">Status</label>
                                 <select name="status" id="status" class="form-select form-select-sm">
-                                    <option value="">Any</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="transferred">transferred</option>
-                                    <option value="carried_over">Carried Over</option>
+                                    <option value="">Semua</option>
+                                    <option value="pending">Menunggu transfer</option>
+                                    <option value="transferred">Sudah ditransfer</option>
+                                    <option value="carried_over">Dibawa ke periode berikutnya</option><option value="cancelled">Dibatalkan</option>
                                 </select>
                             </div>
                             <div class="col-lg-2 col-sm-6 mb-3 mb-lg-0 text-center text-lg-start">
-                                <button type="submit" class="btn btn-primary btn-sm transaction-filter-submit"><i class="material-icons-outlined">search</i>Get Data</button>
+                                <button type="submit" class="btn btn-primary btn-sm transaction-filter-submit"><i class="material-icons-outlined">search</i>Terapkan Filter</button>
                             </div>
                         </div>
                         {{-- <div class="d-flex">
-                            <button type="submit" class="btn btn-primary btn-sm ms-auto me-auto">Get Data</button>
+                            <button type="submit" class="btn btn-primary btn-sm ms-auto me-auto">Lihat Preview</button>
                         </div> --}}
                     </form>
                 </div>
             </div>
         </div>
         <div class="col-12 mb-3">
-            <div class="transaction-summary-panel">
-            <div class="row justify-content-center g-3 transaction-summary-grid">
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="card rounded-4 mb-0 transaction-summary-card transaction-summary-card--total">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                <div class="wh-48 d-flex bg-info text-info bg-opacity-10 align-items-center justify-content-center rounded-circle">
-                                    <span class="material-icons-outlined">payments</span>
-                                </div>
-                                <div class="">
-                                    <h5 class="mb-0" id="sum-total">Waiting for data...</h5>
-                                    <p class="mb-0">Total Transaction</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="card rounded-4 mb-0 transaction-summary-card transaction-summary-card--aggregator">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                <div class="wh-48 d-flex bg-success text-success bg-opacity-10 align-items-center justify-content-center rounded-circle">
-                                    <span class="material-icons-outlined">corporate_fare</span>
-                                </div>
-                                <div class="">
-                                    <h5 class="mb-0" id="sum-aggregator">Waiting for data...</h5>
-                                    <p class="mb-0">Aggregator Share</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="card rounded-4 mb-0 transaction-summary-card transaction-summary-card--client">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                <div class="wh-48 d-flex bg-warning text-warning bg-opacity-10 align-items-center justify-content-center rounded-circle">
-                                    <span class="material-symbols-outlined">artist</span>
-                                </div>
-                                <div class="">
-                                    <h5 class="mb-0" id="sum-client">Waiting for data...</h5>
-                                    <p class="mb-0">Client Share</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-12 col-sm-12 col-lg-9">
-                    <div class="transaction-note mt-3 mb-0">
-                        <span class="material-icons-outlined align-middle" style="font-size:1.2em;vertical-align:middle;">info</span>
-                        <span class="align-middle">
-                            The numbers above are taken from transactions with status <strong>pending</strong> or <strong>transferred</strong>.
-                        </span>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        <div class="col-12 mb-3">
-            <div class="transaction-table-toolbar">
+            <div class="finance-table-heading"><div><h2>Daftar Transaksi</h2><p>Periksa periode, nominal bersih, dan tindak lanjut setiap pembayaran.</p></div><div class="transaction-table-toolbar">
                 <form id="export-report" action="{{ route('admin.releases.settlement.export') }}" method="POST" class="d-none">
                     @csrf
                     <input type="hidden" name="userid" id="export-userid">
@@ -142,12 +84,12 @@ Aggregator Transactions
                     <input type="hidden" name="quarter" id="export-quarter">
                     <input type="hidden" name="status" id="export-status">
                 </form>
-                <button type="submit" form="export-report" class="btn btn-outline-primary btn-sm"><i class="material-icons-outlined">download</i>Export Report as CSV</button>
+                <button type="submit" form="export-report" class="btn btn-outline-primary btn-sm"><i class="material-icons-outlined">download</i>Ekspor CSV</button>
                 @can('delete-transactions')
                     <button type="button" id="delete-selected-transactions" class="btn btn-outline-danger btn-sm ms-2" disabled><i class="material-icons-outlined">delete</i>Delete Selected <span id="selected-transaction-count">(0)</span></button>
                 @endcan
             </div>
-        </div>
+        </div></div>
         <div class="col-12 mb-3">
             <div class="transaction-table-shell"><div class="table-responsive"><table id="rows-table" class="table table-striped">
                 <thead>
@@ -157,7 +99,7 @@ Aggregator Transactions
                     <th>User</th>
                     <th>Year</th>
                     <th>Quarter</th>
-                    <th>Amount</th>
+                    <th>Nominal Transfer</th>
                     <th>Status</th>
                     <th>Generated At</th>
                     <th>Action</th>
@@ -266,7 +208,7 @@ Aggregator Transactions
                     </div>
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" form="generate-transaction-form">Get Data</button>
+                        <button type="submit" class="btn btn-primary" form="generate-transaction-form">Lihat Preview</button>
                     </div>
                 </div>
             </div>
@@ -274,6 +216,7 @@ Aggregator Transactions
     @endcan
 @endpush
 @push('css')
+    <link rel="stylesheet" href="{{ asset('build/css/admin-finance.css') }}?v={{ file_exists(public_path('build/css/admin-finance.css'))?filemtime(public_path('build/css/admin-finance.css')):1 }}">
     <link href="{{ URL::asset('build/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
     <style>
         .transaction-page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;margin-bottom:2rem}.transaction-page-heading h4{color:#f4f8ff;font-weight:700;letter-spacing:-.025em}.transaction-page-heading p{color:#8fb9e8;font-size:.94rem}.transaction-generate-btn{display:inline-flex;align-items:center;gap:.42rem;padding:.5rem .78rem;border-radius:.5rem;font-size:.82rem;font-weight:700}.transaction-generate-btn .material-icons-outlined{font-size:17px}.transaction-filter-card{overflow:hidden;border:1px solid #27618f;background:#0e2944}.transaction-filter-card .card-header{padding:1rem 1.25rem!important;background:#173d63;border-bottom:1px solid #28618e}.transaction-filter-card .card-header .card-title{display:flex;align-items:center;gap:.5rem;color:#f3f8ff}.transaction-filter-card .card-header .material-icons-outlined{color:#8fc8ff;font-size:19px}.transaction-filter-card .card-body{padding:1.2rem 1.25rem;color:#c9e0f7;background:#0e2944}.transaction-filter-card .card-body>p{margin-bottom:1rem;color:#9fc3e8;font-size:.88rem}.transaction-filter-card .form-label{margin-bottom:.35rem;color:#cfe4f7;font-size:.8rem;font-weight:700}.transaction-filter-card .form-select{min-height:38px;color:#edf6ff;background:#091f34;border-color:#356e9f;font-size:.86rem}.transaction-filter-submit{display:inline-flex;align-items:center;gap:.35rem;padding:.48rem .72rem;font-size:.8rem;font-weight:700}.transaction-filter-submit .material-icons-outlined{font-size:16px}.transaction-summary-card{border:1px solid #27618f;background:linear-gradient(135deg,#123754,#0d2943);box-shadow:0 9px 20px rgba(0,0,0,.14)}.transaction-summary-card .card-body{padding:1rem 1.1rem;background:transparent;color:#edf7ff}.transaction-summary-card h5{color:#fff;font-size:1.15rem;font-weight:750;white-space:nowrap}.transaction-summary-card p{color:#acd0f4;font-size:.78rem;font-weight:650}.transaction-summary-card .wh-48{width:44px!important;height:44px!important}.transaction-summary-card--total .wh-48{background:rgba(39,135,234,.18)!important;color:#69b6ff!important}.transaction-summary-card--aggregator .wh-48{background:rgba(128,85,241,.18)!important;color:#b499ff!important}.transaction-summary-card--client .wh-48{background:rgba(46,191,151,.18)!important;color:#67e1bd!important}.transaction-note{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;color:#b8e4ff;background:rgba(12,74,100,.54);border:1px solid #1e88a9;border-radius:.55rem;font-size:.83rem}.transaction-note .material-icons-outlined{color:#57caf3;font-size:18px}.transaction-table-toolbar{display:flex;justify-content:flex-end}.transaction-table-toolbar .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border-radius:.42rem;font-size:.8rem;font-weight:700}.transaction-table-toolbar .material-icons-outlined{font-size:16px}.transaction-table-shell{padding:1rem;border:1px solid #27618f;border-radius:.8rem;background:rgba(11,37,62,.77)}#rows-table{margin-top:.45rem!important;color:#eaf5ff;border-color:#234d73}#rows-table thead th{color:#d3e8ff;background:rgba(27,66,104,.76);border-bottom-color:#3972a0;font-size:.8rem;letter-spacing:.01em;white-space:nowrap}#rows-table td{padding:.75rem .5rem;vertical-align:middle;border-color:#234d73}#rows-table tbody tr:hover{background:rgba(37,94,143,.19)}#rows-table .btn{border-radius:.4rem;padding:.35rem .65rem;font-size:.78rem;font-weight:700}.transaction-table-shell .dataTables_filter input,.transaction-table-shell .dataTables_length select{color:#edf6ff;background:#081e33;border-color:#356e9f;border-radius:.4rem}@media(max-width:700px){.transaction-page-heading{flex-direction:column}.transaction-generate-btn{width:100%;justify-content:center}.transaction-filter-card .card-body{padding:1rem}.transaction-table-shell{padding:.65rem}}
@@ -343,6 +286,8 @@ Aggregator Transactions
         @endcan
 
         $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = 'none';
+            $('#rows-table').on('error.dt',()=>$('#finance-load-error').removeClass('d-none').text('Data transaksi gagal dimuat. Periksa koneksi dan terapkan filter kembali. Angka sebelumnya belum diperbarui.'));
 
             $('#export-report').submit(function(e) {
                 e.preventDefault();
@@ -357,14 +302,6 @@ Aggregator Transactions
             const transactionsTable = $('#rows-table').DataTable({
                 ajax: {
                     url: "{{ route('admin.releases.settlement.get_data') }}",
-                    dataSrc: function(json) {
-                        $('#export-year').val($('#filter-report select[name=year]').val());
-                        $('#export-quarter').val($('#filter-report select[name=quarter]').val());
-                        $('#export-status').val($('#filter-report select[name=status]').val());
-                        $('#export-userid').val($('#filter-report select[name=userid]').val());
-
-                        return json.results;
-                    },
                     data: function(d) {
                         d.year      = $('#year').val();
                         d.quarter   = $('#quarter').val();
@@ -372,9 +309,18 @@ Aggregator Transactions
                         d.userid    = $('#userid').val();
                     },
                     dataSrc: function(json) {
-                        $('#sum-total').text(json.sum_total);
-                        $('#sum-aggregator').text(json.sum_aggregator);
-                        $('#sum-client').text(json.sum_client);
+                        $('#sum-total').text('Rp ' + json.sum_total);
+                        $('#sum-aggregator').text('Rp ' + json.sum_aggregator);
+                        $('#sum-client').text('Rp ' + json.sum_client);
+                        $('#finance-load-error').addClass('d-none');
+                        const summary = json.summary;
+                        const money = value => 'Rp ' + Number(value).toLocaleString('id-ID',{maximumFractionDigits:0});
+                        $('#transaction-count').text(summary.count);
+                        $('#transaction-pending-count').text(summary.pending);
+                        $('#transaction-transferred-count').text(summary.transferred);
+                        $('#transaction-carried-count').text(summary.carried_over);
+                        $('#transaction-pending-amount').text(money(summary.pending_amount));
+                        $('#transaction-transferred-amount').text(money(summary.transferred_amount));
                         return json.results;
                     },
                 },
@@ -391,7 +337,7 @@ Aggregator Transactions
                         }
                     },
                     @endcan
-                    { data: "profile_name" },
+                    { data: 'profile_name', render: $.fn.dataTable.render.text() },
                     { data: "year" },
                     {
                         data: "quarter",
@@ -418,7 +364,9 @@ Aggregator Transactions
                     },
                     {
                         render: function(data, type, row) {
-                            return badge_transaction(row.status);
+                            if(type !== 'display') return row.status;
+                            const description = {pending:'Periksa detail dan bukti pembayaran',transferred:'Pembayaran tercatat selesai',carried_over:'Saldo dilanjutkan ke periode berikutnya',cancelled:'Transaksi dibatalkan'};
+                            return badge_transaction(row.status) + `<small class="finance-next-step">${description[row.status] || 'Periksa detail transaksi'}</small>`;
                         }
                     },
                     {

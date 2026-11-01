@@ -36,6 +36,6 @@ class ReportImport extends Model
 
     public function getUploaderAttribute()
     {
-        return $this->user->full_name;
+        return $this->user?->full_name ?? 'Akun tidak tersedia';
     }
 }
