@@ -37,16 +37,41 @@ User Management
         <div class="user-table-titlebar">
             <div><i class="material-icons-outlined">group</i><strong id="user-table-title">All Users</strong><span id="user-table-description">Showing all registered users.</span></div>
         </div>
+        @if(auth()->user()->can('manage-user-status') || auth()->user()->can('manage-user-features'))
+        <form id="bulk-user-form" class="p-3 border-bottom" aria-label="Ubah user terpilih">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <strong id="bulk-user-count" aria-live="polite">0 user dipilih</strong>
+                <button type="button" id="select-filtered-users" class="btn btn-sm btn-outline-primary">Pilih semua hasil filter</button>
+                <button type="button" id="clear-selected-users" class="btn btn-sm btn-outline-secondary">Batalkan pilihan</button>
+            </div>
+            <p class="small text-body-secondary">Pilihan berlaku di semua halaman tabel sesuai pencarian dan filter aktif. Mengganti pencarian atau filter akan mengosongkan pilihan.</p>
+            <div class="row g-3">
+                @can('manage-user-status')
+                <div class="col-sm-6 col-xl-2"><label for="bulk-status" class="form-label">Status Profil</label><select id="bulk-status" name="status" class="form-select"><option value="">Tidak diubah</option><option value="pending">Pending</option><option value="verified">Verified</option><option value="blocked">Blocked</option></select></div>
+                @endcan
+                @can('manage-user-features')
+                @foreach(['feature_aggregator'=>'Aggregator','feature_publishing'=>'Publishing','feature_mcn'=>'MCN','whitelabel_enabled'=>'Whitelabel'] as $field=>$label)
+                <div class="col-sm-6 col-xl-2"><label for="bulk-{{ $field }}" class="form-label">{{ $label }}</label><select id="bulk-{{ $field }}" name="{{ $field }}" class="form-select"><option value="">Tidak diubah</option><option value="1">Aktifkan</option><option value="0">Nonaktifkan</option></select></div>
+                @endforeach
+                @endcan
+                <div id="bulk-reason-group" class="col-12" hidden><label for="bulk-reason" class="form-label">Alasan pemblokiran</label><input id="bulk-reason" class="form-control" maxlength="255"><p class="form-text">Pemblokiran dari sini tidak menjadwalkan penghapusan akun.</p></div>
+                <div class="col-12"><button id="apply-bulk-users" type="submit" class="btn btn-primary" disabled>Terapkan ke user terpilih</button></div>
+            </div>
+            <div id="bulk-user-feedback" class="mt-3" role="status" aria-live="polite" hidden></div>
+        </form>
+        @endif
         <div class="table-responsive">
         <table class="table table-striped" id="customer-table" style="width:100%; vertical-align: middle">
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="select-all-users" class="form-check-input" aria-label="Pilih semua user sesuai filter"></th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Contact</th>
                     <th>Registration Date</th>
                     <th>Status Profil</th>
                     <th>Status Email</th>
+                    <th>Fitur</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -70,6 +95,8 @@ User Management
             const canVerifyEmail = @json(auth()->user()->can('manage-user-status'));
             const verifyEmailUrl = @json(route('admin.users.verify_email', ':id'));
             const verificationCsrf = @json(csrf_token());
+            const selectedUsers = new Set();
+            const canBulkEdit = @json(auth()->user()->can('manage-user-status') || auth()->user()->can('manage-user-features'));
             let activeUserFilter = 'all';
             const filterLabels = {
                 all: ['All Users', 'Showing all registered users.'],
@@ -87,8 +114,12 @@ User Management
 
             const customerTable = $('#customer-table').DataTable({
                 data: JSON.parse(document.getElementById('json-customers').textContent),
-                order: [[3, 'desc']],
+                order: [[4, 'desc']],
                 columns: [
+                    { data: 'id', orderable: false, searchable: false, render: function(id, type) {
+                        if (type !== 'display' || !canBulkEdit) return '';
+                        return `<input type="checkbox" class="form-check-input select-user" value="${Number(id)}" aria-label="Pilih user ${Number(id)}" ${selectedUsers.has(String(id)) ? 'checked' : ''}>`;
+                    }},
                     { render: function(data, type, row) {
                         return row.profile.full_name
                     }},
@@ -130,6 +161,12 @@ User Management
                         const action = verifyEmailUrl.replace(':id', encodeURIComponent(row.id));
                         return `<div class="d-flex flex-wrap align-items-center gap-2">${badge}<form method="POST" action="${action}" class="m-0"><input type="hidden" name="_token" value="${verificationCsrf}"><input type="hidden" name="_method" value="PUT"><button type="submit" class="btn btn-sm btn-outline-primary">Verifikasi Email</button></form></div>`;
                     }},
+                    { orderable: false, render: function(data, type, row) {
+                        const features = [['feature_aggregator','Aggregator'],['feature_publishing','Publishing'],['feature_mcn','MCN'],['whitelabel_enabled','Whitelabel']];
+                        const active = features.filter(([field]) => Number(row.profile[field]) === 1).map(([,label]) => label);
+                        if (type !== 'display') return active.join(', ');
+                        return active.length ? active.map(label => `<span class="badge bg-primary me-1 mb-1">${label}</span>`).join('') : '<span class="text-body-secondary">—</span>';
+                    }},
                     { render: function(data, type, row) {
                         var link = "{{ route('admin.users.show', ':id') }}".replace(':id', row.id);
                         return `<div class="actions"><a href="${link}" class="btn btn-sm btn-outline-primary">View</a>`;
@@ -138,7 +175,68 @@ User Management
                 ]
             });
 
+            function filteredUsers() { return customerTable.rows({search: 'applied'}).data().toArray(); }
+            function syncSelection() {
+                const rows = filteredUsers();
+                const count = rows.filter(row => selectedUsers.has(String(row.id))).length;
+                $('#select-all-users').prop('disabled', !canBulkEdit || !rows.length).prop('checked', rows.length > 0 && count === rows.length).prop('indeterminate', count > 0 && count < rows.length);
+                $('#bulk-user-count').text(`${selectedUsers.size} user dipilih`);
+                $('#apply-bulk-users').prop('disabled', !selectedUsers.size);
+                $('#customer-table .select-user').each(function() { this.checked = selectedUsers.has(this.value); });
+            }
+            customerTable.on('draw', syncSelection);
+            let previousSearch = customerTable.search();
+            customerTable.on('search', function() {
+                if (previousSearch === customerTable.search()) return;
+                previousSearch = customerTable.search();
+                selectedUsers.clear();
+                syncSelection();
+            });
+            $('#customer-table').on('change', '.select-user', function() {
+                if (this.checked) selectedUsers.add(this.value); else selectedUsers.delete(this.value);
+                syncSelection();
+            });
+            function selectFiltered(checked) {
+                filteredUsers().forEach(row => checked ? selectedUsers.add(String(row.id)) : selectedUsers.delete(String(row.id)));
+                syncSelection();
+            }
+            $('#select-all-users').on('change', function() { selectFiltered(this.checked); });
+            $('#select-filtered-users').on('click', function() { selectFiltered(true); });
+            $('#clear-selected-users').on('click', function() { selectedUsers.clear(); syncSelection(); });
+            $('#bulk-status').on('change', function() {
+                const blocked = this.value === 'blocked';
+                $('#bulk-reason-group').prop('hidden', !blocked);
+                $('#bulk-reason').prop('required', blocked);
+            });
+            $('#bulk-user-form').on('submit', async function(event) {
+                event.preventDefault();
+                const changes = {};
+                const descriptions = [];
+                $(this).find('select').each(function() {
+                    if (this.value === '') return;
+                    changes[this.name] = this.name === 'status' ? this.value : Number(this.value);
+                    descriptions.push(`${$(this).prev('label').text()}: ${this.options[this.selectedIndex].text}`);
+                });
+                const feedback = $('#bulk-user-feedback');
+                const showMessage = (message, failed = true) => feedback.prop('hidden', false).attr('class', `alert ${failed ? 'alert-danger' : 'alert-success'} mt-3`).text(message);
+                if (!selectedUsers.size || !Object.keys(changes).length) { showMessage('Pilih user dan minimal satu perubahan.'); return; }
+                if (!window.confirm(`Terapkan perubahan ke ${selectedUsers.size} user?\n\n${descriptions.join('\n')}`)) return;
+                $('#apply-bulk-users').prop('disabled', true);
+                try {
+                    const response = await fetch(@json(route('admin.users.bulk-update')), {
+                        method: 'PUT', headers: {'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':verificationCsrf},
+                        body: JSON.stringify({ids: Array.from(selectedUsers, Number), changes, reason: $('#bulk-reason').val() || null})
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.errors ? Object.values(result.errors).flat().join(' ') : (result.message || 'Perubahan gagal disimpan.'));
+                    showMessage(result.message, false);
+                    window.location.reload();
+                } catch (error) { showMessage(error.message || 'Koneksi gagal. Coba kembali.'); syncSelection(); }
+            });
+            syncSelection();
+
             $('#user-summary-cards').on('click', '.user-summary-card', function() {
+                selectedUsers.clear();
                 activeUserFilter = this.dataset.userFilter;
                 $('.user-summary-card').removeClass('is-active');
                 $(this).addClass('is-active');

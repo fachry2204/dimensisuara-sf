@@ -267,6 +267,7 @@ Route::middleware(['auth','verified'])->group(function () {
         Route::prefix('users')->middleware(['can:view-users'])->group(function () {
             Route::get('/',         [UserController::class, 'index'])->name('admin.users.index');
             Route::post('export',   [UserController::class, 'exportUsers'])->name('admin.users.export');
+            Route::put('bulk-update', [\App\Http\Controllers\Admin\BulkUserController::class, 'update'])->name('admin.users.bulk-update');
             Route::get('create',    [UserController::class, 'create'])->name('admin.users.create');
             Route::get('{id}',      [UserController::class, 'show'])->name('admin.users.show');
 
