@@ -485,6 +485,54 @@ class AggregatorContractTest extends TestCase
         $this->assertSame($formatted, app(AggregatorContractTemplates::class)->formatSignatureLayout($formatted));
     }
 
+    public function test_embedded_canvas_logo_is_resolved_to_a_readable_file(): void
+    {
+        File::ensureDirectoryExists($this->directory);
+        $image = imagecreatetruecolor(20, 10);
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+        imagefill($image, 0, 0, imagecolorallocatealpha($image, 50, 20, 100, 64));
+        ob_start();
+        imagepng($image);
+        $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean());
+        imagedestroy($image);
+        $options = new \Dompdf\Options;
+        $options->setTempDir($this->directory);
+        $dompdf = new \Dompdf\Dompdf($options);
+        $canvas = \Mockery::mock();
+        $canvas->shouldReceive('get_dompdf')->once()->andReturn($dompdf);
+        $canvas->shouldReceive('image')->once()->withArgs(function ($path,$x,$y,$width,$height) use ($uri) {
+            $this->assertFileIsReadable($path);
+            $this->assertSame(realpath($this->directory),realpath(dirname($path)));
+            $this->assertSame(base64_decode(substr($uri,strpos($uri,',')+1)),file_get_contents($path));
+            return $x === 1.0 && $y === 2.0 && $width === 90.0 && $height === 40.0;
+        });
+        try {
+            app(\App\Services\ContractPdfLayout::class)->drawImage($canvas,$uri,1,2,90,40);
+        } finally {
+            \Dompdf\Image\Cache::clear();
+        }
+        $this->assertSame([],glob($this->directory.'/*'));
+    }
+
+    public function test_pdf_renders_saved_transparent_logo_and_cleans_temporary_images(): void
+    {
+        File::ensureDirectoryExists($this->directory);
+        config(['system-settings.branding_path'=>$this->directory]);
+        $image = imagecreatetruecolor(20, 10);
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+        imagefill($image,0,0,imagecolorallocatealpha($image,50,20,100,64));
+        imagepng($image,$this->directory.'/logo-abcd.png');
+        imagedestroy($image);
+        app(SystemSettings::class)->save(['logo'=>'branding/logo-abcd.png']);
+        $contract = $this->generate();
+        $this->assertStringContainsString('data:image/png;base64,',$contract->generated_html);
+        app(SystemSettings::class)->save(['logo'=>null]);
+        $this->assertStringStartsWith('%PDF-',ContractService::generateAggregatorPdf($contract->fresh(),false));
+        $this->assertSame([],glob(storage_path('app/private/contract-pdf-temp/ca*')));
+    }
+
     public function test_footer_identity_is_saved_encrypted_and_frozen_with_the_contract(): void
     {
         $settings = app(SystemSettings::class);

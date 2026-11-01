@@ -68,7 +68,7 @@ class ContractPdfLayout
             $canvas->text($left,51,$data['company'],$regular,8,$muted);
             if ($data['logo']) {
                 $logo = $data['logo'];
-                $canvas->image($logo['uri'],$right-$logo['width'],21,$logo['width'],$logo['height']);
+                $this->drawImage($canvas,$logo['uri'],$right-$logo['width'],21,$logo['width'],$logo['height']);
             }
             foreach (['DOKUMEN PERJANJIAN',$data['number']] as $index=>$line) {
                 $canvas->text($right-$metrics->getTextWidth($line,$regular,7),65+$index*10,$line,$regular,7,$muted);
@@ -82,6 +82,19 @@ class ContractPdfLayout
                 $canvas->text($left,$top+8+$index*10,$row['text'],$row['bold'] ? $bold : $regular,7.5,$row['bold'] ? $ink : $muted);
             }
         }
+    }
+
+    /** Canvas images bypass Dompdf's HTML image resolver; resolve embedded snapshots first. */
+    public function drawImage($canvas, string $uri, float $x, float $y, float $width, float $height): void
+    {
+        if (str_starts_with($uri, 'data:')) {
+            [$path, , $error] = \Dompdf\Image\Cache::resolve_url(
+                $uri, '', '', '', $canvas->get_dompdf()->getOptions()
+            );
+            if ($error) throw new \RuntimeException('Gambar header kontrak tidak dapat diproses.');
+            $uri = $path;
+        }
+        $canvas->image($uri, $x, $y, $width, $height);
     }
 
     public function decorate(string $html, array $summary = [], bool $header = true, bool $footer = true): string

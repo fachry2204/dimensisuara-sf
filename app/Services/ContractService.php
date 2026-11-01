@@ -760,43 +760,53 @@ class ContractService
             }
         }
         // Prepare DOMPDF
+        $temporaryDirectory = storage_path('app/private/contract-pdf-temp');
+        FileFacade::ensureDirectoryExists($temporaryDirectory, 0700);
+        if (!is_writable($temporaryDirectory)) {
+            throw new \RuntimeException('Folder sementara PDF kontrak tidak dapat ditulis. Periksa izin folder storage aplikasi.');
+        }
         $options = new Options();
+        $options->setTempDir($temporaryDirectory);
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isPhpEnabled', false);
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->loadHtml($html);
-        $dompdf->render();
+        try {
+            $dompdf->render();
 
-        // Add header and footer
-        $canvas = $dompdf->getCanvas();
-        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($header, $footer, $headerLogo, $logoWidth, $logoHeight, $hasPrintLayout, $footerHeight, $layout, $pageData) {
+            // Add header and footer
+            $canvas = $dompdf->getCanvas();
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($header, $footer, $headerLogo, $logoWidth, $logoHeight, $hasPrintLayout, $footerHeight, $layout, $pageData) {
 
-            if ($hasPrintLayout) $layout->drawPage($canvas,$fontMetrics,$pageData,$header,$footer);
+                if ($hasPrintLayout) $layout->drawPage($canvas,$fontMetrics,$pageData,$header,$footer);
 
-            if ($footer) {
-                $text = "Halaman $pageNumber dari $pageCount";
-                $font_bold = $fontMetrics->getFont('helvetica', 'bold');
-                $pageWidth = $canvas->get_width();
-                $pageHeight = $canvas->get_height();
-                $size = $hasPrintLayout ? 7.5 : 10;
-                $width = $fontMetrics->getTextWidth($text, $font_bold, $size);
-                $x = $hasPrintLayout ? $pageWidth-ContractPdfLayout::SIDE_MARGIN-$width : ($pageWidth-$width)/2;
-                $y = $hasPrintLayout ? $pageHeight-$footerHeight-22 : $pageHeight-30;
-                $canvas->text($x,$y,$text,$font_bold,$size,[.28,.33,.41]);
+                if ($footer) {
+                    $text = "Halaman $pageNumber dari $pageCount";
+                    $font_bold = $fontMetrics->getFont('helvetica', 'bold');
+                    $pageWidth = $canvas->get_width();
+                    $pageHeight = $canvas->get_height();
+                    $size = $hasPrintLayout ? 7.5 : 10;
+                    $width = $fontMetrics->getTextWidth($text, $font_bold, $size);
+                    $x = $hasPrintLayout ? $pageWidth-ContractPdfLayout::SIDE_MARGIN-$width : ($pageWidth-$width)/2;
+                    $y = $hasPrintLayout ? $pageHeight-$footerHeight-22 : $pageHeight-30;
+                    $canvas->text($x,$y,$text,$font_bold,$size,[.28,.33,.41]);
+                }
+
+                if ($header && !$hasPrintLayout) {
+                    $layout->drawImage($canvas, $headerLogo, 525 - $logoWidth, 15 + (70 - $logoHeight) / 2, $logoWidth, $logoHeight);
+                }
+
+            });
+
+            if ($stream) {
+                $dompdf->stream($name . '.pdf', ['Attachment' => false]);
+                return null;
             }
 
-            if ($header && !$hasPrintLayout) {
-                $canvas->image($headerLogo, 525 - $logoWidth, 15 + (70 - $logoHeight) / 2, $logoWidth, $logoHeight);
-            }
-
-        });
-
-        if ($stream) {
-            $dompdf->stream($name . '.pdf', ['Attachment' => false]);
-            return null;
+            return $dompdf->output();
+        } finally {
+            \Dompdf\Image\Cache::clear();
         }
-
-        return $dompdf->output();
     }
 }

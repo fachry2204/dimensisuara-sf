@@ -17,6 +17,7 @@ View User
             </div>
             <div class="admin-user-summary-copy">
                 <h1>{{ $user->profile ? $user->profile->full_name : $user->full_name }}</h1>
+                <x-user-registration-date :registered-at="$user->created_at" class="admin-user-registration" />
                 <div class="admin-user-contact">
                     <span>{{ $user->email }}</span>
                     @if($user->profile && $user->profile->phone)
@@ -490,6 +491,7 @@ View User
                                 @csrf
                                 <input type="hidden" name="profileid" value="{{ $user->profile->id }}">
                                 <input type="hidden" name="type" value="aggregator">
+                                <x-user-registration-date :registered-at="$user->created_at" class="mb-3 small text-body-secondary" />
                                 @include('admin.aggregator.partials.contract-date', ['datePrefix' => 'user'])
                                 @include('admin.aggregator.partials.contract-rates', ['initialUserRate' => $user->profile->aggregator_rate ?? 70, 'ratePrefix' => 'user-contract'])
                                 <div class="row">
@@ -936,6 +938,7 @@ View User
             gap: .45rem;
         }
 
+        .admin-user-registration { margin: 4px 0 6px; color: var(--user-detail-muted); font-size: .85rem; }
         .admin-user-contact { color: var(--user-detail-muted); font-size: .92rem; }
         .admin-user-contact a { color: var(--user-detail-accent); }
         .admin-user-contact-separator { color: var(--user-detail-muted); }
