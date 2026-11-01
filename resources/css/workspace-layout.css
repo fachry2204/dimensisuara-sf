@@ -1,0 +1,128 @@
+/* One neutral canvas and a fluid workspace for every authenticated page.
+   Buttons, statuses, charts, artwork, overlays and dialog widths retain their meaning. */
+html[data-bs-theme] body.sf-app {
+    background: var(--sf-canvas) !important;
+    color: var(--sf-text);
+}
+html[data-bs-theme] body.sf-app :is(.top-header,.top-header > .navbar,.sidebar-wrapper,.sidebar-header,.sidebar-nav,.sidebar-bottom) {
+    background: var(--sf-canvas) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper,
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content {
+    background: var(--sf-canvas) !important;
+    background-image: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content {
+    --sf-surface: var(--sf-canvas);
+    --sf-surface-soft: var(--sf-canvas);
+    --bs-body-bg: var(--sf-canvas);
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-inline: 0;
+    padding: 28px clamp(16px,2vw,36px) 40px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(.container,.container-fluid) {
+    width: 100%;
+    max-width: none !important;
+}
+/* Explicit surface roles: avoid substring rules that paint labels and status badges. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(
+    .card,.dashboard-panel,.dashboard-kpi-card,.dashboard-announcements,.dashboard-welcome,
+    .admin-panel,.admin-data-panel,.admin-metric-card,.admin-studio-hero,
+    .release-stat-panel,.release-stat-kpis > article,.release-insight-panel,.release-stat-hero-content,
+    .user-table-shell,.user-summary-card,.broadcast-table-shell,.broadcast-summary-card,
+    .profile-info-card,.profile-legacy-details,.profile-contract-row,.profile-contract-empty,
+    .automation-panel,.automation-summary > article,.roles-summary > article,.admin-summary-grid > article,
+    .announcement-editor-card,.announcement-live-preview,.announcement-preview-card,
+    .release-overview-panel,.release-track-panel,.release-history-panel,.release-step-nav,
+    .release-cover-section,.release-cover-guidelines,.release-info-section,.release-date-section,
+    .track-card,.release-timeline-content,
+    .transaction-filter-card,.transaction-summary-panel,.transaction-table-shell,.transaction-summary-card,
+    .reporting-filter-card,.reporting-table-shell,.reporting-data-table-shell,.reporting-summary-card,.reporting-revenue-card,
+    .finance-stat,.finance-money,.finance-stage,.finance-explainer,.finance-table-heading,
+    .aa-panel,.aa-tabs,.analytics-card,.analytics-summary-card,.analytics-data-note,
+    .earn-card,.earn-summary-grid > article,.earn-balance,.tx-card,.tx-summary,.sd-card,.sd-hero,
+    .sf-welcome,.branding-preview,.tab-content,.tab-pane,.table-responsive,.dataTables_wrapper,
+    .dataTables_scroll,.dataTables_scrollHead,.dataTables_scrollBody,.accordion-item
+) {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+    color: var(--sf-text) !important;
+}
+/* Nested card headers and bodies should not introduce another rectangular surface. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(
+    .card-header,.card-body,.card-footer,.user-table-titlebar,.broadcast-table-titlebar,
+    .admin-panel-header,.dashboard-panel-heading,.accordion-body,
+    .transaction-table-toolbar,.reporting-tabs,.release-status-tabs,.nav-tabs,
+    .profile-legacy-details .row,.release-artists-table,.customer-release-detail .release-artists-table
+) {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(
+    .card-title,.form-label,h1,h2,h3,h4,h5,h6,
+    .user-summary-grid,.reporting-summary-grid,.broadcast-summary-grid,.admin-summary-grid,
+    .finance-status-grid,.finance-money-grid,.analytics-summary-grid,.automation-summary,.roles-summary
+) {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(h1,h2,h3,h4,h5,h6):not([class*="text-"]) {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(
+    .admin-studio-hero,.dashboard-welcome,.earn-balance,.sd-hero,.release-stat-hero-content
+) :is(strong,p,small) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(
+    .card-header,.card-footer,.admin-panel-header,.user-table-titlebar,.broadcast-table-titlebar
+) { border-bottom: 1px solid var(--sf-border); }
+/* Preserve readable table structure without a white/dark outer frame. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(table,.table) {
+    --bs-table-bg: transparent !important;
+    --bs-table-striped-bg: transparent !important;
+    --bs-table-hover-bg: var(--sf-focus) !important;
+    --bs-table-color: var(--sf-text) !important;
+    --bs-table-border-color: var(--sf-border) !important;
+    background: transparent !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(table thead,table th,table td) {
+    background-color: transparent !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .table > :not(caption) > * > * {
+    box-shadow: none !important;
+}
+/* Inherited palette also covers custom action forms using IDs. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content #bulk-user-form {
+    background: transparent !important;
+}
+@media(max-width:700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content {
+        padding: 22px 16px 32px;
+    }
+}
+/* Chart libraries may leave an inline dark background after switching themes. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .apexcharts-svg {
+    background: transparent !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content :is(.admin-release-editor,.release-creation-page,.customer-release-detail) {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+}
+/* A single legacy form column should not constrain the entire page. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content > .row > :is(.col-lg-8,.col-lg-10,.col-xl-8,.col-xl-10):only-child {
+    flex: 0 0 100%;
+    max-width: 100%;
+}

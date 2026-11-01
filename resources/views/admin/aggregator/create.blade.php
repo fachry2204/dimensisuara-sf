@@ -140,7 +140,7 @@
                 </div>
                 <template x-if="$store.release.type === 'single'">
                     <div>
-                        @include('partials.single-step1-fields')
+                        @include('partials.single-step1-fields', ['allowIdentifierEntry' => true])
                     </div>
                 </template>
                 <template x-if="$store.release.type !== 'single'">
@@ -220,11 +220,13 @@
                         <input type="date" class="form-control" name="releaseddate" id="releaseddate"
                             x-model="$store.release.releaseddate" required>
                     </div>
-                    <div class="form-group mt-3 mb-0">
-                        <label class="form-label" for="upc">UPC</label>
-                        <input type="text" class="form-control" name="upc" id="upc" x-model="$store.release.upc" required>
-                    </div>
                 </fieldset>
+                <div class="form-group mb-3">
+                    <label class="form-label" for="upc">UPC</label>
+                    <input type="text" class="form-control" name="upc" id="upc" x-model="$store.release.upc"
+                        :required="$store.release.released == 1" maxlength="255" placeholder="Masukkan UPC rilis jika sudah tersedia">
+                    <small class="text-muted">Admin dapat mengisi UPC untuk rilis baru maupun rilis yang sudah terbit.</small>
+                </div>
                 <div class="form-group mb-3">
                     <label for="releaseon" class="form-label">Planned Release Date</label>
                     <input type="date" class="form-control" name="releaseon" id="releaseon"
@@ -264,7 +266,7 @@
                         <div class="form-body">
                             <form action="#" id="track-form"
                                 @submit.prevent="$store.tray.trackTrayMode == 'add' ? $store.tray.methods.addTrack() : $store.tray.methods.updateTrack($store.tray.trackTray.index)">
-                                @include('partials.album-track-form-fields')
+                                @include('partials.album-track-form-fields', ['allowIdentifierEntry' => true])
                             </form>
                         </div>
                     </div>

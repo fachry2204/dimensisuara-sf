@@ -359,9 +359,9 @@
         </button>
     </div>
 
-    <div class="col-12 col-md-6" x-show="$store.release.released == 1" x-transition>
-        <label class="form-label">ISRC <span class="release-required-label">Required</span></label>
-        <input type="text" class="form-control form-control-sm" x-model="$store.tray.trackTray.isrc"
+    <div class="col-12 col-md-6" @unless($allowIdentifierEntry ?? false) x-show="$store.release.released == 1" @endunless x-transition>
+        <label class="form-label" for="track-isrc">ISRC <span class="release-required-label" x-show="$store.release.released == 1">Required</span></label>
+        <input type="text" id="track-isrc" class="form-control form-control-sm" x-model="$store.tray.trackTray.isrc"
             :required="$store.release.released == 1" maxlength="15" placeholder="Contoh: IDABC2400001">
     </div>
 

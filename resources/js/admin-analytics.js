@@ -19,14 +19,15 @@
     };
     const tone = palette();
     const trend = new ApexCharts(document.getElementById('aa-trend'), {
-        chart: { type: 'area', height: 300, toolbar: { show: false }, foreColor: tone.text, fontFamily: 'inherit', animations: { enabled: false } },
+        chart: { type: 'bar', stacked: false, height: 300, background: 'transparent', toolbar: { show: false }, foreColor: tone.text, fontFamily: 'inherit', animations: { enabled: false } },
         theme: { mode: tone.dark ? 'dark' : 'light' }, series: series(), colors: ['#8050ee','#f97316'],
-        stroke: { width: [3,2], curve: 'straight', dashArray: [0,5] }, dataLabels: { enabled: false },
-        fill: { type: 'gradient', gradient: { opacityFrom: .22, opacityTo: .01 } },
+        plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 3 } },
+        stroke: { width: 0 }, dataLabels: { enabled: false },
+        fill: { opacity: 1 },
         grid: { borderColor: tone.border, strokeDashArray: 3 },
         xaxis: { categories: data.series.map(row => row.month), tickAmount: Math.min(11,Math.max(1,data.series.length-1)), labels: { rotate: -35, hideOverlappingLabels: true } },
         yaxis: { labels: { formatter: compact } },
-        tooltip: { y: { formatter: value => metric.value === 'revenue' ? money(value) : Number(value).toLocaleString('id-ID') } },
+        tooltip: { shared: true, intersect: false, y: { formatter: value => metric.value === 'revenue' ? money(value) : Number(value).toLocaleString('id-ID') } },
         noData: { text: 'Belum ada data pada periode ini' }, legend: { position: 'bottom' }
     });
     trend.render();
@@ -35,7 +36,7 @@
     const slices = positive.slice(0,5);
     if (positive.length > 5) slices.push({ name: 'Lainnya', revenue: positive.slice(5).reduce((sum,row) => sum + row.revenue,0) });
     const donut = new ApexCharts(document.getElementById('aa-platform-chart'), {
-        chart: { type: 'donut', height: 300, foreColor: tone.text, fontFamily: 'inherit', animations: { enabled: false } },
+        chart: { type: 'donut', height: 300, background: 'transparent', foreColor: tone.text, fontFamily: 'inherit', animations: { enabled: false } },
         theme: { mode: tone.dark ? 'dark' : 'light' }, series: slices.map(row => row.revenue), labels: slices.map(row => escape(row.name)),
         colors: ['#7041ed','#f97316','#14b8a6','#3b82f6','#a855f7','#94a3b8'], stroke: { width: 2 },
         legend: { position: 'bottom' }, dataLabels: { enabled: false },
@@ -45,7 +46,7 @@
     donut.render();
     new MutationObserver(() => {
         const tone = palette();
-        const theme = { chart: { foreColor: tone.text }, theme: { mode: tone.dark ? 'dark' : 'light' } };
+        const theme = { chart: { foreColor: tone.text, background: 'transparent' }, theme: { mode: tone.dark ? 'dark' : 'light' } };
         trend.updateOptions({ ...theme, grid: { borderColor: tone.border } });
         donut.updateOptions(theme);
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });

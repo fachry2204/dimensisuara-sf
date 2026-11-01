@@ -14,6 +14,7 @@
     };
     $link = fn ($tab) => route('admin.analytics.index',array_merge(request()->except(['release_page','track_page','user_page','artist_page','q']),['tab'=>$tab]));
     $tabs=['overview'=>'Ringkasan','releases'=>'Rilis & Lagu','artists'=>'Artis & User','geography'=>'Platform & Negara','quality'=>'Kualitas Data'];
+    $countryName = fn ($value) => \App\Support\CountryName::display($value);
     $maxCountry = max(1,(float)$countries->max('streams'));
 @endphp
 <div class="admin-analytics">
@@ -36,7 +37,7 @@
                 <a class="aa-more" href="{{ $link('releases') }}">Lihat semua rilis →</a>
             </article>
             <article class="aa-panel"><h2>Negara Pendengar</h2><p class="aa-note">Distribusi quantity sesuai negara pada laporan.</p>
-                @forelse($countries->take(5) as $country)<div class="aa-country"><span>{{ $country->country?:'Tidak diketahui' }}</span><div><i style="width:{{ max(0,min(100,100*(float)$country->streams/$maxCountry)) }}%"></i></div><strong>{{ $number($country->streams) }}</strong></div>@empty<p class="aa-empty">Belum ada data negara.</p>@endforelse
+                @forelse($countries->take(7) as $country)<div class="aa-country"><span>{{ $countryName($country->country) }}</span><div><i style="width:{{ max(0,min(100,100*(float)$country->streams/$maxCountry)) }}%"></i></div><strong>{{ $number($country->streams) }}</strong></div>@empty<p class="aa-empty">Belum ada data negara.</p>@endforelse
                 <a class="aa-more" href="{{ $link('geography') }}">Lihat semua negara →</a>
             </article>
         </div>

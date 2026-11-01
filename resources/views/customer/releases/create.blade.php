@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@php($allowIdentifierEntry = session()->has('impersonate') && auth()->user()?->can('impersonate-users'))
 @php
     $restrictRecordLabel = !current_user()->profile->whitelabel_enabled;
 @endphp
@@ -225,12 +226,14 @@
                                             <input type="date" class="form-control" name="releaseddate" id="releaseddate"
                                                 value="{{ old('releaseddate', $release->releaseddate) }}" required>
                                         </div>
+                                        @unless($allowIdentifierEntry)
                                         <div class="form-group">
                                             <label class="form-label" for="upc">UPC <span class="release-required-label">Required</span></label>
                                             <input type="text" class="form-control" name="upc" id="upc"
                                                 x-model="$store.release.upc" :required="$store.release.released == 1">
                                         </div>
-                                        @if($release->type == 'single')
+                                        @endunless
+                                        @if($release->type == 'single' && !$allowIdentifierEntry)
                                             <div class="form-group">
                                                 <label class="form-label" for="isrc">ISRC <span class="release-required-label">Required</span></label>
                                                 <input type="text" class="form-control" id="isrc"
@@ -239,6 +242,15 @@
                                             </div>
                                         @endif
                                     </fieldset>
+                                    @if($allowIdentifierEntry)
+                                        <div class="form-group mt-3">
+                                            <label class="form-label" for="upc">UPC</label>
+                                            <input type="text" class="form-control" name="upc" id="upc"
+                                                x-model="$store.release.upc" :required="$store.release.released == 1" maxlength="255"
+                                                placeholder="Masukkan UPC rilis jika sudah tersedia">
+                                            <small class="text-muted">Admin dapat mengisi UPC untuk rilis baru maupun rilis yang sudah terbit.</small>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="release-schedule-grid">
                                     <div class="form-group release-date-field">

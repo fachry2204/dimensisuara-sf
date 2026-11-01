@@ -423,6 +423,14 @@
         </button>
     </div>
 
+    @if($allowIdentifierEntry ?? false)
+    <div class="form-group col-12 col-md-6 mb-3">
+        <label class="form-label" for="single-isrc">ISRC <span class="release-required-label" x-show="$store.release.released == 1">Required</span></label>
+        <input type="text" id="single-isrc" class="form-control form-control-sm" x-model="$store.release.tracks[0].isrc"
+            :required="$store.release.released == 1" maxlength="15" placeholder="Contoh: IDABC2400001">
+    </div>
+    @endif
+
     <!-- ISWC -->
     <div class="form-group col-12 col-md-6 mb-3">
         <label class="form-label">ISWC (Optional)</label>

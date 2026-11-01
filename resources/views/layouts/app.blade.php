@@ -23,7 +23,7 @@
         @if(session()->has('impersonate'))
             <div class="impersonation-spacer" aria-hidden="true"></div>
         @endif
-        <div class="main-content @yield('content-class')">
+        <div class="main-content workspace-content @yield('content-class')">
             @if(Route::is('home'))
                 <div data-vue-app data-app-name="{{ app_name() }}"></div>
             @endif

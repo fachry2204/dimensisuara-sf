@@ -85,19 +85,7 @@ html[data-bs-theme=light] .sf-app .dashboard-action {
     color:#334155!important;
 }
 /* Page CSS uses dark colors with !important. These shared selectors must load last. */
-html[data-bs-theme=light] .sf-app [class*="card"],
-html[data-bs-theme=light] .sf-app [class*="panel"],
-html[data-bs-theme=light] .sf-app [class*="table-wrap"],
-html[data-bs-theme=light] .sf-app [class*="table-container"],
-html[data-bs-theme=light] .sf-app [class*="list-wrap"],
-html[data-bs-theme=light] .sf-app [class*="dataTables_wrapper"],
-html[data-bs-theme=light] .sf-app .modal-content,
-html[data-bs-theme=light] .sf-app .dropdown-menu {
-    background-color:#fff!important;
-    background-image:none!important;
-    border-color:#dbe3ee!important;
-    color:#334155!important;
-}
+
 html[data-bs-theme=light] .sf-app table,
 html[data-bs-theme=light] .sf-app .table {
     --bs-table-color:#334155!important;
@@ -201,22 +189,7 @@ html[data-bs-theme=light] .sf-app .sidebar-bottom .dropdown-menu .dropdown-item:
     background-color:#f1f5f9!important;
 }
 /* Catch page-specific dashboard/list components not using Bootstrap card classes. */
-html[data-bs-theme=light] .sf-app [class*="box"],
-html[data-bs-theme=light] .sf-app [class*="widget"],
-html[data-bs-theme=light] .sf-app [class*="summary"],
-html[data-bs-theme=light] .sf-app [class*="metric"],
-html[data-bs-theme=light] .sf-app [class*="stat"],
-html[data-bs-theme=light] .sf-app [class*="content-box"],
-html[data-bs-theme=light] .sf-app [class*="content-wrap"],
-html[data-bs-theme=light] .sf-app [class*="dataTables_scroll"],
-html[data-bs-theme=light] .sf-app .tab-content,
-html[data-bs-theme=light] .sf-app .nav-tabs,
-html[data-bs-theme=light] .sf-app .accordion-item {
-    background-color:#fff!important;
-    background-image:none!important;
-    color:#334155!important;
-    border-color:#dbe3ee!important;
-}
+
 html[data-bs-theme=light] .sf-app .dataTables_wrapper,
 html[data-bs-theme=light] .sf-app .dataTables_scroll,
 html[data-bs-theme=light] .sf-app .dataTables_scrollHead,
@@ -273,3 +246,5 @@ html[data-bs-theme="light"] .sf-app .main-wrapper {
 <link href="{{ asset('build/css/light-theme-overrides.css') }}?v={{ file_exists(public_path('build/css/light-theme-overrides.css')) ? substr(hash_file('sha256', public_path('build/css/light-theme-overrides.css')), 0, 12) : '1' }}" rel="stylesheet">
 <link href="{{ asset('build/css/theme-controls.css') }}?v={{ file_exists(public_path('build/css/theme-controls.css')) ? substr(hash_file('sha256', public_path('build/css/theme-controls.css')), 0, 12) : '1' }}" rel="stylesheet">
 @include('layouts.primary-colors')
+
+<link href="{{ asset('build/css/workspace-layout.css') }}?v={{ file_exists(public_path('build/css/workspace-layout.css')) ? substr(hash_file('sha256', public_path('build/css/workspace-layout.css')), 0, 12) : '1' }}" rel="stylesheet">

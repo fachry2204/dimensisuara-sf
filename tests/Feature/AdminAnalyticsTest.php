@@ -173,6 +173,12 @@ class AdminAnalyticsTest extends TestCase
         $this->assertEquals(950,$data['totals']->revenue);
         $this->assertStringContainsString('profile=1',$data['releases']->nextPageUrl());
         $this->assertStringContainsString('platform=Spotify',$data['releases']->nextPageUrl());
+        foreach (['overview','releases'] as $tab) {
+            $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02','profile'=>1,'platform'=>'Spotify','tab'=>$tab]))
+                ->assertOk()->assertSee('class="pagination"',false)->assertSee('class="page-link"',false)
+                ->assertDontSee('class="w-5 h-5"',false);
+        }
+
     }
 
     public function test_schema_without_releaseid_supports_dashboard_csv_and_safe_release_mapping(): void
@@ -190,6 +196,24 @@ class AdminAnalyticsTest extends TestCase
         $export=$this->get(route('admin.analytics.export',['start'=>'2026-01','end'=>'2026-02','profile'=>2]));
         $export->assertOk();
         $this->assertStringContainsString('2000',$export->streamedContent());
+    }
+
+    public function test_country_codes_display_names_and_keep_raw_filter_values(): void
+    {
+        foreach (['ID'=>'Indonesia','MY'=>'Malaysia','AU'=>'Australia','US'=>'Amerika Serikat','KR'=>'Korea Selatan'] as $code=>$name) {
+            $this->assertSame($name,\App\Support\CountryName::display($code));
+        }
+        $this->assertSame('Indonesia',\App\Support\CountryName::display(' id '));
+        $this->assertSame('Indonesia',\App\Support\CountryName::display('Indonesia'));
+        $this->assertSame('Tidak diketahui',\App\Support\CountryName::display(null));
+        $this->assertSame('Worldwide',\App\Support\CountryName::display('Worldwide'));
+        DB::table('report_rows')->where('country','Indonesia')->update(['country'=>'ID']);
+        DB::table('report_rows')->where('country','Malaysia')->update(['country'=>'MY']);
+        $data=$this->data(['country'=>'ID']);
+        $this->assertEquals(950,$data['totals']->revenue);
+        $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02','tab'=>'geography']))
+            ->assertOk()->assertSee('value="ID"',false)->assertSee('Indonesia')->assertSee('Malaysia')->assertDontSee('>ID</td>',false);
+        $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02']))->assertOk()->assertSee('Indonesia')->assertSee('Malaysia');
     }
 
 }
