@@ -175,4 +175,21 @@ class AdminAnalyticsTest extends TestCase
         $this->assertStringContainsString('platform=Spotify',$data['releases']->nextPageUrl());
     }
 
+    public function test_schema_without_releaseid_supports_dashboard_csv_and_safe_release_mapping(): void
+    {
+        Schema::table('report_rows',fn ($table) => $table->dropColumn('releaseid'));
+        $data=$this->data();
+        $this->assertEquals(2950,$data['totals']->revenue);
+        $releases=$data['releases']->keyBy('id');
+        $this->assertEquals(900,$releases[1]->revenue);
+        $this->assertEquals(2000,$releases[3]->revenue);
+        $this->assertEquals(0,$releases[2]->revenue);
+        $this->assertSame(1,$data['quality']['unassigned']);
+        $this->assertSame(4,$data['releases']->total());
+        $this->get(route('admin.analytics.index',['start'=>'2026-01','end'=>'2026-02']))->assertOk()->assertSee('Analitik Semua Rilis');
+        $export=$this->get(route('admin.analytics.export',['start'=>'2026-01','end'=>'2026-02','profile'=>2]));
+        $export->assertOk();
+        $this->assertStringContainsString('2000',$export->streamedContent());
+    }
+
 }

@@ -6,9 +6,11 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminAnalytics
 {
+    private ?bool $hasReleaseId = null;
     private const METRICS = 'SUM(COALESCE(quantity,0)) as streams, SUM(COALESCE(rupiah_exact,0)) as revenue, SUM(COALESCE(client_rupiah_exact,0)) as user_revenue, SUM(COALESCE(aggregator_rupiah_exact,0)) as system_revenue';
 
     public function filters(Request $request): array
@@ -71,11 +73,16 @@ class AdminAnalytics
         $byTrack = DB::table('release_track as rt')->join('releases as r','r.id','=','rt.release_id')
             ->select('rt.track_id','r.profileid')->selectRaw('MIN(r.id) as id')
             ->groupBy('rt.track_id','r.profileid')->havingRaw('COUNT(DISTINCT r.id) = 1');
-        $query = $this->raw($f,$previous)->where('ri.status','completed')->where('rr.status','finalized')->whereNotNull('rr.profileid')
-            ->leftJoin('releases as direct',fn ($j) => $j->on('direct.id','=','rr.releaseid')->on('direct.profileid','=','rr.profileid'))
-            ->leftJoinSub($byUpc,'by_upc',fn ($j) => $j->on('by_upc.profileid','=','rr.profileid')->on('by_upc.upc','=','rr.upc'))
+        $query = $this->raw($f,$previous)->where('ri.status','completed')->where('rr.status','finalized')->whereNotNull('rr.profileid');
+        $releaseCandidates = ['by_upc.id','by_track.id'];
+        // Some installed reporting schemas have only trackid/profileid, without releaseid.
+        if ($this->hasReleaseId ??= Schema::hasColumn('report_rows','releaseid')) {
+            $query->leftJoin('releases as direct',fn ($j) => $j->on('direct.id','=','rr.releaseid')->on('direct.profileid','=','rr.profileid'));
+            array_unshift($releaseCandidates,'direct.id');
+        }
+        $query->leftJoinSub($byUpc,'by_upc',fn ($j) => $j->on('by_upc.profileid','=','rr.profileid')->on('by_upc.upc','=','rr.upc'))
             ->leftJoinSub($byTrack,'by_track',fn ($j) => $j->on('by_track.profileid','=','rr.profileid')->on('by_track.track_id','=','rr.trackid'))
-            ->select('rr.*')->selectRaw('COALESCE(direct.id,by_upc.id,by_track.id) as resolved_release');
+            ->select('rr.*')->selectRaw('COALESCE('.implode(',',$releaseCandidates).') as resolved_release');
         return DB::query()->fromSub($query,'activity');
     }
 
