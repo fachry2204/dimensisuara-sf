@@ -90,6 +90,7 @@ Antrean `database`, `legacy-import`, `drive-archive`, dan `status-notifications`
 ```bash
 php artisan config:clear
 php artisan migrate --path=database/migrations/2026_11_01_130000_normalize_application_json_fields.php --force
+php artisan migrate --path=database/migrations/2026_11_01_140000_repair_status_notification_storage.php --force
 php artisan system:audit-storage --integrity
 ```
 
@@ -110,3 +111,18 @@ Jangan menggunakan `migrate:fresh`, `db:wipe`, atau menjalankan seeder lama yang
 Pengujian yang memakai `RefreshDatabase` terhadap koneksi utama tidak dijalankan untuk menghindari perubahan destruktif pada database lokal. Audit integritas MySQL menggunakan pembacaan data dan metadata skema saja.
 
 Penerapan pada hosting belum dilakukan; publikasi kode ke GitHub terpisah dari migrasi database hosting.
+
+## Perbaikan tabel notifikasi belum tersedia
+
+Jika audit menampilkan `status_notification_deliveries | notification_payload_values | Parent missing`, tabel pengiriman notifikasi belum tersedia saat normalisasi dijalankan. Ini adalah temuan skema; hasil `Native JSON columns: 0` dan `Foreign-key orphans: 0` tidak berarti tabel tersebut sudah ada.
+
+Setelah memperbarui kode dan membuat cadangan hosting, jalankan migrasi perbaikan secara spesifik:
+
+```bash
+php artisan migrate --path=database/migrations/2026_11_01_140000_repair_status_notification_storage.php --force
+php artisan system:audit-storage --integrity
+```
+
+Migrasi membuat tabel notifikasi jika belum ada, lalu memakai jalur normalisasi yang sama untuk membuat relasi dan memverifikasi backfill sebelum menghapus kolom payload lama. Data yang sudah dinormalisasi dipertahankan. Rollback perbaikan ini tidak menghapus riwayat notifikasi. Tetap gunakan prosedur maintenance dan penghentian worker di atas. Jangan menjalankan migrasi pembuat tabel notifikasi lama secara terpisah setelah perbaikan, karena tabelnya sudah tersedia.
+
+Validasi perbaikan: 15 pengujian penyimpanan relasional / 258 assertion lulus di SQLite terisolasi, termasuk tabel notifikasi yang belum ada, payload lama yang sudah berisi data, pengulangan perbaikan, serta pemeliharaan data rilis yang sudah dinormalisasi. Hosting belum diubah dari lingkungan ini.

@@ -52,6 +52,40 @@ class RelationalStorageTest extends TestCase
 
     protected function tearDown(): void { DB::purge('relational_testing'); parent::tearDown(); }
 
+    public function test_repair_creates_notifications_missing_during_initial_normalization(): void
+    {
+        Schema::drop('status_notification_deliveries');
+        $releaseId = $this->insertLegacy('releases',['primaryartists'=>[['name'=>'Preserved Artist']]]);
+        $this->migration->up();
+        $this->assertFalse(Schema::hasTable('notification_payload_values'));
+
+        $repair = require base_path('database/migrations/2026_11_01_140000_repair_status_notification_storage.php');
+        $repair->up();
+        $this->assertTrue(Schema::hasTable('status_notification_deliveries'));
+        $this->assertTrue(Schema::hasTable('notification_payload_values'));
+        $this->assertFalse(Schema::hasColumn('status_notification_deliveries','payload'));
+
+        $delivery = new StatusNotificationDelivery;
+        $delivery->event_id = 'test-repair-event';
+        $delivery->event = 'release.released';
+        $delivery->channel = 'email';
+        $delivery->payload = ['recipient'=>'private@example.test','message'=>'Ready'];
+        $delivery->save();
+        $repair->up();
+        $repair->down();
+        $this->assertSame('Ready',$delivery->fresh()->payload['message']);
+        $this->assertSame('Preserved Artist',RelationalFields::read('releases',$releaseId,'primaryartists')[0]->name);
+    }
+
+    public function test_repair_preserves_existing_legacy_notification_payload(): void
+    {
+        $id = $this->insertLegacy('status_notification_deliveries',['payload'=>['message'=>'Existing history']]);
+        $repair = require base_path('database/migrations/2026_11_01_140000_repair_status_notification_storage.php');
+        $repair->up();
+        $this->assertSame('Existing history',StatusNotificationDelivery::findOrFail($id)->payload['message']);
+        $this->assertFalse(Schema::hasColumn('status_notification_deliveries','payload'));
+    }
+
     private function insertLegacy(string $owner, array $values): int|string
     {
         $map = RelationalFields::MAP[$owner];
