@@ -49,6 +49,21 @@ class LandingPageTest extends TestCase
         $this->get('/')->assertOk()->assertSee('Karya berikutnya bisa jadi milik Anda.')->assertSee(route('register'), false)->assertSee(route('login'), false);
     }
 
+    public function test_all_releases_button_opens_a_paginated_public_catalogue(): void
+    {
+        for ($i=1;$i<=26;$i++) $this->release('Public Track '.str_pad((string) $i,2,'0',STR_PAD_LEFT));
+        $this->release('Unreleased Private Track','pending');
+        $this->release('Future Private Track','released',today()->addWeek()->toDateString());
+        $this->get('/')->assertOk()->assertSee('Lihat Semua Rilis')->assertSee(route('landing.releases'),false)
+            ->assertDontSee('show-releases')->assertSee('Public Track 26')->assertDontSee('Public Track 01');
+        $this->get('/rilis')->assertOk()->assertSee('Semua Rilis')->assertSee('26 rilisan')
+            ->assertSee('Public Track 26')->assertDontSee('Public Track 01')
+            ->assertDontSee('Unreleased Private Track')->assertDontSee('Future Private Track')
+            ->assertSee('page=2',false)->assertSee('Halaman 1 dari 2');
+        $this->get('/rilis?page=2')->assertOk()->assertSee('Public Track 01')->assertSee('Public Track 02')
+            ->assertDontSee('Public Track 26')->assertSee('Halaman 2 dari 2');
+    }
+
     public function test_public_cover_route_cannot_expose_private_or_future_release_files(): void
     {
         $private = $this->release('Private', 'pending');

@@ -331,6 +331,19 @@ class LegacyImportSettingsTest extends LegacyImportTest
         $paths->mediaRoot('');
     }
 
+    public function test_media_root_accepts_literal_hosting_quotes_without_relaxing_path_boundaries(): void
+    {
+        $paths = new ImportPaths;
+        $root = $this->directory.'/old';
+        foreach (['"'.$root.'"',"'".$root."'",'  "'.$root.'"  '] as $input) {
+            $this->assertSame(realpath($root),$paths->mediaRoot($input));
+        }
+        foreach (['"uploads"',"'../old'",'"'.$root,"'".$root.'"','"'.$this->directory.'/../outside"'] as $input) {
+            try { $paths->mediaRoot($input); $this->fail('Invalid path accepted'); }
+            catch (RuntimeException $e) { $this->assertNotEmpty($e->getMessage()); }
+        }
+    }
+
     public function test_missing_media_reports_the_local_path_without_url_credentials(): void
     {
         try {

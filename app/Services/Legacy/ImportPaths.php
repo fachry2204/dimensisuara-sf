@@ -23,6 +23,11 @@ class ImportPaths
 
     public function mediaRoot(string $root): string
     {
+        // Some hosting command runners pass surrounding quotes as literal data.
+        $root = trim($root);
+        if (strlen($root) >= 2 && in_array($root[0],['"',"'"],true) && substr($root,-1) === $root[0]) {
+            $root = trim(substr($root,1,-1));
+        }
         if (trim($root) === '' || !preg_match('~^(?:[A-Za-z]:[\\\\/]|/)~', $root)) {
             throw new RuntimeException('Isi path absolut folder media pada server.');
         }

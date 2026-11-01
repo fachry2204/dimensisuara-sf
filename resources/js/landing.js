@@ -11,13 +11,6 @@
     navigation.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
     document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
     document.addEventListener('click', event => { if (!event.target.closest('.site-header')) closeMenu(); });
-    document.querySelector('#show-releases')?.addEventListener('click', event => {
-        const button = event.currentTarget;
-        const expanded = button.getAttribute('aria-expanded') !== 'true';
-        document.querySelectorAll('#release-grid .release-card').forEach((card, index) => { if (index >= 3) card.hidden = !expanded; });
-        button.setAttribute('aria-expanded', String(expanded));
-        button.innerHTML = expanded ? 'Tampilkan Lebih Sedikit ↑' : 'Lihat Semua Rilis <span aria-hidden="true">→</span>';
-    });
     document.querySelectorAll('[data-dialog]').forEach(button => button.addEventListener('click', () => {
         const dialog = document.getElementById(button.dataset.dialog);
         if (dialog) dialog.showModal();

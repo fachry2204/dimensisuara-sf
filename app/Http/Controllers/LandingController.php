@@ -31,10 +31,7 @@ class LandingController extends Controller
     {
         $releases = $this->catalogue()->with(['cover', 'thumbnail'])
             ->orderByRaw('COALESCE(finalreleaseddate, releaseddate) DESC')->orderByDesc('id')->limit(6)->get();
-        foreach ($releases as $release) {
-            $release->landing_artwork = $this->artwork($release) ? route('landing.cover', $release->id) : null;
-            $release->landing_artist = collect($release->primaryartists)->pluck('name')->filter()->implode(', ');
-        }
+        $this->prepareReleases($releases);
         $phone = preg_replace('/\D+/', '', $settings->get('whatsapp_number') ?: $settings->get('company_phone'));
         if (str_starts_with($phone, '0')) $phone = '62'.substr($phone, 1);
         return view('landing', [
@@ -43,6 +40,22 @@ class LandingController extends Controller
             'address' => $settings->get('company_address'),
             'whatsapp' => $phone ? 'https://wa.me/'.$phone : null,
         ]);
+    }
+
+    public function releases()
+    {
+        $releases = $this->catalogue()->with(['cover','thumbnail'])
+            ->orderByRaw('COALESCE(finalreleaseddate, releaseddate) DESC')->orderByDesc('id')->paginate(24);
+        $this->prepareReleases($releases);
+        return view('catalogue',compact('releases'));
+    }
+
+    private function prepareReleases(iterable $releases): void
+    {
+        foreach ($releases as $release) {
+            $release->landing_artwork = $this->artwork($release) ? route('landing.cover', $release->id) : null;
+            $release->landing_artist = collect($release->primaryartists)->pluck('name')->filter()->implode(', ');
+        }
     }
 
     public function cover(int $release, \Illuminate\Http\Request $request)
