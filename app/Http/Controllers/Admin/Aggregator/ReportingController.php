@@ -85,7 +85,21 @@ class ReportingController extends Controller
         }, ['total_revenue' => 0, 'total_views' => 0]);
         extract($totals);
 
-        return view('admin.aggregator.reporting.show', compact('report','reps','total_revenue','total_views'));
+        $pendingRows = $report->rows()->where('status','pending')->count();
+        return view('admin.aggregator.reporting.show', compact('report','reps','total_revenue','total_views','pendingRows'));
+    }
+
+    public function process($id)
+    {
+        $report = ReportImport::findOrFail($id);
+        try {
+            return response()->json(ReportService::processPendingImport($report));
+        } catch (\DomainException $exception) {
+            return response()->json(['message'=>$exception->getMessage()],422);
+        } catch (\Throwable $exception) {
+            Log::error('Manual report processing failed.',['report_id'=>$id,'message'=>$exception->getMessage()]);
+            return response()->json(['message'=>'Pemrosesan gagal. Progres yang telah tersimpan dipertahankan; coba kembali atau periksa log aplikasi.'],500);
+        }
     }
 
     public function update($id, Request $request)

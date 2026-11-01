@@ -72,6 +72,7 @@ class ContractController extends Controller
             if ($result instanceof \Illuminate\Database\Eloquent\Model) {
                 $context['model_id']   = $result->getKey();
                 $context['model_type'] = get_class($result);
+                $context['audit_subject'] = app(\App\Services\ActivityLogDetails::class)->snapshot($result);
             }
                 
             // Log success
@@ -110,6 +111,7 @@ class ContractController extends Controller
             if ($result instanceof \Illuminate\Database\Eloquent\Model) {
                 $context['model_id']   = $result->getKey();
                 $context['model_type'] = get_class($result);
+                $context['audit_subject'] = app(\App\Services\ActivityLogDetails::class)->snapshot($result);
             }
                 
             // Log success
@@ -188,7 +190,8 @@ class ContractController extends Controller
         $contract = Contract::findOrFail($id);
         $context = [
             'model_id'      => $id,
-            'model_type'    => get_class($contract)
+            'model_type'    => get_class($contract),
+            'audit_subject' => app(\App\Services\ActivityLogDetails::class)->snapshot($contract)
         ];
         
         try {

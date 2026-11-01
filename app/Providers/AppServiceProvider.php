@@ -46,6 +46,10 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Release::observe(\App\Observers\StatusNotificationObserver::class);
         \App\Models\User\Profile::observe(\App\Observers\StatusNotificationObserver::class);
         \App\Models\User\User::observe(\App\Observers\StatusNotificationObserver::class);
+        $this->app->scoped(\App\Services\ActivityLogDetails::class);
+        foreach ([\App\Models\Contract::class, \App\Models\Release::class, \App\Models\Track::class, \App\Models\User\Profile::class, \App\Models\User\User::class] as $model) {
+            $model::observe(\App\Observers\ActivityChangeObserver::class);
+        }
         // Composer and installation commands must boot before a database exists.
         // Runtime requests and operational commands still load database settings.
         if ($this->shouldApplyDatabaseSettings()) {

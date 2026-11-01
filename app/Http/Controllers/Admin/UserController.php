@@ -22,7 +22,13 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $customers  = User::whereHas('profile')->with('profile.identities')->get();
+            $customers  = User::whereHas('profile')->with([
+                'profile' => fn ($query) => $query->withExists([
+                    'aggregator_contracts as has_generated_contract',
+                    'aggregator_contracts as has_unstamped_contract' => fn ($contracts) => $contracts->whereDoesntHave('digitalStamp'),
+                ]),
+                'profile.identities',
+            ])->get();
             $customers->each(function ($customer) {
                 $profile = $customer->profile;
                 $required = $profile->is_company
@@ -38,6 +44,9 @@ class UserController extends Controller
                 'pending' => $customers->filter(fn ($customer) => $customer->profile->status === 'pending')->count(),
                 'verified' => $customers->filter(fn ($customer) => $customer->profile->status === 'verified')->count(),
                 'incomplete' => $customers->filter(fn ($customer) => ! $customer->profile->is_profile_complete)->count(),
+                'contract_generated' => $customers->filter(fn ($customer) => $customer->profile->has_generated_contract)->count(),
+                'contract_missing' => $customers->filter(fn ($customer) => ! $customer->profile->has_generated_contract)->count(),
+                'contract_unstamped' => $customers->filter(fn ($customer) => $customer->profile->has_unstamped_contract)->count(),
             ];
             $roles      = Role::all();
 

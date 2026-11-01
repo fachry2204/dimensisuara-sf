@@ -31,11 +31,11 @@ class LogActivityController extends Controller
 
     public function show($id)
     {
-        $log = LogActivity::find($id);
+        $log = LogActivity::findOrFail($id);
         try {
             return response()->json([
                 'success' => true,
-                'data' => $log->toArray()
+                'data' => array_merge($log->toArray(), ['details'=>app(\App\Services\ActivityLogDetails::class)->present($log)])
             ], 200);
 
         } catch (\Throwable $th) {

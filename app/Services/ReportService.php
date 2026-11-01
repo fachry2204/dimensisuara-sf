@@ -98,7 +98,7 @@ class ReportService
             // Dispatch the batch
             $batch = Bus::batch($jobs)
                 ->then(function ($batch) use ($report_import) {
-                    $report_import->update([
+                    ReportImport::whereKey($report_import->id)->where('status','pending_import')->where('batch_id',$batch->id)->update([
                         'status'    => 'pending_review',
                         'batch_id'  => null
                     ]);
@@ -108,7 +108,7 @@ class ReportService
                     Log::info("Report import ID {$report_import->id}, Batch {$batch->id} completed");
                 })
                 ->catch(function ($batch, $e) use ($report_import) {
-                    $report_import->update(['status' => 'failed']);
+                    ReportImport::whereKey($report_import->id)->where('status','pending_import')->where('batch_id',$batch->id)->update(['status' => 'failed']);
                     Log::error("Report import ID {$report_import->id}, Batch {$batch->id} failed: {$e->getMessage()}");
                 })
                 ->name("Report import ID {$report_import->id}")
@@ -130,25 +130,47 @@ class ReportService
 
             $matcher = new CountryMatcher();
 
-            // Calculate aggregator and client share
-            foreach($rows as $row) {
-
-                // Get profile from ISRC
-                $track = Track::where('isrc', $row->isrc)->first();
-    
-                if($track) {
-                    $row->trackid   = $track->id;
+            $lockedReports = [];
+            foreach ($rows as $candidate) {
+                $reportId = $candidate->report_import_id;
+                $report = $lockedReports[$reportId] ??= ReportImport::whereKey($reportId)->lockForUpdate()->first();
+                if (!$report || !in_array($report->status,['pending_import','failed'],true)) continue;
+                // A queued job may have loaded these rows before manual processing finished.
+                $row = ReportRow::whereKey($candidate->id)->where('status','pending')->lockForUpdate()->first();
+                if (!$row) continue;
+                $track = Track::with('profile')->where('isrc',$row->isrc)->first();
+                if ($track && $track->profile) {
+                    $row->trackid = $track->id;
                     $row->profileid = $track->profile->id;
-                    $row->status    = 'finalized';
+                    $row->status = 'finalized';
+                } else {
+                    $row->status = 'incomplete';
                 }
-                else {
-                    $row->status    = 'incomplete';
-                }
-
-                // Set country
-                $row->country = $matcher->match($row->region) ?? $row->region;   
+                $row->country = $matcher->match($row->region) ?? $row->region;
                 $row->save();
             }
+        });
+    }
+
+    /** Resume the persisted import in bounded requests without requiring a queue worker. */
+    public static function processPendingImport(ReportImport $report): array
+    {
+        return DB::transaction(function () use ($report) {
+            $report = ReportImport::whereKey($report->id)->lockForUpdate()->firstOrFail();
+            if (!in_array($report->status,['pending_import','failed'],true)) {
+                throw new \DomainException('Laporan tidak berada pada tahap pencocokan impor. Muat ulang halaman.');
+            }
+            $rows = $report->rows()->where('status','pending')->orderBy('id')->limit(250)->get();
+            if ($report->status === 'failed' && $rows->isEmpty()) {
+                throw new \DomainException('Tidak ada baris impor Pending. Kegagalan perhitungan perlu diperiksa terpisah.');
+            }
+            self::detectPerBatch($rows);
+            $remaining = $report->rows()->where('status','pending')->count();
+            $total = $report->rows()->count();
+            $report->status = $remaining ? 'pending_import' : 'pending_review';
+            $report->batch_id = null; // Supersede old batch callbacks; queued rows are still checked individually.
+            $report->save();
+            return ['processed'=>$total-$remaining,'remaining'=>$remaining,'total'=>$total,'done'=>$remaining === 0];
         });
     }
 
@@ -195,6 +217,10 @@ class ReportService
     public static function finalize(ReportImport $report)
     {
         $calculated = DB::transaction(function () use ($report) {
+            $report = ReportImport::whereKey($report->id)->lockForUpdate()->firstOrFail();
+            if (!in_array($report->status,['pending_review','pending_rate'],true) || $report->rows()->where('status','pending')->exists()) {
+                throw new \DomainException('Selesaikan proses impor dan tinjau laporan sebelum finalisasi.');
+            }
 
             // Process calculation if IDR rate is set
             if($report->idr_rate) {

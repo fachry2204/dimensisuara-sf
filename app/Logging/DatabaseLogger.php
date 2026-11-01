@@ -16,7 +16,7 @@ class DatabaseLogger extends AbstractProcessingHandler
         \App\Database\RelationalFields::insert('logs', [
             'level'         => $record->level->getName(),
             'message'       => $record->message,
-            'context'       => json_encode($record->context),
+            'context'       => json_encode(app(\App\Services\ActivityLogDetails::class)->enrich($record->message,$record->context)),
             'userid'        => auth()->user() instanceof \App\Models\User\Admin ? null : auth()->id(),
             'admin_user_id' => auth()->user() instanceof \App\Models\User\Admin ? auth()->id() : null,
             'impersonate'   => session('impersonate') ?? null,
