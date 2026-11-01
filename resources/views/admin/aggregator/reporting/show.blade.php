@@ -34,6 +34,7 @@
 @endsection
 @section('content')
     @include('admin.aggregator.reporting.partials.process-import')
+    @include('admin.aggregator.reporting.partials.calculate-manual')
     @if ($report->status == 'completed')
         <div class="alert alert-warning fade show">
             <div class="d-flex align-items-center">

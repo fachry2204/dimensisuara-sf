@@ -102,6 +102,19 @@ class ReportingController extends Controller
         }
     }
 
+    public function calculate($id)
+    {
+        $report = ReportImport::findOrFail($id);
+        try {
+            return response()->json(ReportService::calculateManually($report));
+        } catch (\DomainException $exception) {
+            return response()->json(['message'=>$exception->getMessage()], 422);
+        } catch (\Throwable $exception) {
+            Log::error('Manual report calculation failed.', ['report_id'=>$id, 'message'=>$exception->getMessage()]);
+            return response()->json(['message'=>'Calculation gagal. Progres tersimpan dipertahankan. Coba kembali atau periksa log aplikasi.'], 500);
+        }
+    }
+
     public function update($id, Request $request)
     {
         try {
@@ -123,15 +136,21 @@ class ReportingController extends Controller
     public function rate($id, Request $request)
     {
         $request->validate([
-            'idr_rate' => 'nullable',
+            'idr_rate' => ['required', 'integer', 'min:1'],
         ]);
 
         try {
             $report = ReportImport::findOrFail($id);
             $rate   = $request->input('idr_rate');
 
-            $report->idr_rate = $rate;
-            $report->save();
+            DB::transaction(function () use ($report, $rate) {
+                $report = ReportImport::whereKey($report->id)->lockForUpdate()->firstOrFail();
+                if ($report->status === 'completed' || ($report->status === 'pending_calculation' && $report->rows()->whereNotNull('idr_rate')->exists())) {
+                    throw new \DomainException('Kurs tidak dapat diubah setelah perhitungan dimulai.');
+                }
+                $report->idr_rate = $rate;
+                $report->save();
+            });
 
             return redirect()->back()->with('success', 'Report rate set');
         }

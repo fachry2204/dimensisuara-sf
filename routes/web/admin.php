@@ -99,6 +99,7 @@ Route::middleware(['auth','verified'])->group(function () {
                 Route::middleware(['can:upload-reporting'])->group(function () {
                     Route::post('upload',       [AggregatorReportingController::class, 'upload'])->name('admin.releases.reporting.upload');
                     Route::post('{id}/process', [AggregatorReportingController::class, 'process'])->name('admin.releases.reporting.process');
+                    Route::post('{id}/calculate', [AggregatorReportingController::class, 'calculate'])->name('admin.releases.reporting.calculate');
                     Route::post('recheck',      [AggregatorReportingController::class, 'recheck'])->name('admin.releases.reporting.recheck');
                     Route::put('{id}/update',   [AggregatorReportingController::class, 'update'])->name('admin.releases.reporting.update');
                     Route::put('{id}/rate',     [AggregatorReportingController::class, 'rate'])->name('admin.releases.reporting.rate');

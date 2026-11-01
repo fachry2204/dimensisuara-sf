@@ -174,6 +174,48 @@ class ReportService
         });
     }
 
+    /** Resume calculation in bounded, persisted steps without a queue worker. */
+    public static function calculateManually(ReportImport $report): array
+    {
+        // Match deletion/rebuild lock order; publication and summaries commit together.
+        return self::withAggregateLock(fn () => DB::transaction(function () use ($report) {
+            $report = ReportImport::whereKey($report->id)->lockForUpdate()->firstOrFail();
+            if (!in_array($report->status, ['pending_calculation', 'completed'], true)) {
+                throw new \DomainException('Laporan belum berada pada tahap Pending Calculation.');
+            }
+            if ($report->status === 'completed') {
+                // A worker may have completed between the button click and this request.
+                self::rebuildAggregates();
+                $total = $report->rows()->count();
+                return ['processed'=>$total, 'remaining'=>0, 'total'=>$total, 'done'=>true];
+            }
+            if (!is_numeric($report->idr_rate) || $report->idr_rate <= 0) {
+                throw new \DomainException('Isi kurs EUR ke IDR yang lebih besar dari 0 sebelum menjalankan Calculation Manual.');
+            }
+            if ($report->rows()->where('status', 'pending')->exists()) {
+                throw new \DomainException('Masih ada baris Pending Import. Selesaikan pencocokan laporan terlebih dahulu.');
+            }
+            if ($report->batch_id) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('job_batches')) {
+                    Bus::findBatch($report->batch_id)?->cancel();
+                }
+                $report->batch_id = null; // Old callbacks cannot change this manual run.
+                $report->save();
+            }
+            $unfinished = fn () => $report->rows()->where(fn ($q) => $q->whereNull('idr_rate')->orWhere('idr_rate', '!=', $report->idr_rate));
+            self::calculatePerBatch($unfinished()->orderBy('id')->limit(250)->get());
+            $remaining = $unfinished()->count();
+            $total = $report->rows()->count();
+            if ($remaining === 0) {
+                $report->status = 'completed';
+                $report->save();
+                self::rebuildAggregates();
+                Log::info('Manual report calculation completed.', ['report_id'=>$report->id, 'total_rows'=>$total]);
+            }
+            return ['processed'=>$total-$remaining, 'remaining'=>$remaining, 'total'=>$total, 'done'=>$remaining === 0];
+        }));
+    }
+
     /**
      * Calculate rupiah revenue, and aggregator and client share
      */
@@ -188,6 +230,8 @@ class ReportService
                 if (!$report || $report->status !== 'pending_calculation') continue;
                 $row = ReportRow::whereKey($candidate->id)->where('report_import_id',$reportId)->lockForUpdate()->first();
                 if (!$row) continue;
+                // The row rate is written atomically with all calculated values.
+                if ($row->idr_rate !== null && (float) $row->idr_rate === (float) $report->idr_rate) continue;
                 if(!$report->idr_rate) {
                     throw new \Exception("IDR rate is not set for this batch");
                 }
@@ -199,7 +243,7 @@ class ReportService
                 $row->save();
 
                 // Process calculation if profile, aggregator rate, and IDR rate is set
-                if($row->profile && $row->profile->aggregator_rate && $report->idr_rate) {
+                if($row->profile && $row->profile->aggregator_rate !== null && $report->idr_rate) {
 
                     // Calculate aggregator and client share
                     $row->rate                      = $row->profile->aggregator_rate;
