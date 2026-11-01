@@ -177,6 +177,6 @@ class SystemSettings
     {
         $stored = $this->get('favicon');
         $assets = app(BrandingAssets::class);
-        return $assets->path($stored) ? $assets->url('favicon', $stored) : asset('favicon.ico');
+        return $assets->path($stored) ? $assets->url('favicon', $stored) : 'data:image/svg+xml,'.rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"></svg>');
     }
 }

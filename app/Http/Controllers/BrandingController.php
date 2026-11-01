@@ -7,6 +7,15 @@ use App\Services\SystemSettings;
 
 class BrandingController extends Controller
 {
+    public function favicon(SystemSettings $settings, BrandingAssets $assets)
+    {
+        $stored = $settings->get('favicon');
+        if (!$assets->path($stored)) return response('', 204)->header('Cache-Control', 'no-store');
+        $response = $this->show('favicon', $assets->version($stored), $settings, $assets);
+        $response->headers->set('Cache-Control', 'no-store');
+        return $response;
+    }
+
     public function show(string $kind, string $version, SystemSettings $settings, BrandingAssets $assets)
     {
         $stored = $settings->get($kind);

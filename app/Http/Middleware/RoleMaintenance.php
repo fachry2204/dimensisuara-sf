@@ -13,7 +13,7 @@ class RoleMaintenance
         $settings = app(SystemSettings::class);
         if (!$settings->get('maintenance_enabled')) return $next($request);
         // Keep sign-in/sign-out and password recovery reachable. A server manager can always recover settings.
-        if ($request->routeIs('login','logout','password.*','verification.*') || $request->is('login', 'logout')) return $next($request);
+        if ($request->routeIs('login','logout','password.*','verification.*','branding.*') || $request->is('login', 'logout')) return $next($request);
         $user = $request->user();
         if ($user && $user->can('manage-automation')) return $next($request);
         $targeted = !$user && $settings->get('maintenance_guests');

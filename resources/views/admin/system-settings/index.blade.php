@@ -54,7 +54,7 @@
                     <div class="border rounded p-3 mb-3 d-flex align-items-center justify-content-center" style="height:110px"><img id="favicon-preview" src="{{ app_favicon() }}" alt="Favicon aplikasi" width="48" height="48" style="object-fit:contain"></div>
                     <input id="favicon" name="favicon" type="file" class="form-control" accept="image/png,image/x-icon,image/vnd.microsoft.icon,.ico" data-preview="favicon-preview">
                     <div class="form-text">PNG atau ICO. Maksimal 512 KB. Ukuran 32 × 32 atau 48 × 48 piksel disarankan.</div>
-                    @if($settings['favicon'])<div class="form-check mt-2"><input id="remove_favicon" class="form-check-input" type="checkbox" name="remove_favicon" value="1"><label class="form-check-label" for="remove_favicon">Kembalikan favicon bawaan</label></div>@endif
+                    @if($settings['favicon'])<div class="form-check mt-2"><input id="remove_favicon" class="form-check-input" type="checkbox" name="remove_favicon" value="1"><label class="form-check-label" for="remove_favicon">Hapus favicon unggahan</label></div>@endif
                 </div>
             </div>
             <p class="form-text mt-3">Setelah memilih gambar, klik Simpan Identitas Aplikasi agar logo dan favicon tersimpan.</p>

@@ -7,7 +7,7 @@
     <title>@yield('title') | {{ app_name() }}</title>
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ app_favicon() }}">
+    <x-favicon />
 
     @include('layouts.head-css')
     @vite('resources/js/soundfresh.js')

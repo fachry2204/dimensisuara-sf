@@ -5,7 +5,7 @@
     <title>{{ app_name() }} — Distribusi Musik & Publishing</title>
     <meta name="description" content="Sebarkan karya musik Anda bersama Dimensi Suara. Distribusi digital, publishing, dan laporan royalti dalam satu platform.">
     <meta name="theme-color" content="#080b14">
-    <link rel="icon" href="{{ app_favicon() }}">
+    <x-favicon />
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('build/css/landing.css') }}?v={{ hash_file('sha256', resource_path('css/landing.css')) }}">

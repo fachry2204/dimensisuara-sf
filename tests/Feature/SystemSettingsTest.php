@@ -126,6 +126,40 @@ class SystemSettingsTest extends TestCase
         $this->assertFileDoesNotExist(config('system-settings.path'));
     }
 
+    public function test_uploaded_favicon_is_shared_across_layouts_and_available_during_maintenance(): void
+    {
+        $assets = app(\App\Services\BrandingAssets::class);
+        $stored = $assets->store('favicon',UploadedFile::fake()->image('custom.png',32,32));
+        $settings = app(SystemSettings::class);
+        $settings->save(['favicon'=>$stored,'maintenance_enabled'=>true,'maintenance_guests'=>true]);
+        $url = app_favicon();
+        $this->assertStringContainsString('/branding/favicon/',$url);
+        $markup = \Illuminate\Support\Facades\Blade::render('<x-favicon />');
+        $this->assertSame(2,substr_count($markup,$url));
+        foreach (['layouts/app','layouts/guest','landing','catalogue'] as $view) {
+            $this->assertStringContainsString('<x-favicon />',file_get_contents(resource_path('views/'.$view.'.blade.php')));
+        }
+        $this->get('/')->assertStatus(503);
+        $this->get($url)->assertOk()->assertHeader('Content-Type','image/png');
+        $this->get('/favicon.ico')->assertOk()->assertHeader('Content-Type','image/png')->assertHeader('Cache-Control','no-store, private');
+        $new = $assets->store('favicon',UploadedFile::fake()->image('replacement.png',48,48));
+        $settings->save(['favicon'=>$new]);
+        $this->assertNotSame($url,app_favicon());
+        $this->get($url)->assertNotFound();
+        $response = $this->get('/favicon.ico')->assertOk();
+        $this->assertSame(realpath($assets->path($new)),$response->baseResponse->getFile()->getRealPath());
+    }
+
+    public function test_missing_favicon_never_uses_a_default_icon(): void
+    {
+        $this->assertStringStartsWith('data:image/svg+xml,',app_favicon());
+        $this->get('/favicon.ico')->assertNoContent();
+        app(SystemSettings::class)->save(['favicon'=>'branding/favicon-abcd.png']);
+        $this->assertStringStartsWith('data:image/svg+xml,',app_favicon());
+        $this->get('/favicon.ico')->assertNoContent();
+        $this->assertFileDoesNotExist(base_path('public/favicon.ico'));
+    }
+
     public function test_branding_uploads_persist_and_are_used_by_the_login_page(): void
     {
         $this->signIn();

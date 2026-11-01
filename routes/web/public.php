@@ -15,6 +15,7 @@ use App\Http\Middleware\Publishing\SigneeToken as PublishingSigneeToken;
 
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 Route::get('/rilis', [\App\Http\Controllers\LandingController::class, 'releases'])->name('landing.releases');
+Route::get('/favicon.ico', [\App\Http\Controllers\BrandingController::class, 'favicon'])->name('branding.favicon');
 Route::get('/branding/{kind}/{version}', [\App\Http\Controllers\BrandingController::class, 'show'])
     ->where('kind', 'logo|favicon')->where('version', '[a-f0-9]{20}')->name('branding.show');
 Route::get('/rilis/{release}/cover', [\App\Http\Controllers\LandingController::class, 'cover'])

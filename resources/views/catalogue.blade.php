@@ -5,7 +5,7 @@
     <title>Semua Rilis — {{ app_name() }}</title>
     <meta name="description" content="Jelajahi katalog rilisan terbaru artis {{ app_name() }}.">
     <meta name="theme-color" content="#080b14">
-    <link rel="icon" href="{{ app_favicon() }}">
+    <x-favicon />
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('build/css/landing.css') }}?v={{ hash_file('sha256', resource_path('css/landing.css')) }}">
