@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Setting System')
 @section('content')
-<div class="system-settings mx-auto" style="max-width:1100px">
+<div class="system-settings">
     <div class="mb-4">
         <small class="text-uppercase text-secondary">Server Management</small>
         <h2 class="mt-2">Setting System</h2>

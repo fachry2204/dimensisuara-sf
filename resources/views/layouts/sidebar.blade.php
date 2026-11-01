@@ -35,15 +35,17 @@
                         <div class="menu-title">Overview</div>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('profile') }}">
-                        <div class="parent-icon">
-                            <span class="material-icons-outlined">person</span>
-                        </div>
-                        <div class="menu-title">My Profile</div>
-                    </a>
-                </li>
                 @can('customer.verified')
+                    @if(current_user()->profile->feature_aggregator)
+                        <li>
+                            <a href="{{ route('releases.index') }}">
+                                <div class="parent-icon">
+                                    <span class="material-icons-outlined">music_note</span>
+                                </div>
+                                <div class="menu-title">Releases</div>
+                            </a>
+                        </li>
+                    @endif
                     <li>
                         <a class="has-arrow" href="javascript:;">
                             <div class="parent-icon">
@@ -74,16 +76,8 @@
                             <div class="menu-title">My Transactions</div>
                         </a>
                     </li>
-                    <li class="menu-label">Activity</li>
-                    @if(current_user()->profile->feature_aggregator)
-                        <li>
-                            <a href="{{ route('releases.index') }}">
-                                <div class="parent-icon">
-                                    <span class="material-icons-outlined">music_note</span>
-                                </div>
-                                <div class="menu-title">Releases</div>
-                            </a>
-                        </li>
+                    @if(current_user()->profile->feature_publishing || current_user()->profile->feature_mcn)
+                        <li class="menu-label">Activity</li>
                     @endif
                     @if(current_user()->profile->feature_publishing)
                         <li>
@@ -126,6 +120,14 @@
                         </li>
                     @endif
                 @endcan
+                <li>
+                    <a href="{{ route('profile') }}">
+                        <div class="parent-icon">
+                            <span class="material-icons-outlined">person</span>
+                        </div>
+                        <div class="menu-title">My Profile</div>
+                    </a>
+                </li>
             @endcan
             @endif
 

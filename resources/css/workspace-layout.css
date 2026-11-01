@@ -140,3 +140,370 @@ html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .admin-an
     border: 1px solid var(--sf-border) !important;
     box-shadow: 0 4px 18px rgba(15,23,42,.04) !important;
 }
+/* Shared admin/customer release detail: one surface per section, no nested strips. */
+html[data-bs-theme="light"] .release-detail { --release-surface: #fff; }
+html[data-bs-theme="dark"] .release-detail { --release-surface: #111e31; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail :is(.release-overview-panel,.release-track-panel,.release-history-panel) {
+    background: var(--release-surface) !important;
+    border: 1px solid var(--sf-border) !important;
+    border-radius: 16px;
+    margin: 0;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel {
+    padding: 24px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel::before,
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel::after {
+    display: none;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel > .row {
+    display: grid;
+    grid-template-columns: minmax(200px,300px) minmax(0,1fr);
+    gap: 28px;
+    margin: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail :is(.release-cover-column,.release-metadata-column) {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail :is(.album-title-status,.album-title-status h2,.album-artist,.album-status,.release-artists-table) {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .album-title-status h2 {
+    font-size: clamp(1.6rem,2.5vw,2.4rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-metadata-column {
+    text-align: left;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .album-artist {
+    margin-top: 8px;
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .album-cover {
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1;
+    height: auto;
+    border: 1px solid var(--sf-border);
+    box-shadow: none;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-cover-download {
+    max-width: 300px;
+    margin: 14px 0 0 !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-metadata-grid {
+    margin-top: 16px;
+    border-top: 1px solid var(--sf-border);
+    padding-top: 12px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-items-table {
+    padding: 0;
+    margin: 0;
+    table-layout: fixed;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-items-table td {
+    padding: 10px 8px;
+    vertical-align: top;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-items-table td:first-child {
+    width: 46%;
+    color: var(--sf-muted) !important;
+    font-weight: 500;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail :is(.accordion,.accordion-item,.accordion-header,.accordion-button,.accordion-body,.accordion-collapse,.track-detail) {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--sf-text) !important;
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .accordion-button:not(.collapsed) {
+    background: var(--sf-focus) !important;
+}
+@media(max-width:1100px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel > .row {
+        grid-template-columns: minmax(160px,220px) minmax(0,1fr);
+        gap: 20px;
+    }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-metadata-grid > .col-lg-6 { width: 100%; }
+}
+@media(max-width:700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel { padding: 18px; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail .release-overview-panel > .row { grid-template-columns: minmax(0,1fr); }
+}
+/* Compact add-credit actions, shared by the single form and album track dialog. */
+html[data-bs-theme] body.sf-app button.btn.release-inline-action {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: fit-content !important;
+    max-width: 100%;
+    min-height: 36px !important;
+    padding: 7px 11px !important;
+    margin-top: 0 !important;
+    border: 1px solid var(--sf-border) !important;
+    border-radius: 7px !important;
+    background: transparent !important;
+    color: var(--sf-text) !important;
+    box-shadow: none !important;
+    font-size: .8rem;
+    line-height: 1.4;
+    text-align: left;
+    vertical-align: top;
+}
+html[data-bs-theme] body.sf-app button.btn.release-inline-action > i {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 18px;
+    width: 18px !important;
+    height: 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-size: 18px !important;
+}
+html[data-bs-theme] body.sf-app button.btn.release-inline-action > span {
+    display: inline !important;
+    padding: 0 !important;
+    font-size: inherit;
+    font-weight: 600;
+    line-height: inherit;
+    white-space: normal;
+}
+html[data-bs-theme] body.sf-app button.btn.release-inline-action:hover {
+    border-color: var(--sf-accent) !important;
+    background: var(--sf-surface-soft) !important;
+}
+html[data-bs-theme] body.sf-app button.btn.release-inline-action:focus-visible {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 2px;
+}
+/* Let impersonation notices occupy their actual height instead of covering page headings. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .impersonation-banner {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px clamp(16px,2vw,36px);
+    gap: 16px;
+    z-index: auto;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .impersonation-banner .impersonation-banner__message {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+@media(max-width:700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .impersonation-banner {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .impersonation-banner .impersonation-banner__message span:last-child { max-width: none; }
+}
+/* Profile documents and contracts retain visible surfaces inside the customer workspace. */
+html[data-bs-theme="light"] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace {
+    --sf-surface: #fff;
+    --sf-surface-soft: #f8fafc;
+    --profile-border: #dce4ef;
+    --profile-blue: 37,99,235;
+    --profile-purple: 124,58,237;
+    --profile-green: 5,150,105;
+}
+html[data-bs-theme="dark"] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace {
+    --sf-surface: #141e2d;
+    --sf-surface-soft: #1d293a;
+    --profile-border: #33465e;
+    --profile-blue: 96,165,250;
+    --profile-purple: 192,132,252;
+    --profile-green: 52,211,153;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace :is(.profile-hero-card,.profile-info-card,.profile-legacy-details) {
+    background: var(--sf-surface) !important;
+    border: 1px solid var(--profile-border) !important;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(15,23,42,.04) !important;
+    color: var(--sf-text) !important;
+    min-width: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-hero-card {
+    background: linear-gradient(115deg,rgba(var(--profile-blue),.1),var(--sf-surface) 75%) !important;
+    margin-bottom: 24px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-legacy-details > summary {
+    padding: 18px 22px;
+    background: var(--sf-surface-soft) !important;
+    border-radius: 16px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-legacy-details[open] > summary {
+    border-radius: 16px 16px 0 0;
+    border-bottom: 1px solid var(--profile-border);
+    margin-bottom: 20px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace :is(.profile-contract-row,.profile-contract-empty) {
+    background: var(--sf-surface-soft) !important;
+    border: 1px solid var(--profile-border) !important;
+    border-left: 3px solid rgb(var(--profile-blue)) !important;
+    border-radius: 10px;
+    box-shadow: none !important;
+    color: var(--sf-text) !important;
+    padding: 14px 16px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-contract-row:nth-child(2n) {
+    border-left-color: rgb(var(--profile-purple)) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace :is(.profile-contract-row,.profile-contract-empty) strong {
+    color: var(--sf-text) !important;
+    overflow-wrap: anywhere;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace :is(.profile-contract-row,.profile-contract-empty) small {
+    color: var(--sf-muted) !important;
+    overflow-wrap: anywhere;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace :is(.profile-contract-row > span:first-child,.profile-card-icon.contact) {
+    background: rgba(var(--profile-blue),.12) !important;
+    color: rgb(var(--profile-blue)) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-card-icon.address {
+    background: rgba(var(--profile-purple),.12) !important;
+    color: rgb(var(--profile-purple)) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-card-icon.bank {
+    background: rgba(var(--profile-green),.12) !important;
+    color: rgb(var(--profile-green)) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace .profile-contract-row:hover {
+    border-color: rgb(var(--profile-blue)) !important;
+    background: rgba(var(--profile-blue),.07) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.profile-workspace :is(.profile-contract-row,.profile-legacy-details > summary):focus-visible {
+    outline: 2px solid rgb(var(--profile-blue));
+    outline-offset: 2px;
+}
+/* Customer earnings: explicit surfaces remain visible above the shared canvas. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace {
+    --earn-surface: #fff;
+    --earn-soft: #f8fafc;
+    --earn-border: #dce5ef;
+    --earn-green: 5,150,105;
+    --earn-orange: 234,88,12;
+    --earn-purple: 124,58,237;
+    --earn-blue: 37,99,235;
+}
+html[data-bs-theme="dark"] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace {
+    --earn-surface: #142033;
+    --earn-soft: #1b2a40;
+    --earn-border: #324259;
+    --earn-green: 52,211,153;
+    --earn-orange: 251,146,60;
+    --earn-purple: 167,139,250;
+    --earn-blue: 96,165,250;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-page-header,.earn-page,.earn-panel,.earn-summary-grid,.earn-main-grid,.earn-bottom-grid,.report-detail-grid) {
+    min-width: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-card,.earn-balance,.earn-summary-grid > article,.report-insight,.report-summary) {
+    min-width: 0;
+    background: var(--earn-surface) !important;
+    border: 1px solid var(--earn-border) !important;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(15,23,42,.045) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace section.earn-balance {
+    background: linear-gradient(110deg,rgba(var(--earn-purple),.13),rgba(var(--earn-blue),.05)),var(--earn-surface) !important;
+    border-color: rgba(var(--earn-purple),.24) !important;
+    padding: 26px;
+    gap: 24px;
+    margin-block: 22px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-summary-grid > article {
+    --earn-tone: var(--earn-green);
+    background: linear-gradient(120deg,rgba(var(--earn-tone),.11),rgba(var(--earn-tone),.03)),var(--earn-surface) !important;
+    border-top: 3px solid rgb(var(--earn-tone)) !important;
+    padding: 22px;
+    align-items: flex-start;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-summary-grid > article:nth-child(2) { --earn-tone: var(--earn-orange); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-summary-grid > article:nth-child(3) { --earn-tone: var(--earn-purple); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-summary-grid > article > .material-icons-outlined {
+    background: rgba(var(--earn-tone),.14) !important;
+    color: rgb(var(--earn-tone)) !important;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(strong,b,.earn-tab,.earn-period,.earn-download,.report-export,select,input) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(p,small,.earn-balance-date span,.report-summary span,.earn-empty,.earn-platform em,.earn-legend,.report-loading,.report-filter-grid label > span) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-page-header p,.earn-card header p) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-summary-grid strong { white-space: normal; overflow-wrap: anywhere; font-size: clamp(22px,1.7vw,28px); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace small.up { color: rgb(var(--earn-green)) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace small.down { color: #e54868 !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-card,.report-filters) { padding: 22px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-main-grid,.earn-summary-grid) { margin-bottom: 22px; gap: 22px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-bottom-grid,.report-detail-grid) { gap: 22px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-tabs,.earn-period,.earn-download,.report-filter-grid select,.report-search input,.report-export,.report-pagination button) {
+    background: var(--earn-surface) !important;
+    border-color: var(--earn-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-tab.is-active,.earn-balance > a,.report-apply) {
+    background: var(--sf-primary,#420cc0) !important;
+    color: #fff !important;
+    border-color: var(--sf-primary,#420cc0) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-balance-date,.earn-payment-row,.report-summary > div,.report-platform-row,.earn-tab) { border-color: var(--earn-border) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-period,.earn-download,.earn-balance > a) { height: auto; min-height: 40px; padding: 10px 14px; font-size: 13px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-header-actions { flex-wrap: wrap; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(section.report-insight,section.report-summary) {
+    background: linear-gradient(105deg,rgba(var(--earn-blue),.09),transparent),var(--earn-surface) !important;
+    border-color: rgba(var(--earn-blue),.24) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-payment-row > span,.report-summary-icon) { flex-shrink: 0; color: rgb(var(--earn-blue)) !important; background: rgba(var(--earn-blue),.12) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-empty,.report-loading) { background: var(--earn-soft) !important; border-radius: 10px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-platform > div span,.platform-meter) { background: var(--earn-soft) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(table th,table thead) { background: var(--earn-soft) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace table td { border-color: var(--earn-border) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(button,a,input,select):focus-visible { outline: 3px solid rgba(var(--earn-purple),.45); outline-offset: 3px; }
+@media (max-width: 1100px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-main-grid,.earn-bottom-grid,.report-detail-grid) { grid-template-columns: minmax(0,1fr); }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-balance { grid-template-columns: minmax(0,1fr) auto; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-balance > a { grid-column: 1 / -1; justify-self: start; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .report-filter-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-page-header { align-items: flex-start; flex-direction: column; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-summary-grid,.earn-balance,.report-summary,.report-filter-grid) { grid-template-columns: minmax(0,1fr); }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace :is(.earn-card,.earn-balance,.earn-summary-grid > article) { padding: 18px; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-balance-date { border-left: 0; padding-left: 0; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .report-summary > div { border-left: 0; padding-left: 0; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-card header { flex-wrap: wrap; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .report-search { width: 100%; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-platform { grid-template-columns: minmax(0,1fr) auto; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-platform > div { grid-column: 1 / -1; grid-row: 2; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-platform em { display: none; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .report-filter-actions { flex-wrap: wrap; }
+}

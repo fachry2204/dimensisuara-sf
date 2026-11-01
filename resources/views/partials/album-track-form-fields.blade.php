@@ -288,11 +288,10 @@
                 </div>
             </div>
         </template>
-        <button type="button" class="btn release-inline-action" aria-label="Tambah kontributor"
+        <button type="button" class="btn btn-outline-primary btn-sm release-inline-action" aria-label="Tambah kontributor"
             @click="addRoleItem('$store.tray.trackTray', 'contributors')">
             <i class="material-icons-outlined" aria-hidden="true">person_add</i>
-            <span class="release-inline-action-copy"><strong>Tambah kontributor</strong><small>Tambahkan peran kreatif untuk track ini</small></span>
-            <i class="material-icons-outlined release-inline-action-arrow" aria-hidden="true">add</i>
+            <span>Tambah kontributor</span>
         </button>
     </div>
 
@@ -322,17 +321,16 @@
                 </div>
             </div>
         </template>
-        <button type="button" class="btn release-inline-action" aria-label="Tambah produksi / engineering"
+        <button type="button" class="btn btn-outline-primary btn-sm release-inline-action" aria-label="Tambah produksi / engineering"
             @click="addRoleItem('$store.tray.trackTray', 'productions')">
             <i class="material-icons-outlined" aria-hidden="true">tune</i>
-            <span class="release-inline-action-copy"><strong>Tambah produksi / engineering</strong><small>Catat producer, mixer, atau engineer</small></span>
-            <i class="material-icons-outlined release-inline-action-arrow" aria-hidden="true">add</i>
+            <span>Tambah produksi / engineering</span>
         </button>
     </div>
 
     <!-- Songwriters Array -->
     <div class="col-12">
-        <label class="form-label">Songwriters</label>
+        <label class="form-label d-block">Songwriters</label>
         <template x-for="(writer, index) in $store.tray.trackTray.songwriters" :key="index">
             <div class="row mb-2 align-items-center">
                 <div class="col-10 pe-0">
@@ -351,11 +349,10 @@
                 </div>
             </div>
         </template>
-        <button type="button" class="btn release-inline-action mt-2" aria-label="Tambah penulis lagu"
+        <button type="button" class="btn btn-outline-primary btn-sm release-inline-action mt-2" aria-label="Tambah penulis lagu"
             @click="addSongwriterItem('$store.tray.trackTray')">
             <i class="material-icons-outlined" aria-hidden="true">edit_note</i>
-            <span class="release-inline-action-copy"><strong>Tambah penulis lagu</strong><small>Masukkan songwriter dan perannya</small></span>
-            <i class="material-icons-outlined release-inline-action-arrow" aria-hidden="true">add</i>
+            <span>Tambah penulis lagu</span>
         </button>
     </div>
 

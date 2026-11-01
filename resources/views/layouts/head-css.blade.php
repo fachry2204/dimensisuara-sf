@@ -248,3 +248,6 @@ html[data-bs-theme="light"] .sf-app .main-wrapper {
 @include('layouts.primary-colors')
 
 <link href="{{ asset('build/css/workspace-layout.css') }}?v={{ file_exists(public_path('build/css/workspace-layout.css')) ? substr(hash_file('sha256', public_path('build/css/workspace-layout.css')), 0, 12) : '1' }}" rel="stylesheet">
+@if(Route::is('admin.*'))
+<link href="{{ asset('build/css/admin-workspace.css') }}?v={{ file_exists(public_path('build/css/admin-workspace.css')) ? substr(hash_file('sha256', public_path('build/css/admin-workspace.css')), 0, 12) : '1' }}" rel="stylesheet">
+@endif

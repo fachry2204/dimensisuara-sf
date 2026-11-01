@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Profil saya')
+@section('content-class', 'profile-workspace')
 
 @section('header')
 <div class="profile-page-heading"><div><p>Workspace <span>/</span> Profil saya</p><h4>Profil saya</h4></div><a href="#profile-verification" class="profile-edit-link">Kelola profil</a></div>

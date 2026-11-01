@@ -1,0 +1,260 @@
+/* Admin surfaces: coloured summaries, neutral data panels, transparent inner wrappers. */
+html[data-bs-theme="light"] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace {
+    --sf-surface: #fff;
+    --sf-surface-soft: #f8fafc;
+    --admin-card-border: #dce4ef;
+    --admin-card-shadow: 0 5px 20px rgba(15,23,42,.035);
+    --tone-blue: 37,99,235;
+    --tone-purple: 124,58,237;
+    --tone-green: 5,150,105;
+    --tone-orange: 217,119,6;
+    --tone-red: 225,29,72;
+}
+html[data-bs-theme="dark"] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace {
+    --sf-surface: #141e2d;
+    --sf-surface-soft: #1d293a;
+    --admin-card-border: #33465e;
+    --admin-card-shadow: 0 5px 20px rgba(0,0,0,.12);
+    --tone-blue: 96,165,250;
+    --tone-purple: 192,132,252;
+    --tone-green: 52,211,153;
+    --tone-orange: 251,191,36;
+    --tone-red: 251,113,133;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .card,.admin-panel,.admin-data-panel,.user-table-shell,.broadcast-table-shell,
+    .contract-table-panel,.transaction-table-shell,.reporting-table-shell,.reporting-data-table-shell,
+    .transaction-filter-card,.reporting-filter-card,.transaction-summary-panel,.reporting-revenue-card,
+    .automation-panel,.roles-panel,.announcement-editor-card,.announcement-live-preview
+) {
+    background: var(--sf-surface) !important;
+    background-image: none !important;
+    color: var(--sf-text) !important;
+    border: 1px solid var(--admin-card-border) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--admin-card-shadow) !important;
+    min-width: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .admin-list-header,.user-management-heading,.broadcast-page-heading,.reporting-page-heading,
+    .transaction-page-heading,.contract-page-header,.automation-header,.roles-page-header
+) {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    margin-bottom: 24px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .card-header,.user-table-titlebar,.broadcast-table-titlebar,.admin-data-panel > header
+) {
+    background: transparent !important;
+    border-color: var(--admin-card-border) !important;
+    padding: 18px 22px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+    .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,
+    .finance-stat,.finance-money,.finance-stage,.aa-kpi,.admin-metric-card
+) {
+    --card-tone: var(--tone-blue);
+    position: relative;
+    min-width: 0;
+    background: linear-gradient(120deg,rgba(var(--card-tone),.12),var(--sf-surface) 95%) !important;
+    border: 1px solid rgba(var(--card-tone),.24) !important;
+    border-top: 3px solid rgb(var(--card-tone)) !important;
+    border-radius: 15px !important;
+    box-shadow: var(--admin-card-shadow) !important;
+    padding: 20px !important;
+    color: var(--sf-text) !important;
+    text-align: left;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+    .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,
+    .finance-stat,.finance-money,.finance-stage,.aa-kpi,.admin-metric-card
+):nth-child(4n+2) { --card-tone: var(--tone-purple); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+    .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,
+    .finance-stat,.finance-money,.finance-stage,.aa-kpi,.admin-metric-card
+):nth-child(4n+3) { --card-tone: var(--tone-green); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+    .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,
+    .finance-stat,.finance-money,.finance-stage,.aa-kpi,.admin-metric-card
+):nth-child(4n+4) { --card-tone: var(--tone-orange); }
+/* Status colours keep their meaning regardless of the position of the card. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card--pending,.user-summary-card--incomplete,.broadcast-summary-card--draft,
+    .contract-summary-card--missing,.reporting-summary-card--attention,
+    .finance-stat:nth-child(2),.finance-stage[data-report-status="pending_review"],.finance-stage[data-report-status="pending_rate"]
+):is(article,button,div) { --card-tone: var(--tone-orange); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card--verified,.broadcast-summary-card--sent,.contract-summary-card--generated,
+    .reporting-summary-card--completed,.finance-stat:nth-child(3),.finance-stage[data-report-status="completed"]
+):is(article,button,div) { --card-tone: var(--tone-green); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-summary-grid > article:has(.admin-summary-icon.green) {
+    --card-tone: var(--tone-green);
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-summary-grid > article:has(.admin-summary-icon.purple) {
+    --card-tone: var(--tone-purple);
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .finance-stage[data-report-status="failed"],.automation-summary > article:last-child
+) { --card-tone: var(--tone-red); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-icon,.user-summary-arrow,.broadcast-summary-icon,.reporting-summary-icon,.admin-summary-icon,
+    .contract-summary-card > .material-icons-outlined,.automation-summary > article > i,.roles-summary > article > i,
+    .finance-stat > .material-icons-outlined,.finance-stage > .material-icons-outlined,.aa-kpi .aa-icon
+) {
+    background: rgba(var(--card-tone),.13) !important;
+    color: rgb(var(--card-tone)) !important;
+    box-shadow: none !important;
+    flex-shrink: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(.reporting-summary-icon,.admin-summary-icon,.user-summary-icon,.broadcast-summary-icon) i {
+    color: inherit !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+    .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,.finance-stat,.finance-money
+) :is(strong,b) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+    .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,.finance-stat,.finance-money
+) :is(small,em,p) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,.finance-stat,.finance-money
+)::after { display: none !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    button.user-summary-card,button.finance-stage
+) { transition: transform .15s ease, box-shadow .15s ease; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    button.user-summary-card,button.finance-stage
+):hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(var(--card-tone),.12) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .user-summary-card.is-active,.finance-stage.active
+) { outline: 2px solid rgb(var(--card-tone)); outline-offset: 2px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    button.user-summary-card,button.finance-stage
+):focus-visible { outline: 3px solid rgb(var(--card-tone)); outline-offset: 3px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+    .contract-tabs,.reporting-tabs,.system-settings > .nav
+) {
+    padding: 6px;
+    background: var(--sf-surface) !important;
+    border: 1px solid var(--admin-card-border) !important;
+    border-radius: 14px;
+    gap: 6px;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .contract-table-panel {
+    padding: 20px !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .finance-explainer {
+    background: var(--sf-surface-soft) !important;
+    border: 1px solid var(--admin-card-border) !important;
+    border-left: 3px solid rgb(var(--tone-blue)) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace #bulk-user-form {
+    background: var(--sf-surface-soft) !important;
+    border-color: var(--admin-card-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace table thead th {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-muted) !important;
+    border-color: var(--admin-card-border) !important;
+    padding-block: 14px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace table tbody tr:hover > td {
+    background: var(--sf-surface-soft) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .system-settings {
+    width: 100%;
+    max-width: none;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .automation-panel .card-body {
+    overflow-x: auto;
+}
+@media(max-width:700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(
+        .user-summary-card,.broadcast-summary-card,.contract-summary-card,.reporting-summary-card,
+        .admin-summary-grid > article,.automation-summary > article,.roles-summary > article,.finance-stat,.finance-money,.finance-stage
+    ) { padding: 16px !important; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .contract-table-panel { padding: 14px !important; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .contract-summary-card { flex-wrap: wrap; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .contract-summary-card > div { flex: 1; min-width: 0; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .contract-review-users {
+        position: static;
+        flex: 0 0 calc(100% - 68px);
+        margin-left: 68px;
+        justify-content: center;
+    }
+}
+@media(prefers-reduced-motion:reduce) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(button.user-summary-card,button.finance-stage) { transition: none; }
+}
+/* Home dashboard follows the same card palette as the administration lists. */
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-grid {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-dashboard .admin-metric-card.metric-pending { --card-tone: var(--tone-orange); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-dashboard .admin-metric-card.metric-review { --card-tone: var(--tone-blue); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-dashboard .admin-metric-card.metric-uploading { --card-tone: var(--tone-green); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-dashboard .admin-metric-card.metric-tracks { --card-tone: var(--tone-purple); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(.admin-metric-icon,.admin-card-arrow) {
+    background: rgba(var(--card-tone),.13) !important;
+    color: rgb(var(--card-tone)) !important;
+    border-color: rgba(var(--card-tone),.24) !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-icon i { color: inherit !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-card strong { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-card small { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-card:focus-visible { outline: 3px solid rgb(var(--card-tone)); outline-offset: 3px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-studio-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 0;
+    margin-bottom: 24px;
+    padding: 26px;
+    border: 1px solid var(--admin-card-border) !important;
+    border-radius: 18px;
+    background: linear-gradient(115deg,rgba(var(--tone-blue),.11),var(--sf-surface) 55%,rgba(var(--tone-purple),.09)) !important;
+    box-shadow: var(--admin-card-shadow) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-studio-hero::before,
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-studio-ornament { display: none !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-studio-hero p { color: var(--sf-muted) !important; line-height: 1.6; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-eyebrow { color: rgb(var(--tone-blue)) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-studio-status {
+    background: rgba(var(--tone-green),.1) !important;
+    border-color: rgba(var(--tone-green),.3) !important;
+    color: rgb(var(--tone-green)) !important;
+    white-space: nowrap;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(.admin-queue-head,.admin-release-stat-head,.admin-activity-head) {
+    background: var(--sf-surface-soft) !important;
+    color: var(--sf-muted) !important;
+    border-color: var(--admin-card-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(.admin-queue-item,.admin-release-stat-row,.admin-activity-row) {
+    background: transparent !important;
+    color: var(--sf-text) !important;
+    border-color: var(--admin-card-border) !important;
+    box-shadow: none !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(.admin-queue-item,.admin-release-stat-row,.admin-activity-row):hover { background: var(--sf-surface-soft) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace :is(.admin-release-name,.admin-release-stat-title,.admin-activity-row,.admin-empty-state) strong { color: var(--sf-text) !important; }
+@media(max-width:700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-studio-hero { align-items: flex-start; flex-direction: column; padding: 20px; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-card { padding: 16px !important; }
+}
+@media(prefers-reduced-motion:reduce) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .admin-metric-card { transition: none; }
+}

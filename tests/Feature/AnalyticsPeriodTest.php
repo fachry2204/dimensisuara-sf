@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\AnalyticController;
+use App\Database\RelationalFields;
 use App\Models\User\Profile;
 use App\Models\User\User;
 use Carbon\Carbon;
@@ -123,5 +124,64 @@ class AnalyticsPeriodTest extends TestCase
         $this->assertNull($data['latestAvailableDate']);
         $this->assertSame(0, $data['currentPeriod']);
         $this->assertSame(0.0, $data['periodRevenue']);
+    }
+
+    private function seedCatalogue(bool $normalized): void
+    {
+        DB::table('releases')->insert([
+            ['id' => 1, 'profileid' => 1, 'title' => 'Rilis Saya', 'primaryartists' => '[{"name":"Artis Saya"}]'],
+            ['id' => 2, 'profileid' => 2, 'title' => 'Rilis Lain', 'primaryartists' => null],
+            ['id' => 3, 'profileid' => 1, 'title' => 'Tanpa Laporan', 'primaryartists' => null],
+        ]);
+        DB::table('tracks')->insert(['id' => 1, 'profileid' => 1, 'title' => 'Lagu Saya']);
+        DB::table('release_track')->insert(['release_id' => 1, 'track_id' => 1]);
+        DB::table('report_aggregate_tracks')->insert([
+            ['profileid' => 1, 'trackid' => 1, 'sales_month' => '2026-05-01', 'quantity' => 200, 'client_rupiah_exact' => 100],
+            ['profileid' => 1, 'trackid' => 1, 'sales_month' => '2025-04-01', 'quantity' => 100, 'client_rupiah_exact' => 50],
+            ['profileid' => 2, 'trackid' => 1, 'sales_month' => '2026-05-01', 'quantity' => 999, 'client_rupiah_exact' => 999],
+        ]);
+        if ($normalized) {
+            (require database_path('migrations/2026_11_01_130000_normalize_application_json_fields.php'))->up();
+            RelationalFields::resetSchemaCache();
+            RelationalFields::write('tracks', 1, 'primaryartists', [(object) ['name' => 'Artis Saya']]);
+            $this->assertFalse(Schema::hasColumn('releases', 'primaryartists'));
+            $this->assertFalse(Schema::hasColumn('tracks', 'primaryartists'));
+        }
+    }
+
+    public function test_normalized_release_analytics_preserve_artists_totals_and_account_scope(): void
+    {
+        $this->seedCatalogue(true);
+        $data = $this->analytics(['date_range' => 'last_6_months']);
+        $this->assertSame(2, $data['releases']->total());
+        $release = $data['releases']->first();
+        $this->assertSame('Rilis Saya', $release->title);
+        $this->assertTrue($release->relationLoaded('relationalFieldRows'));
+        $this->assertSame('Artis Saya', $release->primaryartists[0]->name);
+        $this->assertEquals(200, $release->streams);
+        $this->assertEquals(100, $release->revenue);
+        $this->assertEquals(0, $data['releases']->last()->streams);
+    }
+
+    public function test_legacy_release_analytics_still_read_artist_names(): void
+    {
+        $this->seedCatalogue(false);
+        $release = $this->analytics()['releases']->first();
+        $this->assertSame('Artis Saya', $release->primaryartists[0]->name);
+        $this->assertEquals(300, $release->streams);
+    }
+
+    public function test_normalized_track_endpoint_returns_credits_without_other_account_totals(): void
+    {
+        $this->seedCatalogue(true);
+        $response = app(AnalyticController::class)->get_tracks(Request::create('/analytics/tracks', 'GET', [
+            'start' => 0, 'length' => 10, 'search' => ['value' => 'Lagu'],
+        ]));
+        $this->assertSame(200, $response->getStatusCode());
+        $data = $response->getData(true);
+        $this->assertSame(1, $data['recordsTotal']);
+        $this->assertSame(1, $data['recordsFiltered']);
+        $this->assertSame('Artis Saya', $data['data'][0]['primaryartists'][0]['name']);
+        $this->assertEquals(300, $data['data'][0]['views']);
     }
 }

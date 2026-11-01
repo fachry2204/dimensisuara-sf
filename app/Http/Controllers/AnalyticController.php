@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 use App\Models\Track;
 use App\Models\Release;
+use App\Database\RelationalFields;
 
 
 class AnalyticController extends Controller
@@ -141,13 +142,15 @@ class AnalyticController extends Controller
             ->select(
                 'releases.id',
                 'releases.title',
-                'releases.primaryartists',
                 'releases.type',
                 'releases.releaseon',
                 DB::raw('SUM(COALESCE(reports.quantity, 0)) as streams'),
                 DB::raw('SUM(COALESCE(reports.client_rupiah_exact, 0)) as revenue')
             )
-            ->groupBy('releases.id', 'releases.title', 'releases.primaryartists', 'releases.type', 'releases.releaseon')
+            ->groupBy('releases.id', 'releases.title', 'releases.type', 'releases.releaseon')
+            ->when(RelationalFields::available('releases'),
+                fn ($query) => $query->with('relationalFieldRows'),
+                fn ($query) => $query->addSelect('releases.primaryartists')->groupBy('releases.primaryartists'))
             ->orderByDesc('streams')
             ->orderByDesc('releases.id')
             ->paginate(20)
@@ -263,37 +266,49 @@ class AnalyticController extends Controller
     public function get_tracks(Request $request)
     {
         try {
-            $query          = Track::where('tracks.profileid', current_user()->profile->id);
-            $recordsTotal   = $query->get()->count();
+            $profileId = current_user()->profile->id;
+            $query          = Track::where('tracks.profileid', $profileId);
+            $recordsTotal   = (clone $query)->count();
             $query = $query->select(
                     'tracks.id as id',
                     'tracks.title as title',
-                    'tracks.primaryartists as primaryartists',
                     DB::raw('SUM(viewstbl.quantity) as views')
                 )
-                ->leftJoin('report_aggregate_tracks as viewstbl', 'viewstbl.trackid', '=', 'tracks.id')
-                ->groupBy('tracks.id', 'tracks.title', 'tracks.primaryartists');
+                ->leftJoin('report_aggregate_tracks as viewstbl', function ($join) use ($profileId) {
+                    $join->on('viewstbl.trackid', '=', 'tracks.id')->where('viewstbl.profileid', $profileId);
+                })
+                ->groupBy('tracks.id', 'tracks.title')
+                ->when(RelationalFields::available('tracks'),
+                    fn ($query) => $query->with('relationalFieldRows'),
+                    fn ($query) => $query->addSelect('tracks.primaryartists')->groupBy('tracks.primaryartists'));
 
             // Searching
             if ($search = $request->input('search.value')) {
                 $query->where(function($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%");
+                    $q->where('tracks.title', 'like', "%{$search}%");
                 });
             }
 
             // Sorting
             $columns        = ['title', 'views'];
-            $orderColumn    = $columns[$request->input('order.0.column')];
-            $orderDir       = $request->input('order.0.dir');
+            $orderColumn    = $columns[$request->integer('order.0.column')] ?? 'title';
+            $orderDir       = $request->input('order.0.dir') === 'desc' ? 'desc' : 'asc';
             $query->orderBy($orderColumn, $orderDir);
 
             // Pagination
-            $recordsFiltered    = $query->get()->count();
+            $recordsFiltered    = (clone $query)->get()->count();
 
             $data = $query
                 ->skip($request->input('start'))
                 ->take($request->input('length'))
-                ->get();
+                ->get()
+                // Return the scoped aggregate, bypassing the model's all-account views accessor.
+                ->map(fn ($track) => [
+                    'id' => $track->id,
+                    'title' => $track->title,
+                    'primaryartists' => $track->primaryartists,
+                    'views' => $track->getAttributes()['views'] ?? 0,
+                ]);
             
             return response()->json([
                 "draw"              => intval($request->input('draw')),

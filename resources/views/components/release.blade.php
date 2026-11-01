@@ -1,7 +1,7 @@
 @php
     $releaseArtists = \App\Support\ArtistCredits::normalize($release->primaryartists);
 @endphp
-<div class="row pb-5 {{ ($type ?? '') === 'admin' ? 'admin-release-detail' : 'customer-release-detail' }}">
+<div class="row release-detail {{ ($type ?? '') === 'admin' ? 'admin-release-detail' : 'customer-release-detail' }}">
     @if($release->reason && $release->status == 'rejected')
         <div class="col-12 release-rejection-notice">
             <div class="alert alert-danger mb-4">
