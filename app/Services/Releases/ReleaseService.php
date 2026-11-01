@@ -360,18 +360,7 @@ class ReleaseService
 
     public function destroy(Release $release)
     {
-        // Use transaction
-        DB::transaction(function () use ($release) {
-
-            // Detach associated tracks
-            $tracks = $release->tracks;
-            foreach ($tracks as $track) {
-                $release->tracks()->detach($track->id);
-            }
-
-            // Delete the release
-            $release->delete();
-        });
+        return $release->delete();
     }
 
     public function submit(Release $release)
@@ -380,6 +369,9 @@ class ReleaseService
 
         // Validate Status Transition
         $this->validateStatusTransition($release, $targetStatus);
+
+        // Recheck entitlement in case whitelabel was disabled after this draft was saved.
+        $release->recordlabel = $release->profile->recordLabelFor($release->recordlabel);
 
         // Validate Album
         $albumRequest = new AlbumRequest();

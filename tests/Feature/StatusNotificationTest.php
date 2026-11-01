@@ -255,4 +255,20 @@ class StatusNotificationTest extends TestCase
         $this->signIn();$this->get($preview)->assertOk()->assertSee('Cerita di Dalam Musik');
         $this->get(route('admin.system-settings.index',['tab'=>'notifications-whatsapp']))->assertOk()->assertSee('Template tetap dapat disiapkan');
     }
+    public function test_status_notification_snapshots_after_normalization_are_encrypted_and_keep_artist_details(): void
+    {
+        (require base_path('database/migrations/2026_11_01_130000_normalize_application_json_fields.php'))->up();
+        $this->app->forgetInstance(SystemSettings::class);
+        $profile = $this->profile();
+        $release = $this->release($profile);
+        $delivery = StatusNotificationDelivery::where('release_id',$release->id)->firstOrFail();
+        $this->assertSame('Artis Uji',$delivery->payload['message']['context']['artis']);
+        $this->assertSame('owner@example.test',$delivery->payload['recipient']);
+        $this->assertStringNotContainsString('owner@example.test',implode('',DB::table('notification_payload_values')->pluck('scalar_value')->all()));
+        $this->assertFalse(Schema::hasColumn('status_notification_deliveries','payload'));
+        $this->assertFalse(Schema::hasColumn('releases','primaryartists'));
+        $profile->status = 'verified'; $profile->save();
+        $this->assertGreaterThan(0,StatusNotificationDelivery::where('event','user.verified')->count());
+    }
+
 }

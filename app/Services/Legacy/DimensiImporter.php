@@ -166,7 +166,7 @@ class DimensiImporter
         }
         $profileId = $this->profiles[$r['user_id']];
         $this->noteRepeatedCode('upc', $upc);
-        $id = DB::table('releases')->insertGetId([
+        $id = \App\Database\RelationalFields::insert('releases', [
             'profileid' => $profileId, 'type' => strtolower($r['type']) === 'single' ? 'single' : 'album',
             'title' => $r['title'], 'titlelang' => $this->language($r['language']),
             'primaryartists' => $this->json($this->artists($r['primary_artists'])),
@@ -209,7 +209,7 @@ class DimensiImporter
         }
         $writers = $this->writers($r);
         $this->noteRepeatedCode('isrc', $isrc);
-        $id = DB::table('tracks')->insertGetId([
+        $id = \App\Database\RelationalFields::insert('tracks', [
             'profileid' => $this->trackProfiles[$r['release_id']], 'title' => $r['title'], 'isrc' => $isrc,
             'titlelang' => $this->language($r['language'] ?: $release['language']),
             'genre' => $this->genre($r) ?: $this->genre($release),
@@ -373,7 +373,7 @@ class DimensiImporter
         $record = DB::table('legacy_import_records')->where(['source' => self::SOURCE, 'entity' => $entity, 'legacy_id' => $row['id']])->first();
         if ($record) {
             // Never silently accept changed source records under an existing mapping.
-            $original = unserialize(Crypt::decryptString($record->payload), ['allowed_classes' => false]);
+            $original = \App\Database\RelationalFields::legacyPayload($record);
             if ($original !== $row) {
                 throw new RuntimeException('Legacy row changed after an earlier import.');
             }
@@ -384,7 +384,7 @@ class DimensiImporter
 
     private function record(string $entity, array $row, ?int $targetId, string $status): void
     {
-        DB::table('legacy_import_records')->insert([
+        \App\Database\RelationalFields::insert('legacy_import_records', [
             'source' => self::SOURCE, 'entity' => $entity, 'legacy_id' => $row['id'], 'target_id' => $targetId,
             'status' => $status, 'payload' => Crypt::encryptString(serialize($row)), 'source_sha256' => $this->hash,
             'created_at' => now(), 'updated_at' => now(),

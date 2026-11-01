@@ -24,6 +24,11 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use Authorizable, HasFactory, Notifiable;
 
+    public function notifications(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(\App\Models\DatabaseNotification::class, 'notifiable')->latest();
+    }
+
     protected static function newFactory()
     {
         return \Database\Factories\UserFactory::new();

@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectUsersTo(fn (\Illuminate\Http\Request $request) =>
+            $request->user() instanceof \App\Models\User\Admin ? route('admin.home') : route('home'));
         $middleware->web(append: [\App\Http\Middleware\UseAccountGuard::class, \App\Http\Middleware\RoleMaintenance::class]);
         $middleware->appendToPriorityList(\Illuminate\Session\Middleware\StartSession::class, \App\Http\Middleware\UseAccountGuard::class);
     })

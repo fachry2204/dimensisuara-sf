@@ -11,7 +11,9 @@ class DatabaseLogger extends AbstractProcessingHandler
 {
     protected function write(LogRecord $record): void
     {
-        DB::table('logs')->insert([
+        // Installation and isolated tests can run before the activity table exists.
+        if (!\Illuminate\Support\Facades\Schema::hasTable('logs')) return;
+        \App\Database\RelationalFields::insert('logs', [
             'level'         => $record->level->getName(),
             'message'       => $record->message,
             'context'       => json_encode($record->context),

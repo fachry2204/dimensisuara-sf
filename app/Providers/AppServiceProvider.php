@@ -28,6 +28,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        $this->app->afterResolving('queue', function ($manager) {
+            $manager->addConnector('database', fn () => new \App\Queue\RelationalDatabaseConnector($this->app['db']));
+        });
+        $this->app->extend('queue.failer', function ($provider, $app) {
+            if ($provider instanceof \Illuminate\Queue\Failed\DatabaseUuidFailedJobProvider) {
+                $config = $app['config']['queue.failed'];
+                return new \App\Queue\RelationalFailedJobs($app['db'],$config['database'],$config['table']);
+            }
+            return $provider;
+        });
+        $this->app->extend(\Illuminate\Bus\DatabaseBatchRepository::class, function ($repository, $app) {
+            $config = $app['config']['queue.batching'];
+            return new \App\Queue\RelationalBatchRepository($app->make(\Illuminate\Bus\BatchFactory::class),$app['db']->connection($config['database']),$config['table']);
+        });
+
         \App\Models\Release::observe(\App\Observers\StatusNotificationObserver::class);
         \App\Models\User\Profile::observe(\App\Observers\StatusNotificationObserver::class);
         \App\Models\User\User::observe(\App\Observers\StatusNotificationObserver::class);

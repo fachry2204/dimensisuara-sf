@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Announcement extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     protected $table = 'announcements';
 
     protected $fillable = [

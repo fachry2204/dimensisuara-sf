@@ -18,6 +18,7 @@ class AutomationController extends Controller
         $jobs       = DB::table('jobs')->get();
 
         foreach ($fails as $index => $job) {
+            \App\Database\RelationalFields::hydratePayload('failed_jobs',$job);
             try {
                 $payload = json_decode($job->payload, 1);
                 $command = unserialize($payload['data']['command']);
@@ -37,6 +38,7 @@ class AutomationController extends Controller
         }
 
         foreach ($jobs as $index => $job) {
+            \App\Database\RelationalFields::hydratePayload('jobs',$job);
             try {
                 $payload = json_decode($job->payload, 1);
                 $command = unserialize($payload['data']['command']);

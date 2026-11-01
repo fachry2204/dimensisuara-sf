@@ -30,7 +30,7 @@ class LegacyMediaImporter
     /** One source record per job bounds memory and allows progress/retry between WAV files. */
     public function importRecord(LegacyImportRun $run, object $record, bool $missingOnly = false): void
     {
-        $row = unserialize(Crypt::decryptString($record->payload), ['allowed_classes' => false]);
+        $row = \App\Database\RelationalFields::legacyPayload($record);
         if (!is_array($row)) {
             throw new RuntimeException('Arsip pemetaan media tidak valid.');
         }

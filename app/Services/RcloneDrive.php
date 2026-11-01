@@ -83,6 +83,21 @@ class RcloneDrive
         }
     }
 
+    public function deleteFile(string $remote): void
+    {
+        $this->validateRemote($remote);
+        try {
+            $process = $this->process(['deletefile', $remote]);
+            $process->run();
+            // A previous deletion attempt may already have removed the exact file.
+            if (!$process->isSuccessful() && !in_array($process->getExitCode(), [3, 4], true)) {
+                throw new RuntimeException;
+            }
+        } catch (\Throwable) {
+            throw new RuntimeException('File Google Drive belum dapat dihapus. Periksa koneksi dan izin rclone.');
+        }
+    }
+
     public function stream(string $remote, int $offset, int $count): void
     {
         @set_time_limit(0);

@@ -25,6 +25,7 @@ View User
                     @endif
                 </div>
                 <div class="admin-user-statuses">
+                    <x-account-email-status :account="$user" :action="route('admin.users.verify_email', $user->id)" :can-manage="auth()->user()->can('manage-user-status')" />
                     @if($user->is_admin)
                         <span class="admin-user-status admin-user-status--admin">Admin</span>
                     @endif
@@ -59,9 +60,6 @@ View User
                             <button type="button" class="btn admin-user-action-btn is-success" data-bs-toggle="modal" data-bs-target="#unblock-modal"><i class="material-icons-outlined">lock_open</i> Unblock</button>
                         @else
                             <button type="button" class="btn admin-user-action-btn is-warning" data-bs-toggle="modal" data-bs-target="#block-modal"><i class="material-icons-outlined">block</i> Block</button>
-                        @endif
-                        @if($user->email_verified_at == null)
-                            <button type="button" class="btn admin-user-action-btn" data-bs-toggle="modal" data-bs-target="#verify-email-modal"><i class="material-icons-outlined">verified</i> Verify email</button>
                         @endif
                         <button type="button" class="btn admin-user-action-btn" data-bs-toggle="modal" data-bs-target="#notify-modal"><i class="material-icons-outlined">send</i> Message</button>
                     @endcan
@@ -272,6 +270,21 @@ View User
                                                 </td>
                                             </tr>
 
+                                            <tr>
+                                                <td class="text-muted">Whitelabel</td>
+                                                <td>
+                                                    <span class="badge {{ $user->profile->whitelabel_enabled ? 'bg-success' : 'bg-secondary' }}">{{ $user->profile->whitelabel_enabled ? 'Aktif' : 'Nonaktif' }}</span>
+                                                    <p class="small text-muted mt-2 mb-2">{{ $user->profile->whitelabel_enabled ? 'Pengguna dapat mengisi Nama Label sendiri pada rilis.' : 'Nama Label dikunci menjadi Dimensi Suara pada pengisian rilis.' }}</p>
+                                                    @can('manage-user-features')
+                                                        <form method="POST" action="{{ route('admin.users.whitelabel.update', $user->id) }}">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <input type="hidden" name="whitelabel_enabled" value="{{ $user->profile->whitelabel_enabled ? '0' : '1' }}">
+                                                            <button type="submit" class="btn btn-sm btn-outline-primary">{{ $user->profile->whitelabel_enabled ? 'Nonaktifkan Whitelabel' : 'Aktifkan Whitelabel' }}</button>
+                                                        </form>
+                                                    @endcan
+                                                </td>
+                                            </tr>
                                             @can('manage-user-features')
                                                 @if(!$user->profile->feature_aggregator)
                                                     <tr><td colspan="2"><a href="javascript:;" data-bs-toggle="modal" data-bs-target="#enable-aggregator-modal">Enable aggregator feature</a></td></tr>
@@ -547,33 +560,6 @@ View User
                             <div class="modal-footer border-top-0">
                                 <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-success" form="verify-form">Verify User</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            {{-- Verify Email Modal --}}
-            @if($user->email_verified_at == null)
-                <div class="modal fade" id="verify-email-modal">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header border-bottom-0 py-2">
-                                <h5 class="modal-title">Verify Email</h5>
-                                <a href="javascript:;" class="primaery-menu-close" data-bs-dismiss="modal">
-                                    <i class="material-icons-outlined">close</i>
-                                </a>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{{ route('admin.users.verify_email', $user->id) }}" method="POST" id="verify-email-form">
-                                    @csrf
-                                    @method('PUT')
-                                    <p>Are you sure you want to verify this user's email?</p>
-                                </form>
-                            </div>
-                            <div class="modal-footer border-top-0">
-                                <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-success" form="verify-email-form">Verify Email</button>
                             </div>
                         </div>
                     </div>

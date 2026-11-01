@@ -10,6 +10,8 @@ use App\Models\User\User;
 
 class LogActivity extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     protected $table = 'logs';
 
     public function user(): BelongsTo

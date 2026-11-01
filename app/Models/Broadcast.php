@@ -9,6 +9,8 @@ use App\Models\User\User;
 
 class Broadcast extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     use SoftDeletes;
 
     protected $fillable = [

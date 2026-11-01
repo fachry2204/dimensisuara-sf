@@ -162,6 +162,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
             Route::prefix('{id}')->group(function () {
                 Route::get('/',                 [AggregatorController::class, 'show'])->name('admin.releases.show');
+                Route::delete('/', [AggregatorController::class, 'destroy'])->whereNumber('id')->middleware('can:delete-releases')->name('admin.releases.destroy');
 
                 Route::middleware(['can:edit-releases'])->group(function () {
                     Route::get('/edit',         [AggregatorController::class, 'edit'])->name('admin.releases.edit');
@@ -301,6 +302,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
             // User features
             Route::prefix('{id}/feature')->middleware(['can:manage-user-features'])->group(function () {
+                Route::put('whitelabel', [UserStatusController::class, 'updateWhitelabel'])->name('admin.users.whitelabel.update');
                 Route::put('aggregator/enable',     [UserStatusController::class, 'enable_aggregator'])->name('admin.users.aggregator.enable');
                 Route::put('aggregator/disable',    [UserStatusController::class, 'disable_aggregator'])->name('admin.users.aggregator.disable');
                 Route::put('publishing/enable',     [UserStatusController::class, 'enable_publishing'])->name('admin.users.publishing.enable');
@@ -379,6 +381,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
             Route::prefix('admin')->middleware(['can:manage-admins'])->group(function () {
                 Route::post('store',            [UserAdminController::class, 'store'])->name('admin.user-admin.store');
+                Route::put('{id}/verify-email', [UserAdminController::class, 'verifyEmail'])->whereNumber('id')->name('admin.user-admin.verify-email');
                 Route::delete('{id}/revoke',    [UserAdminController::class, 'revoke'])->name('admin.user-admin.revoke');
             });
         });

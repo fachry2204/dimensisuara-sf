@@ -64,10 +64,13 @@ class LoginController extends Controller
 
             // Allow if user is admin
             if(Gate::check('admin')) {
+                if ($admin && !$admin->hasVerifiedEmail()) $admin->markEmailAsVerified();
                 Auth::guard('web')->logout();
                 $this->clearLoginAttempts($request);
                 $request->session()->regenerate();
-                return redirect()->intended(route('admin.home'));
+                // A customer URL saved before login must not override the admin home.
+                $request->session()->forget('url.intended');
+                return redirect()->route('admin.home');
             }
 
             // Allow if user has a profile

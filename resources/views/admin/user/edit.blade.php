@@ -35,6 +35,7 @@ Edit User
             </div>
             <div class="card-body">
                 <p>Define this user's revenue share rate in percentage. This value will be used to calculate the revenue share on future reports.</p>
+                <p class="text-muted small">Masukkan angka bulat 0–100 tanpa titik atau koma, misalnya 75.</p>
                 <form action="{{ route('admin.users.update_rate', $user->id) }}" method="POST" id="rate-form">
                     @csrf
                     @method('put')
@@ -43,11 +44,11 @@ Edit User
                         <div class="col-lg-12">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <label class="form-label">Aggregator Share Rate</label>
+                                    <label for="aggregator_rate" class="form-label">Aggregator Share Rate</label>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="input-group">
-                                        <input type="number" class="form-control" name="aggregator_rate" id="aggregator_rate" value="{{  $user->profile->aggregator_rate ?? 0 }}" min="0" max="100">
+                                        <input type="number" class="form-control" name="aggregator_rate" id="aggregator_rate" value="{{ old('aggregator_rate', number_format((float) ($user->profile->aggregator_rate ?? 0), 0, '.', '')) }}" min="0" max="100" step="1" inputmode="numeric" required>
                                         <span class="input-group-text">%</span>
                                     </div>
                                 </div>
@@ -56,11 +57,11 @@ Edit User
                         <div class="col-lg-12">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <label class="form-label">Publishing Share Rate</label>
+                                    <label for="publishing_rate" class="form-label">Publishing Share Rate</label>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="input-group">
-                                        <input type="number" class="form-control" name="publishing_rate" id="publishing_rate" value="{{  $user->profile->publishing_rate ?? 0 }}" min="0" max="100">
+                                        <input type="number" class="form-control" name="publishing_rate" id="publishing_rate" value="{{ old('publishing_rate', number_format((float) ($user->profile->publishing_rate ?? 0), 0, '.', '')) }}" min="0" max="100" step="1" inputmode="numeric" required>
                                         <span class="input-group-text">%</span>
                                     </div>
                                 </div>
@@ -69,11 +70,11 @@ Edit User
                         <div class="col-lg-12">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <label class="form-label">MCN Share Rate</label>
+                                    <label for="mcn_rate" class="form-label">MCN Share Rate</label>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="input-group">
-                                        <input type="number" class="form-control" name="mcn_rate" id="mcn_rate" value="{{  $user->profile->mcn_rate ?? 0 }}" min="0" max="100">
+                                        <input type="number" class="form-control" name="mcn_rate" id="mcn_rate" value="{{ old('mcn_rate', number_format((float) ($user->profile->mcn_rate ?? 0), 0, '.', '')) }}" min="0" max="100" step="1" inputmode="numeric" required>
                                         <span class="input-group-text">%</span>
                                     </div>
                                 </div>

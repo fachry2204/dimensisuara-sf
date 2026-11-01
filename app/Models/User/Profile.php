@@ -18,7 +18,16 @@ use App\Models\Track;
 
 class Profile extends Model
 {
+    public const DEFAULT_RECORD_LABEL = 'Dimensi Suara';
+
     protected $table = 'user_profiles';
+
+    protected $casts = ['whitelabel_enabled' => 'boolean'];
+
+    public function recordLabelFor($requested)
+    {
+        return $this->whitelabel_enabled ? $requested : self::DEFAULT_RECORD_LABEL;
+    }
 
     protected $fillable = [
         'old_id',

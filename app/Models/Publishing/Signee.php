@@ -17,6 +17,8 @@ use App\Models\Publishing\Songwriter;
 
 class Signee extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     protected $table = 'publishing_signees';
 
     protected $fillable = [

@@ -13,6 +13,8 @@ use App\Services\ContractService;
 
 class Contract extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     protected $casts = ['generated_html' => 'encrypted', 'user_percentage' => 'integer', 'system_percentage' => 'integer', 'contract_date' => 'date'];
     protected $hidden = ['generated_html'];
 

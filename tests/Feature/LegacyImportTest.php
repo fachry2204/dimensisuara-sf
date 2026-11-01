@@ -122,4 +122,22 @@ class LegacyImportTest extends TestCase
             unlink($path);
         }
     }
+    public function test_importer_after_normalization_preserves_credits_and_source_archives_without_json_columns(): void
+    {
+        (require base_path('database/migrations/2026_11_01_130000_normalize_application_json_fields.php'))->up();
+        $data = $this->data();
+        DB::transaction(fn () => (new DimensiImporter)->run($data,str_repeat('e',64)));
+        $release = \App\Models\Release::first();
+        $track = \App\Models\Track::first();
+        $this->assertSame('Artist',$release->primaryartists[0]->name);
+        $this->assertSame('https://open.spotify.com/artist/example',$track->primaryartists[0]->spotify);
+        $this->assertSame('author_composer',$track->songwriters[0]['role']);
+        $archive = DB::table('legacy_import_records')->where('entity','tracks')->first();
+        $this->assertSame($data['tracks'][12],\App\Database\RelationalFields::legacyPayload($archive));
+        $this->assertFalse(Schema::hasColumn('tracks','songwriters'));
+        DB::transaction(fn () => (new DimensiImporter)->run($data,str_repeat('e',64)));
+        $this->assertSame(1,DB::table('tracks')->count());
+        $this->assertSame(1,DB::table('releases')->count());
+    }
+
 }

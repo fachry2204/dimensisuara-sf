@@ -20,7 +20,7 @@ class VerificationController extends Controller
     |
     */
 
-    use VerifiesEmails;
+    use VerifiesEmails { resend as protected resendVerificationEmail; }
 
     /**
      * Where to redirect users after verification.
@@ -45,6 +45,7 @@ class VerificationController extends Controller
     public function show()
     {
         $user = Auth::user();
+        if ($this->acceptProvisionedAdmin($user)) return redirect()->route('admin.home');
 
         if (!$user->hasVerifiedEmail()) {
             $user->sendEmailVerificationNotification();
@@ -52,5 +53,24 @@ class VerificationController extends Controller
         }
 
         return redirect($this->redirectPath());
+    }
+
+    public function resend(\Illuminate\Http\Request $request)
+    {
+        if ($this->acceptProvisionedAdmin($request->user())) return redirect()->route('admin.home');
+        return $this->resendVerificationEmail($request);
+    }
+
+    public function redirectTo(): string
+    {
+        return Auth::user() instanceof \App\Models\User\Admin ? route('admin.home') : route('home');
+    }
+
+    private function acceptProvisionedAdmin($user): bool
+    {
+        if (!$user instanceof \App\Models\User\Admin) return false;
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('admin'),403);
+        if (!$user->hasVerifiedEmail()) $user->markEmailAsVerified();
+        return true;
     }
 }

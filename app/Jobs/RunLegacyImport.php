@@ -147,7 +147,7 @@ class RunLegacyImport implements ShouldQueue
         foreach ($data['users'] as $row) {
             $record = DB::table('legacy_import_records')->where(['source'=>'dimensisuara_legacy','entity'=>'users','legacy_id'=>$row['id'],'status'=>'imported'])->first();
             if (!$record) continue;
-            $original = unserialize(\Illuminate\Support\Facades\Crypt::decryptString($record->payload),['allowed_classes'=>false]);
+            $original = \App\Database\RelationalFields::legacyPayload($record);
             if ($original !== $row) throw new RuntimeException('Data pengguna SQL berbeda dari arsip impor. Dokumen tidak ditautkan.');
             $ids[] = $record->id;
         }

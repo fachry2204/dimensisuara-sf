@@ -90,9 +90,10 @@
 
     <!-- Record Label -->
     <div class="form-group col-12 col-md-6 mb-3">
-        <label for="recordlabel" class="form-label">Record Label</label>
+        <label for="recordlabel" class="form-label">Nama Label</label>
         <input type="text" class="form-control" name="recordlabel" id="recordlabel" x-model="$store.release.recordlabel"
-            required>
+            maxlength="100" @readonly($restrictRecordLabel ?? false) required aria-describedby="recordlabel-help">
+        <small id="recordlabel-help" class="text-muted">{{ ($restrictRecordLabel ?? false) ? 'Nama Label menggunakan Dimensi Suara. Hubungi admin untuk mengaktifkan Whitelabel.' : 'Isi nama label yang akan dicantumkan pada rilis.' }}</small>
     </div>
 
     <!-- Version -->
@@ -127,7 +128,7 @@
                 </div>
             </div>
             <div class="release-ipl-action">
-                <input type="file" name="ipl" id="ipl" accept="application/pdf" :required="$store.release.version != 1"
+                <input type="file" name="ipl" id="ipl" accept="application/pdf" :required="$store.release.version != 1 && !$store.release.iplUrl"
                     @change="document.getElementById('ipl-file-name').textContent = $event.target.files[0] ? $event.target.files[0].name : 'PDF, maksimal sesuai ketentuan sistem'">
                 <label for="ipl" class="btn release-ipl-upload"><i class="material-icons-outlined">upload_file</i> Upload PDF</label>
                 <small id="ipl-file-name">PDF, maksimal sesuai ketentuan sistem</small>

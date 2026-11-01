@@ -32,6 +32,9 @@ class UserAdminController extends Controller
                     $user->roles()->attach($request->role);
                 }
 
+                // Accounts provisioned by an authorized administrator are trusted.
+                if (!$user->hasVerifiedEmail()) $user->markEmailAsVerified();
+
                 Log::info('User ID ' . $user->id . ' with email ' . $user->email . ' has been created as Admin by Admin ID ' . auth()->user()->id . ' with role ID ' . $request->role . '.');
             });
 
@@ -41,6 +44,22 @@ class UserAdminController extends Controller
             Log::error($th->getMessage(), ['stack' => $th->getTraceAsString()]);
             return redirect()->back()->withErrors($th->getMessage());
         }
+    }
+
+    public function verifyEmail(string $id)
+    {
+        DB::transaction(function () use ($id) {
+            $admin = User::lockForUpdate()->findOrFail($id);
+            if (!$admin->hasVerifiedEmail()) {
+                $admin->markEmailAsVerified();
+                Log::info('Admin email manually verified.', [
+                    'admin_user_id' => $admin->id,
+                    'verified_by_admin_id' => auth()->id(),
+                ]);
+            }
+        });
+
+        return redirect()->back()->with('success', 'Email admin sudah terverifikasi.');
     }
 
     public function revoke($id)

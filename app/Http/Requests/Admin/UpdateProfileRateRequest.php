@@ -28,4 +28,13 @@ class UpdateProfileRateRequest extends FormRequest
             'mcn_rate'          => 'required|integer|min:0|max:100',
         ];
     }
+    public function messages(): array
+    {
+        return [
+            '*.integer' => 'Revenue share harus berupa angka bulat tanpa titik atau koma.',
+            '*.min' => 'Revenue share minimal 0%.',
+            '*.max' => 'Revenue share maksimal 100%.',
+        ];
+    }
+
 }

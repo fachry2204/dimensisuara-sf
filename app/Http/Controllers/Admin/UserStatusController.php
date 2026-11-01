@@ -20,6 +20,26 @@ class UserStatusController extends Controller
     /**
      * User status
      */
+    public function updateWhitelabel(string $id, Request $request)
+    {
+        $data = $request->validate(['whitelabel_enabled' => ['required', 'boolean']]);
+        $user = User::findOrFail($id);
+        $profile = $user->profile;
+        abort_unless($profile, 404);
+
+        $profile->whitelabel_enabled = (bool) $data['whitelabel_enabled'];
+        $profile->save();
+        Log::info('User whitelabel setting updated.', [
+            'user_id' => $user->id,
+            'admin_user_id' => auth()->id(),
+            'whitelabel_enabled' => $profile->whitelabel_enabled,
+        ]);
+
+        return back()->with('success', $profile->whitelabel_enabled
+            ? 'Whitelabel aktif. Pengguna dapat mengisi Nama Label sendiri.'
+            : 'Whitelabel nonaktif. Nama Label pada pengisian rilis menggunakan Dimensi Suara.');
+    }
+
     public function verify(string $id, Request $request)
     {
         $rates = $request->validate([
@@ -72,15 +92,12 @@ class UserStatusController extends Controller
             // Get user
             $user = User::findOrFail($id);
 
-            // Check if user is already verified
-            if($user->email_verified_at != null) {
-                throw new \Exception("This user's email is already verified");
+            if ($user->hasVerifiedEmail()) {
+                return redirect()->back()->with('success', 'Email pengguna sudah terverifikasi.');
             }
 
-            // Update user
             DB::transaction(function () use ($user) {
-                $user->email_verified_at   = now();
-                $user->save();
+                $user->markEmailAsVerified();
             });
 
             // Log

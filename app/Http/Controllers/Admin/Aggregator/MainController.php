@@ -56,6 +56,23 @@ class MainController extends Controller
         return view('admin.aggregator.show', compact('release'));
     }
 
+    public function destroy(string $id, Request $request)
+    {
+        $request->validate(['confirm_delete' => ['required', 'accepted']]);
+        $release = Release::visibleTo(auth()->user())->findOrFail($id);
+        $title = $release->title;
+
+        try {
+            $this->service->destroy($release);
+        } catch (\Throwable $exception) {
+            Log::error('Release deletion failed.', ['release_id'=>$id, 'admin_user_id'=>auth()->id(), 'exception'=>get_class($exception)]);
+            return back()->withErrors('Penghapusan belum selesai. Periksa izin penyimpanan atau koneksi Google Drive, lalu coba hapus kembali.');
+        }
+
+        Log::info('Release permanently deleted.', ['release_id'=>$id, 'release_title'=>$title, 'admin_user_id'=>auth()->id()]);
+        return redirect()->route('admin.releases.index')->with('success', 'Rilis "'.$title.'" beserta file yang tidak dipakai rilis lain telah dihapus.');
+    }
+
     public function create()
     {
         $release = new Release();
@@ -640,7 +657,6 @@ class MainController extends Controller
                 ->select(
                     'releases.id as id',
                     'releases.title as title',
-                    'releases.primaryartists as primaryartists',
                     'releases.type as type',
                     'releases.tracknum as tracknum',
                     'releases.releaseon as releaseon',
@@ -652,13 +668,19 @@ class MainController extends Controller
                     DB::raw("CONCAT_WS(' ', user_profiles.firstname, user_profiles.lastname) AS fullname")
                 )
                 ->leftJoin('user_profiles', 'user_profiles.id', '=', 'releases.profileid');
+            if (\App\Database\RelationalFields::available('releases')) $query->with('relationalFieldRows');
+            else $query->addSelect('releases.primaryartists');
 
             // Searching
             if ($search = $request->input('search.value')) {
                 $query->where(function ($q) use ($search) {
                     $search = strtolower($search);
                     $q->whereRaw('LOWER(title) LIKE ?', ["%{$search}%"]);
-                    $q->orWhereRaw('LOWER(primaryartists) LIKE ?', ["%{$search}%"]);
+                    if (\App\Database\RelationalFields::available('releases')) {
+                        $q->orWhereHas('relationalFieldRows', fn ($artists) => $artists->where('field','primaryartists')->where('value_type','string')->whereRaw('LOWER(scalar_value) LIKE ?', ["%{$search}%"]));
+                    } else {
+                        $q->orWhereRaw('LOWER(primaryartists) LIKE ?', ["%{$search}%"]);
+                    }
                     $q->orWhereRaw("LOWER(CONCAT_WS(' ', user_profiles.firstname, user_profiles.lastname)) LIKE ?", ["%{$search}%"]);
                 });
             }

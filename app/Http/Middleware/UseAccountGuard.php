@@ -14,6 +14,8 @@ class UseAccountGuard
         // Admin and customer sessions/remember cookies use independent guards.
         if (Auth::guard('admin')->check()) {
             Auth::shouldUse('admin');
+            $impersonating = $request->session()->has('impersonate') && Auth::user()->can('impersonate-users');
+            if ($request->routeIs('home') && !$impersonating) return redirect()->route('admin.home');
         }
         return $next($request);
     }

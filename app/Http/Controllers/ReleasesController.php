@@ -155,6 +155,8 @@ class ReleasesController extends Controller
             $profileid = current_user()->profile->id;
             $status = 'draft';
 
+            // Never trust the editable field to enforce the account's label entitlement.
+            $data['recordlabel'] = current_user()->profile->recordLabelFor($data['recordlabel'] ?? null);
             $result = $this->service->store($release, $profileid, $status, $data);
 
             // if the callback returns an Eloquent model, add its id
@@ -231,6 +233,8 @@ class ReleasesController extends Controller
                 'tiktok_ytmusic_rerelease_date',
             ]);
 
+            // Never trust the editable field to enforce the account's label entitlement.
+            $data['recordlabel'] = current_user()->profile->recordLabelFor($data['recordlabel'] ?? null);
             $result = $this->service->store($release, $profileid, $status, $data);
 
             // if the callback returns an Eloquent model, add its id

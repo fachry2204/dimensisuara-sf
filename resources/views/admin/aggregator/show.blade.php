@@ -14,7 +14,10 @@
             <h4 class="mb-0 font-weight-bold fs-2">View Release</h4>
         </div>
 
-        <div class="d-flex flex-row gap-2">
+        <div class="d-flex flex-row flex-wrap gap-2">
+            @can('delete-releases')
+                <button type="button" class="btn btn-outline-danger admin-release-action" data-bs-toggle="modal" data-bs-target="#delete-release-modal"><i class="material-icons-outlined">delete</i> Delete Release</button>
+            @endcan
             @can('edit-releases')
                 <a href="{{ route('admin.releases.edit', $release->id) }}" class="btn admin-release-action admin-release-action--edit"><i class="material-icons-outlined">edit</i> Edit Release</a>
             @endcan
@@ -110,6 +113,30 @@
 
 @endsection
 @push('modals')
+    @can('delete-releases')
+        <div class="modal fade" id="delete-release-modal" tabindex="-1" aria-labelledby="delete-release-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="POST" action="{{ route('admin.releases.destroy', $release->id) }}" class="modal-content">
+                    @csrf
+                    @method('DELETE')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="delete-release-title">Hapus Rilis Permanen</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Hapus rilis <strong>{{ $release->title }}</strong>?</p>
+                        <p>Data rilis, cover art, thumbnail, dokumen IPL, serta WAV dan audio cuplikan yang hanya dipakai rilis ini akan dihapus, termasuk salinan di Google Drive dan backup.</p>
+                        <p>Lagu yang masih dipakai rilis lain tetap disimpan. Penghapusan ini tidak menarik rilis dari platform musik.</p>
+                        <label class="d-flex gap-2 align-items-start"><input type="checkbox" name="confirm_delete" value="1" required class="form-check-input flex-shrink-0"> <span>Saya memahami penghapusan ini permanen dan tidak dapat dibatalkan.</span></label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger"><i class="material-icons-outlined align-middle">delete</i> Hapus Permanen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endcan
     @if(in_array($release->status, ['pending']))
         <div class="modal fade" id="review-modal">
             <div class="modal-dialog modal-dialog-centered">

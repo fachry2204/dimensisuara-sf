@@ -16,6 +16,8 @@ use App\Models\Track;
 
 class Publishing extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     protected $fillable = [
         'profileid',
         'release_id',

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class LegacyImportRun extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     public function mediaQueueLabel(): string
     {
         return $this->started_at ? ($this->identitiesOnly() ? 'Import dokumen identitas belum selesai' : 'Penyalinan media belum selesai') : 'Menunggu worker impor';

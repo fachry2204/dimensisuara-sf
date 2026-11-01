@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class Track extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     public function scopeInReleaseCatalogue(\Illuminate\Database\Eloquent\Builder $query, \App\Models\User\User $viewer): \Illuminate\Database\Eloquent\Builder
     {
         // Count each track once, only while it belongs to an accessible release.
@@ -236,10 +238,10 @@ class Track extends Model
 
     public function getContributorsPrettyAttribute()
     {
-        if ($this->attributes['contributors']) {
+        if ($this->contributors) {
             $roles = DB::table('_contributors')->pluck('name', 'id')->toArray();
 
-            $contributors = json_decode($this->attributes['contributors']);
+            $contributors = $this->contributors;
             $pretty = [];
             foreach ($contributors as $contributor) {
                 $pretty[] = (object) [
@@ -256,10 +258,10 @@ class Track extends Model
 
     public function getProductionsPrettyAttribute()
     {
-        if ($this->attributes['productions']) {
+        if ($this->productions) {
             $roles = DB::table('_productions')->pluck('name', 'id')->toArray();
 
-            $productions = json_decode($this->attributes['productions']);
+            $productions = $this->productions;
             $pretty = [];
             foreach ($productions as $production) {
                 $pretty[] = (object) [
@@ -281,9 +283,10 @@ class Track extends Model
 
     public function delete()
     {
-        // Delete files
-        $this->full_file?->delete();
-        $this->trimmed_file?->delete();
+        // Shared recordings are removed only after their final release is detached.
+        foreach (File::where('owner_type', $this->getMorphClass())->where('owner_id', $this->id)->get() as $file) {
+            $file->delete();
+        }
 
         // Delete track
         return parent::delete();

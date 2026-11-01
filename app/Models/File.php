@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\User\Profile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class File extends Model
 {
@@ -40,23 +39,7 @@ class File extends Model
 
     public function delete()
     {
-        // Delete file
-        if ($this->identifier) {
-            switch ($this->disk) {
-                case 'local':
-                    Storage::disk('local')->delete($this->identifier);
-                    break;
-                case 'google':
-                    break;
-            }
-        }
-
-        // Delete backup
-        if ($this->backup_identifier) {
-            Storage::disk('ftp')->delete($this->backup_identifier);
-        }
-
-        return parent::delete();
+        return app(\App\Services\MediaDeletion::class)->delete($this, fn () => parent::delete());
     }
 
     public function getUrlAttribute()

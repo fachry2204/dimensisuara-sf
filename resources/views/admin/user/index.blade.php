@@ -45,7 +45,8 @@ User Management
                     <th>Email</th>
                     <th>Contact</th>
                     <th>Registration Date</th>
-                    <th>Status</th>
+                    <th>Status Profil</th>
+                    <th>Status Email</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -66,6 +67,9 @@ User Management
     <script type="application/json" id="json-customers">@json($customers)</script>
     <script>
         $(document).ready(function() {
+            const canVerifyEmail = @json(auth()->user()->can('manage-user-status'));
+            const verifyEmailUrl = @json(route('admin.users.verify_email', ':id'));
+            const verificationCsrf = @json(csrf_token());
             let activeUserFilter = 'all';
             const filterLabels = {
                 all: ['All Users', 'Showing all registered users.'],
@@ -116,6 +120,15 @@ User Management
                             default:
                                 return `<span class="badge bg-grd-royal">Unknown</span>`;
                         }
+                    }},
+                    { render: function(data, type, row) {
+                        const verified = Boolean(row.email_verified_at);
+                        const label = verified ? 'Sudah Verifikasi' : 'Belum Verifikasi';
+                        if (type !== 'display') return label;
+                        const badge = `<span class="badge ${verified ? 'bg-success' : 'bg-warning text-dark'}">${label}</span>`;
+                        if (verified || !canVerifyEmail) return badge;
+                        const action = verifyEmailUrl.replace(':id', encodeURIComponent(row.id));
+                        return `<div class="d-flex flex-wrap align-items-center gap-2">${badge}<form method="POST" action="${action}" class="m-0"><input type="hidden" name="_token" value="${verificationCsrf}"><input type="hidden" name="_method" value="PUT"><button type="submit" class="btn btn-sm btn-outline-primary">Verifikasi Email</button></form></div>`;
                     }},
                     { render: function(data, type, row) {
                         var link = "{{ route('admin.users.show', ':id') }}".replace(':id', row.id);

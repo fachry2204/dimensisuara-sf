@@ -116,6 +116,7 @@ Admin Roles and Permissions
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Status Email</th>
                                 @can('manage-admins')
                                     <th style="width: 15%">Actions</th>
                                 @endcan
@@ -127,6 +128,7 @@ Admin Roles and Permissions
                                     <td>{{ $admin->full_name }}</td>
                                     <td>{{ $admin->email }}</td>
                                     <td>@if ($admin->roles->first()) {{ $admin->roles->first()->name }} @endif</td>
+                                    <td><x-account-email-status :account="$admin" :action="route('admin.user-admin.verify-email', $admin->id)" :can-manage="auth()->user()->can('manage-admins')" /></td>
                                     @can('manage-admins')
                                         <td>
                                             <button class="btn btn-sm btn-outline-danger" onclick="revokeAdmin({{ $admin->id }})">Revoke</button>

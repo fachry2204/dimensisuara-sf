@@ -240,6 +240,7 @@
             </div>
         </div>
 
+        <div id="release-validation-feedback" class="alert alert-danger d-none" role="alert" aria-live="polite"></div>
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-primary">Save Release</button>
         </div>
@@ -457,15 +458,44 @@
             const stepOrder = [0, 1, 3, 2];
             let active = 0;
 
-            function selectStep(index) {
+            function selectStep(index, scroll = true) {
                 active = Math.max(0, Math.min(index, stepOrder.length - 1));
                 const activePane = stepOrder[active];
                 steps.forEach((step, stepIndex) => step.classList.toggle('admin-step-pane-hidden', stepIndex !== activePane));
                 controls.forEach((control, stepIndex) => control.classList.toggle('is-active', stepIndex === active));
                 previous.disabled = active === 0;
                 next.classList.toggle('d-none', active === steps.length - 1);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+
+            // Native validation happens before submit and cannot focus inputs in hidden steps.
+            const feedback = form.querySelector('#release-validation-feedback');
+            let validationFrame = null;
+            let reportingValidity = false;
+            form.addEventListener('invalid', function (event) {
+                if (reportingValidity) return;
+                event.preventDefault();
+                if (validationFrame !== null) return;
+                const input = event.target;
+                validationFrame = requestAnimationFrame(function () {
+                    validationFrame = null;
+                    const pane = steps.findIndex(step => step.contains(input));
+                    const stepIndex = stepOrder.indexOf(pane);
+                    if (stepIndex >= 0) selectStep(stepIndex, false);
+                    const label = input.labels && input.labels.length ? input.labels[0].textContent.trim() : (input.name || 'kolom wajib');
+                    const stepName = stepIndex >= 0 ? controls[stepIndex].querySelector('b').textContent.trim() : 'User Assignment';
+                    feedback.textContent = `Rilis belum disimpan. Periksa ${label} pada bagian ${stepName}. ${input.validationMessage}`;
+                    feedback.classList.remove('d-none');
+                    input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    input.focus({ preventScroll: true });
+                    reportingValidity = true;
+                    try { input.reportValidity(); } finally { reportingValidity = false; }
+                });
+            }, true);
+            form.addEventListener('input', function () {
+                if (form.querySelector(':invalid') === null) feedback.classList.add('d-none');
+            });
+            form.addEventListener('submit', function () { feedback.classList.add('d-none'); });
 
             controls.forEach(control => control.addEventListener('click', () => selectStep(Number(control.dataset.adminStep))));
             previous.addEventListener('click', () => selectStep(active - 1));
@@ -656,7 +686,7 @@
                 titlelang: "{{ old('titlelang', $release->titlelang) ?? 'id' }}",
                 recordlabel: "{{ old('recordlabel', $release->recordlabel) ?? '' }}",
                 upc: "{{ old('upc', $release->upc) ?? '' }}",
-                releaseddate: "{{ old('releaseddate', $release->releaseddate) ?? '' }}",
+                releaseddate: @json(old('releaseddate', $release->releaseddate?->format('Y-m-d')) ?? ''),
                 releaseon: "{{ old('releaseon', $release->releaseon) ?? '' }}",
                 tiktok_ytmusic_rerelease_date: "{{ old('tiktok_ytmusic_rerelease_date', $release->tiktok_ytmusic_rerelease_date) ?? '' }}",
                 version:        {{ old('version', $release->version) ?? 1 }},

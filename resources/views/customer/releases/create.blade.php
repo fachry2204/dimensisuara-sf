@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@php
+    $restrictRecordLabel = !current_user()->profile->whitelabel_enabled;
+@endphp
 @section('title')
     @php
         $print_type = $release->type == 'single' ? 'Single' : 'Album';
@@ -707,7 +710,7 @@
                 released:       @json((string) old('released', $release->released ?? 0)),
                 title: "{{ old('title', $release->title) ?? '' }}",
                 titlelang: "{{ old('titlelang', $release->titlelang) ?? 'id' }}",
-                recordlabel: "{{ old('recordlabel', $release->recordlabel) ?? '' }}",
+                recordlabel: @json(current_user()->profile->recordLabelFor(old('recordlabel', $release->recordlabel) ?? '')),
                 upc: "{{ old('upc', $release->upc) ?? '' }}",
                 releaseon: "{{ old('releaseon', $release->releaseon) ?? '' }}",
                 tiktok_ytmusic_rerelease_date: "{{ old('tiktok_ytmusic_rerelease_date', $release->tiktok_ytmusic_rerelease_date) ?? '' }}",

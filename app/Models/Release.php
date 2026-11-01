@@ -16,6 +16,8 @@ use App\Enums\ReleaseStatus;
 
 class Release extends Model
 {
+    use \App\Models\Concerns\HasRelationalFields;
+
     public function scopeVisibleTo(\Illuminate\Database\Eloquent\Builder $query, \App\Models\User\User $viewer): \Illuminate\Database\Eloquent\Builder
     {
         return $viewer->can('view-releases-all') ? $query : $query->where('releases.status', 'released');
@@ -182,17 +184,18 @@ class Release extends Model
 
     public function delete()
     {
-        // Delete files
-        $this->cover?->delete();
-        $this->thumbnail?->delete();
-        $this->ipl?->delete();
-
-        // Delete tracks
-        foreach ($this->tracks as $track) {
-            $track->delete();
-        }
-
-        return parent::delete();
+        return DB::transaction(function () {
+            // Read the current links, not a possibly stale eager-loaded relation.
+            $tracks = $this->tracks()->lockForUpdate()->get();
+            foreach (File::where('owner_type', $this->getMorphClass())->where('owner_id', $this->id)->get() as $file) {
+                $file->delete();
+            }
+            $this->tracks()->detach();
+            foreach ($tracks as $track) {
+                if (!$track->releases()->exists()) $track->delete();
+            }
+            return parent::delete();
+        });
     }
 
 }

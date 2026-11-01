@@ -1,3 +1,4 @@
+@php($releaseArtists = \App\Support\ArtistCredits::normalize($release->primaryartists))
 <div class="row pb-5 {{ ($type ?? '') === 'admin' ? 'admin-release-detail' : 'customer-release-detail' }}">
     @if($release->reason && $release->status == 'rejected')
         <div class="col-12 release-rejection-notice">
@@ -39,8 +40,8 @@
                 </div>
                 @php
                     $primaryartists = [];
-                    if ($release->primaryartists) {
-                        foreach ($release->primaryartists ?? [] as $artist) {
+                    if ($releaseArtists) {
+                        foreach ($releaseArtists ?? [] as $artist) {
                             if (is_string($artist)) {
                                 $primaryartists[] = $artist;
                             } else {
@@ -110,7 +111,7 @@
                                     <td>
                                         <ul>
                                             @php $artist = null; @endphp
-                                            @foreach(($release->primaryartists ?? []) as $artist)
+                                            @foreach(($releaseArtists ?? []) as $artist)
                                                 <li>
                                                     @if(is_string($artist))
                                                         {{ $artist }}
@@ -178,9 +179,11 @@
                 @php $isSingle = $release->type === 'single'; @endphp
                 @foreach($release->tracks as $index => $track)
                     @php
+                        $trackPrimaryArtists = \App\Support\ArtistCredits::normalize($track->primaryartists);
+                        $trackFeaturedArtists = \App\Support\ArtistCredits::normalize($track->featuredartists);
                         $primaryartists = [];
-                        if ($track->primaryartists) {
-                            foreach ($track->primaryartists as $artist) {
+                        if ($trackPrimaryArtists) {
+                            foreach ($trackPrimaryArtists as $artist) {
                                 if (is_string($artist)) {
                                     $primaryartists[] = $artist;
                                 } else {
@@ -291,9 +294,9 @@
                                             <tr>
                                                 <td>Primary artists</td>
                                                 <td>
-                                                    @if(!empty($track->primaryartists))
+                                                    @if(!empty($trackPrimaryArtists))
                                                         <ul class="ps-0 mb-0" style="list-style: none;">
-                                                            @foreach(($track->primaryartists) as $artist)
+                                                            @foreach(($trackPrimaryArtists) as $artist)
                                                                 <li>
                                                                     @if(is_string($artist))
                                                                         {{ $artist }}
@@ -331,9 +334,9 @@
                                             <tr>
                                                 <td>Featured artists</td>
                                                 <td>
-                                                    @if(!empty($track->featuredartists))
+                                                    @if(!empty($trackFeaturedArtists))
                                                         <ul class="ps-0 mb-0" style="list-style: none;">
-                                                            @foreach(($track->featuredartists) as $artist)
+                                                            @foreach(($trackFeaturedArtists) as $artist)
                                                                 <li>
                                                                     @if(is_string($artist))
                                                                         {{ $artist }}

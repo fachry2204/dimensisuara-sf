@@ -66,8 +66,12 @@ class SystemSettings
         if ($this->stored === null) {
             $this->stored = [];
             if (Schema::hasTable('system_settings')) {
-                foreach (DB::table('system_settings')->get(['key', 'value']) as $row) {
-                    $this->stored[$row->key] = unserialize(Crypt::decryptString($row->value), ['allowed_classes' => false]);
+                if (\App\Database\RelationalFields::available('system_settings')) {
+                    foreach (\App\Models\SystemSetting::with('relationalFieldRows')->get() as $row) $this->stored[$row->key] = $row->value;
+                } else {
+                    foreach (DB::table('system_settings')->get(['key', 'value']) as $row) {
+                        $this->stored[$row->key] = unserialize(Crypt::decryptString($row->value), ['allowed_classes' => false]);
+                    }
                 }
             }
         }
@@ -107,10 +111,14 @@ class SystemSettings
     {
         DB::transaction(function () use ($values) {
             foreach ($values as $key => $value) {
-                DB::table('system_settings')->upsert([
-                    'key' => $key, 'value' => Crypt::encryptString(serialize($value)),
-                    'created_at' => now(), 'updated_at' => now(),
-                ], ['key'], ['value', 'updated_at']);
+                if (\App\Database\RelationalFields::available('system_settings')) {
+                    \App\Models\SystemSetting::updateOrCreate(['key'=>$key], ['value'=>$value]);
+                } else {
+                    DB::table('system_settings')->upsert([
+                        'key' => $key, 'value' => Crypt::encryptString(serialize($value)),
+                        'created_at' => now(), 'updated_at' => now(),
+                    ], ['key'], ['value', 'updated_at']);
+                }
             }
         });
         $this->refresh();
