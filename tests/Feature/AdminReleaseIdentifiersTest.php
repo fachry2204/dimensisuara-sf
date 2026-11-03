@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Blade;
+use App\Models\User\User;
+use App\Models\User\Profile;
 
 class AdminReleaseIdentifiersTest extends TestCase
 {
@@ -55,6 +58,30 @@ class AdminReleaseIdentifiersTest extends TestCase
             $this->assertFalse($input->parentNode->hasAttribute('x-show'));
             $this->assertStringContainsString('.isrc', $input->getAttribute('x-model'));
             $this->assertFalse($input->hasAttribute('disabled'));
+        }
+    }
+
+    public function test_customer_release_form_initializes_identifier_permission_for_each_session(): void
+    {
+        // Render the real form preamble so Blade directive parsing is covered.
+        $preamble = explode("@section('title')", file_get_contents(resource_path('views/customer/releases/create.blade.php')), 2)[0];
+        $preamble = str_replace("@extends('layouts.app')", '', $preamble);
+        $template = $preamble.'{{ $allowIdentifierEntry ? "allowed" : "restricted" }}';
+        foreach ([[false, false, 'restricted'], [true, false, 'restricted'], [true, true, 'allowed']] as [$impersonating, $permitted, $expected]) {
+            $user = new class extends User {
+                public bool $permitted = false;
+                public function can($abilities, $arguments = []) { return $this->permitted; }
+            };
+            $user->permitted = $permitted;
+            $user->forceFill(['id' => 1]);
+            $profile = new Profile;
+            $profile->forceFill(['id' => 42, 'whitelabel_enabled' => false]);
+            $user->setRelation('profile', $profile);
+            $this->actingAs($user);
+            session()->forget('impersonate');
+            if ($impersonating) session()->put('impersonate', 1);
+            $html = Blade::render($template);
+            $this->assertSame($expected, trim($html));
         }
     }
 

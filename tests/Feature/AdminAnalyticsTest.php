@@ -211,6 +211,21 @@ class AdminAnalyticsTest extends TestCase
         $this->assertSame('platforms', $this->data(['tab'=>'geography'])['filters']['tab']);
     }
 
+    public function test_release_detail_buttons_open_release_analytics_in_both_catalogue_tabs(): void
+    {
+        foreach (['overview', 'releases'] as $tab) {
+            $page = $this->get(route('admin.analytics.index', [
+                'start' => '2026-01', 'end' => '2026-02', 'tab' => $tab,
+            ]))->assertOk();
+
+            foreach ([1, 2, 3, 4] as $id) {
+                $page->assertSee('href="'.route('admin.releases.statistics', $id).'"', false)
+                    ->assertDontSee('href="'.route('admin.releases.show', $id).'"', false);
+            }
+            $page->assertSee('Lihat analitik rilis');
+        }
+    }
+
     public function test_country_codes_display_names_and_keep_raw_filter_values(): void
     {
         foreach (['ID'=>'Indonesia','MY'=>'Malaysia','AU'=>'Australia','US'=>'Amerika Serikat','KR'=>'Korea Selatan'] as $code=>$name) {

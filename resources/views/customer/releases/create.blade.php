@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@php($allowIdentifierEntry = session()->has('impersonate') && auth()->user()?->can('impersonate-users'))
 @php
+    $allowIdentifierEntry = session()->has('impersonate') && auth()->user()?->can('impersonate-users');
     $restrictRecordLabel = !current_user()->profile->whitelabel_enabled;
 @endphp
 @section('title')
