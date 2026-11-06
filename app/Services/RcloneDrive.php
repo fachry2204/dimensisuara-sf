@@ -25,11 +25,43 @@ class RcloneDrive
         try {
             $process = $this->process($arguments);
             $process->run();
-            if (!$process->isSuccessful()) throw new RuntimeException;
+            if (!$process->isSuccessful()) {
+                throw new \App\Exceptions\DriveSetupException($this->failureMessage($process->getErrorOutput()));
+            }
             return $process->getOutput();
-        } catch (\Throwable) {
+        } catch (\App\Exceptions\DriveSetupException $exception) {
+            throw $exception;
+        } catch (\Symfony\Component\Process\Exception\ProcessTimedOutException) {
+            throw new \App\Exceptions\DriveSetupException('Proses rclone melewati batas waktu. Periksa koneksi server ke Google Drive.');
+        } catch (\Throwable $exception) {
             // Never expose rclone stderr: it may include tokens or server paths.
-            throw new RuntimeException('Rclone gagal. Periksa binary, remote, konfigurasi, izin PHP, koneksi, dan kuota Google Drive.');
+            throw new \App\Exceptions\DriveSetupException($this->failureMessage($exception->getMessage()));
+        }
+    }
+
+    private function failureMessage(string $error): string
+    {
+        // Match diagnostics internally; only fixed messages can reach the browser or logs.
+        return match (true) {
+            (bool) preg_match('/invalid_grant|invalid_token|token.*(?:expired|revoked)|oauth.*(?:failed|error)|unauthorized|invalid_client/i', $error) => 'Otorisasi Google Drive ditolak atau token kedaluwarsa. Hubungkan ulang remote sebagai pengguna aplikasi dengan konfigurasi yang sama.',
+            (bool) preg_match('/permission denied|access denied|operation not permitted|insufficient.*permission|forbidden/i', $error) => 'Akses ditolak. Periksa izin pengguna PHP pada binary, folder konfigurasi, rclone.conf, dan folder tujuan Drive. Konfigurasi juga harus dapat diperbarui saat token disegarkan.',
+            (bool) preg_match('/quota|storageQuotaExceeded|rateLimitExceeded|too many requests/i', $error) => 'Kuota penyimpanan atau batas permintaan Google Drive tercapai. Periksa kuota lalu coba kembali.',
+            (bool) preg_match('/no such host|could not resolve|name resolution|dial tcp|network is unreachable|connection refused|i\/o timeout|deadline exceeded|tls handshake|x509|certificate/i', $error) => 'Koneksi server ke Google Drive gagal. Periksa DNS, akses HTTPS keluar, sertifikat, dan waktu server.',
+            (bool) preg_match('/proc_open|proc_get_status|proc_terminate|proc_close|executable.*not found|command not found|no such file or directory|failed to start/i', $error) => 'PHP tidak dapat menjalankan rclone. Periksa Lokasi rclone serta fungsi proses yang diizinkan pada PHP-FPM Plesk; tes SSH saja belum memastikan izin PHP web.',
+            (bool) preg_match('/config.*(?:not found|missing)|didn.t find section|failed to (?:load|read|decrypt).*config|config.*password/i', $error) => 'Konfigurasi rclone atau remote tidak tersedia bagi PHP. Periksa Lokasi rclone.conf dan nama remote yang tersimpan.',
+            (bool) preg_match('/unknown flag|unknown command/i', $error) => 'Versi rclone tidak mendukung perintah tes. Periksa versi binary yang dipakai PHP.',
+            default => 'Rclone gagal menyelesaikan perintah. Periksa koneksi, konfigurasi, dan izin pengguna PHP.',
+        };
+    }
+
+    private function connectionStep(string $stage, callable $callback): mixed
+    {
+        try { return $callback(); }
+        catch (\Throwable $exception) {
+            $detail = $exception instanceof \App\Exceptions\DriveSetupException
+                ? $exception->getMessage()
+                : 'Tahap ini gagal diselesaikan. Periksa konfigurasi dan izin pengguna PHP.';
+            throw new \App\Exceptions\DriveSetupException('Tes koneksi gagal pada tahap '.$stage.'. '.$detail);
         }
     }
 
@@ -59,20 +91,26 @@ class RcloneDrive
             throw new \App\Exceptions\DriveSetupException('rclone.conf tidak ditemukan atau tidak terbaca oleh PHP. Jalankan rclone config file sebagai pengguna aplikasi, isi path hasilnya pada Lokasi rclone.conf, dan periksa izin folder/file.');
         }
         $remote = app(SystemSettings::class)->get('drive_remote');
-        $remotes = $this->run(['listremotes','--long']);
+        $remotes = $this->connectionStep('membaca daftar remote', fn () => $this->run(['listremotes','--long']));
         if (!preg_match('/^'.preg_quote($remote, '/').':\s+drive(?:\s|$)/m', $remotes)) {
             throw new \App\Exceptions\DriveSetupException('Remote tidak ditemukan pada konfigurasi PHP atau bukan tipe Google Drive. Isi Lokasi rclone.conf dengan path dari rclone config file dan pastikan Nama Remote sama dengan hasil rclone listremotes --long.');
         }
-        $this->run(['lsjson',$remote.':','--stat']);
+        $this->connectionStep('mengakses Google Drive', fn () => $this->run(['lsjson',$remote.':','--stat']));
+        $root = $this->connectionStep('memeriksa remote dan folder tujuan', fn () => $this->root());
         $temporary = tempnam(sys_get_temp_dir(),'drive-probe-');
-        if (!$temporary) throw new RuntimeException('Folder temporary PHP tidak dapat ditulis.');
+        if (!$temporary) throw new \App\Exceptions\DriveSetupException('Folder temporary PHP tidak dapat ditulis untuk membuat file uji.');
         $content = random_bytes(32);
-        file_put_contents($temporary,$content);
-        $destination = rtrim($this->root(),'/').'/.connection-test-'.bin2hex(random_bytes(12));
+        if (file_put_contents($temporary,$content) !== strlen($content)) {
+            @unlink($temporary);
+            throw new \App\Exceptions\DriveSetupException('File uji tidak dapat ditulis lengkap pada folder temporary PHP.');
+        }
+        $destination = rtrim($root,'/').'/.connection-test-'.bin2hex(random_bytes(12));
         try {
-            $this->run(['copyto',$temporary,$destination,'--immutable']);
-            $stat = $this->stat($destination);
-            if ((int) $stat['Size'] !== strlen($content) || strtolower($stat['Hashes']['MD5'] ?? '') !== md5($content)) throw new RuntimeException('Tes verifikasi Google Drive gagal.');
+            $this->connectionStep('mengunggah file uji ke folder tujuan', fn () => $this->run(['copyto',$temporary,$destination,'--immutable']));
+            $stat = $this->connectionStep('membaca ukuran dan checksum file uji', fn () => $this->stat($destination));
+            if ((int) $stat['Size'] !== strlen($content) || strtolower($stat['Hashes']['MD5'] ?? '') !== md5($content)) {
+                throw new \App\Exceptions\DriveSetupException('Tes verifikasi Google Drive gagal: ukuran atau checksum MD5 salinan tidak cocok. Pastikan kode aplikasi terbaru sudah terpasang dan cache PHP sudah diperbarui.');
+            }
         } finally {
             @unlink($temporary);
             try { $this->run(['deletefile',$destination]); } catch (\Throwable) { /* Only our random probe may remain. */ }

@@ -85,8 +85,83 @@ class RcloneChecksumTest extends TestCase
         try { $client->testConnection(); }
         catch (\RuntimeException $exception) { $failure = $exception; }
         $this->assertSame($badChecksum, $failure !== null);
-        if ($badChecksum) $this->assertSame('Tes verifikasi Google Drive gagal.', $failure->getMessage());
+        if ($badChecksum) $this->assertStringContainsString('ukuran atau checksum MD5 salinan tidak cocok', $failure->getMessage());
         $this->assertTrue($deleted);
         $this->assertFileDoesNotExist($temporary);
+    }
+
+    public static function processFailures(): array
+    {
+        return [
+            ['invalid_grant token revoked secret-test-token', 'Otorisasi Google Drive ditolak'],
+            ['Failed to save config: permission denied secret-test-token', 'Akses ditolak'],
+            ['storageQuotaExceeded secret-test-token', 'Kuota penyimpanan'],
+            ['dial tcp: no such host secret-test-token', 'Koneksi server'],
+            ['Call to undefined function proc_get_status secret-test-token', 'PHP tidak dapat menjalankan'],
+            ['didn\'t find section in config file secret-test-token', 'Konfigurasi rclone'],
+            ['unknown flag --hash-type secret-test-token', 'Versi rclone'],
+            ['unrecognized failure secret-test-token', 'Rclone gagal menyelesaikan'],
+        ];
+    }
+
+    #[DataProvider('processFailures')]
+    public function test_process_errors_return_fixed_diagnostics_without_raw_secrets(string $stderr, string $expected): void
+    {
+        $process=Mockery::mock(\Symfony\Component\Process\Process::class);
+        $process->shouldReceive('run')->once()->andReturn(1);
+        $process->shouldReceive('isSuccessful')->once()->andReturnFalse();
+        $process->shouldReceive('getErrorOutput')->once()->andReturn($stderr);
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('process')->once()->andReturn($process);
+        try { $client->run(['listremotes','--long']); $this->fail('Expected failure'); }
+        catch (\App\Exceptions\DriveSetupException $error) {
+            $this->assertStringContainsString($expected,$error->getMessage());
+            $this->assertStringNotContainsString('secret-test-token',$error->getMessage());
+        }
+    }
+
+    public function test_failed_upload_reports_stage_and_still_cleans_probe_without_exposing_error_text(): void
+    {
+        $temporary=null; $deleted=false;
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('run')->andReturnUsing(function ($args) use (&$temporary,&$deleted) {
+            if ($args[0]==='listremotes') return "gdrive: drive\n";
+            if ($args[0]==='lsjson') return '{"IsDir":true}';
+            if ($args[0]==='copyto') { $temporary=$args[1]; throw new \App\Exceptions\DriveSetupException('Akses ditolak.'); }
+            if ($args[0]==='deletefile') { $deleted=true; return ''; }
+            throw new \RuntimeException('secret-test-token');
+        });
+        try { $client->testConnection(); $this->fail('Expected upload failure'); }
+        catch (\App\Exceptions\DriveSetupException $error) {
+            $this->assertStringContainsString('tahap mengunggah file uji ke folder tujuan',$error->getMessage());
+            $this->assertStringContainsString('Akses ditolak',$error->getMessage());
+        }
+        $this->assertTrue($deleted);
+        $this->assertFileDoesNotExist($temporary);
+    }
+
+    public function test_connection_diagnostics_reach_settings_error_and_do_not_mark_connection_successful(): void
+    {
+        $client=Mockery::mock(RcloneDrive::class);
+        $message='Tes koneksi gagal pada tahap membaca daftar remote. PHP tidak dapat menjalankan rclone.';
+        $client->shouldReceive('testConnection')->once()->andThrow(new \App\Exceptions\DriveSetupException($message));
+        $response=app(\App\Http\Controllers\Admin\GoogleDriveSettingsController::class)->test(app(SystemSettings::class),$client);
+        $this->assertSame($message,session('errors')->first('drive'));
+        $this->assertSame('failed',app(SystemSettings::class)->get('drive_connection_status'));
+        $this->assertNotEmpty(app(SystemSettings::class)->get('drive_checked_at'));
+        $this->assertTrue($response->isRedirect());
+    }
+
+    public function test_php_process_exception_is_sanitized_before_display(): void
+    {
+        $process=Mockery::mock(\Symfony\Component\Process\Process::class);
+        $process->shouldReceive('run')->once()->andThrow(new \RuntimeException('proc_get_status disabled secret-test-token'));
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('process')->once()->andReturn($process);
+        try { $client->run(['listremotes','--long']); $this->fail('Expected PHP process failure'); }
+        catch (\App\Exceptions\DriveSetupException $error) {
+            $this->assertStringContainsString('PHP tidak dapat menjalankan rclone',$error->getMessage());
+            $this->assertStringNotContainsString('secret-test-token',$error->getMessage());
+        }
     }
 }

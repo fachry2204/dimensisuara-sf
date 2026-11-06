@@ -30,8 +30,10 @@
 
 @section('content')
     <main class="release-statistics-page">
-        <x-report-usage :totals="$usageBreakdown" />
-        <x-report-subtypes :rows="$salesSubtypes" />
+        @if($showUsageDetails ?? true)
+            <x-report-usage :totals="$usageBreakdown" />
+            <x-report-subtypes :rows="$salesSubtypes" />
+        @endif
         <section class="release-stat-scope" aria-label="Statistics scope">
             <i class="material-icons-outlined">filter_alt</i>
             <span>Menampilkan data laporan hanya untuk <strong>{{ $release->title }}</strong>, bukan total semua rilis.</span>

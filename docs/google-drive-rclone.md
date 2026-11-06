@@ -45,3 +45,11 @@ Menonaktifkan otomatis hanya menghentikan pemindahan berikutnya; file yang sudah
 Riwayat menampilkan 30 transfer terbaru, status, ukuran, serta kendala yang sudah disaring dari output rclone. Tidak ada token OAuth yang ditampilkan atau disimpan dari UI. Pengujian aplikasi memakai database SQLite dan rclone mock; koneksi/transfer asli harus diuji melalui tombol pada VPS sebelum diaktifkan.
 
 Dokumentasi rclone: [copyto](https://rclone.org/commands/rclone_copyto/), [lsjson](https://rclone.org/commands/rclone_lsjson/), [cat dan byte offset](https://rclone.org/commands/rclone_cat/).
+
+## Jika Tes Koneksi gagal
+
+Tes dari tombol aplikasi berjalan melalui PHP web/PHP-FPM. Tes SSH sebagai pengguna aplikasi membantu memeriksa akses OS, tetapi belum memastikan konfigurasi PHP-FPM, fungsi proses, environment, dan folder temporary sama.
+
+Pesan tes menyebut tahap yang gagal: membaca daftar remote, mengakses Drive, mengunggah file uji, atau membaca ukuran/checksum. Petunjuk kesalahan disaring menjadi pesan tetap untuk akses, otorisasi, kuota, jaringan, versi rclone, dan kemampuan PHP menjalankan proses. Stderr mentah maupun token tidak ditampilkan.
+
+Jika konfigurasi terbaca namun penyegaran token gagal, periksa izin tulis pengguna PHP pada file konfigurasi dan foldernya. Jika gagal menjalankan proses, periksa pengaturan fungsi PHP pada handler PHP-FPM domain terkait. Jika ukuran/checksum tidak cocok, pastikan kode aplikasi terbaru terpasang; nama hash `md5`, `MD5`, dan `Md5` didukung. Jangan menyatakan koneksi berhasil hanya berdasarkan hasil SSH; ulangi tombol Tes Koneksi pada aplikasi.

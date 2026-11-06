@@ -269,6 +269,7 @@ class AnalyticController extends Controller
         return view('admin.release-statistics', compact('release', 'totalStreams', 'totalEarnings', 'latestReportDate', 'platformPerformance', 'topPlatformByMonth', 'topPlatformsByMonth', 'platformPeriodLabels', 'availablePlatforms', 'selectedPlatform', 'selectedMonth', 'selectedQuarter', 'selectedPeriodGroup') + [
             'totalCreations' => $totalCreations, 'totalOtherUnits' => $totalOtherUnits, 'usageBreakdown' => (array) $usageTotals,
             'salesSubtypes' => \App\Services\ReportSubtypes::breakdown($reportRows),
+            'showUsageDetails' => false,
             'backRoute' => route('analytics.index'),
             'backLabel' => 'Analytics & Penghasilan',
             'releaseDetailsRoute' => route('releases.show', $release->id),

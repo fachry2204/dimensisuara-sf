@@ -59,8 +59,6 @@
         <div class="analytics-data-note mb-3"><span class="material-icons-outlined">date_range</span>Periode yang dipilih belum memiliki laporan. <a href="{{ route('analytics.index', ['date_range' => 'all_time']) }}">Lihat semua data yang tersedia</a>.</div>
     @endif
 
-    <x-report-usage :totals="$usageBreakdown" :platforms="$platformRows" />
-    <x-report-subtypes :rows="$salesSubtypes" :export-url="route('analytics.subtypes.export', request()->query())" />
     <div class="analytics-summary-grid">
         <article class="analytics-summary-card">
             <span class="analytics-summary-icon stream material-icons-outlined">headphones</span>
