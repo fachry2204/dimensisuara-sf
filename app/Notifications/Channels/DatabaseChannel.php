@@ -17,7 +17,7 @@ class DatabaseChannel extends \Illuminate\Notifications\Channels\DatabaseChannel
     protected function buildPayload($notifiable, Notification $notification)
     {
         return [
-            // 'id' => $notification->id,
+            'id' => $notification->id,
             'type' => method_exists($notification, 'databaseType')
                         ? $notification->databaseType($notifiable)
                         : get_class($notification),

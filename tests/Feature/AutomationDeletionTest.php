@@ -64,6 +64,57 @@ class AutomationDeletionTest extends TestCase
     private function destroyUrl(string $kind, $id): string { return route('admin.automation.records.destroy', compact('kind','id')); }
     private function historyUrl(string $channel, $id): string { return route('admin.automation.notifications.destroy', ['channel'=>$channel,'delivery'=>$id]); }
 
+    private function destroyAllUrl(string $kind): string { return route('admin.automation.records.destroy-all', compact('kind')); }
+
+    public function test_bulk_deletion_is_scoped_and_protects_running_jobs_and_batch_members(): void
+    {
+        $batch = $this->batch();
+        $member = $this->queued(batch: $batch);
+        $busy = $this->queued(reserved: time());
+        $delivery = $this->delivery('email', 'pending');
+        $pending = $this->queued(command: new \App\Jobs\SendStatusNotification($delivery->id));
+        // More than a page of records must be removed, regardless of table pagination.
+        for ($i=0; $i<15; $i++) $this->queued();
+        $failed = $this->queued('failed_jobs');
+        $failedMember = $this->queued('failed_jobs', $batch);
+        $this->delete($this->destroyAllUrl('job'))->assertRedirect()->assertSessionHas('success');
+        $this->assertDatabaseMissing('jobs', ['id'=>$pending]);
+        $this->assertSame(2, DB::table('jobs')->count());
+        $this->assertDatabaseHas('jobs', ['id'=>$busy]);
+        $this->assertDatabaseHas('jobs', ['id'=>$member]);
+        $this->assertDatabaseHas('failed_jobs', ['id'=>$failed]);
+        $this->assertSame('skipped', $delivery->fresh()->status);
+        $this->delete($this->destroyAllUrl('failed-job'))->assertRedirect();
+        $this->assertDatabaseMissing('failed_jobs', ['id'=>$failed]);
+        $this->assertDatabaseHas('failed_jobs', ['id'=>$failedMember]);
+        $this->assertDatabaseHas('job_batches', ['id'=>$batch]);
+
+        $activeBatch = $this->batch();
+        $active = $this->queued(batch: $activeBatch, reserved: time());
+        $waiting = $this->queued(batch: $activeBatch);
+        $this->delete($this->destroyAllUrl('batch'))->assertRedirect();
+        $this->assertDatabaseMissing('job_batches', ['id'=>$batch]);
+        $this->assertDatabaseMissing('jobs', ['id'=>$member]);
+        $this->assertDatabaseMissing('failed_jobs', ['id'=>$failedMember]);
+        $this->assertDatabaseHas('job_batches', ['id'=>$activeBatch]);
+        $this->assertDatabaseHas('jobs', ['id'=>$active]);
+        $this->assertDatabaseHas('jobs', ['id'=>$waiting]);
+        $this->assertDatabaseHas('jobs', ['id'=>$busy]);
+    }
+
+    public function test_bulk_deletion_requires_permission_and_valid_kind_and_accepts_empty_sections(): void
+    {
+        $job = $this->queued();
+        $this->signIn(false);
+        foreach (['job','failed-job','batch'] as $kind) $this->deleteJson($this->destroyAllUrl($kind))->assertForbidden();
+        $this->assertDatabaseHas('jobs', ['id'=>$job]);
+        $this->signIn();
+        $this->deleteJson($this->destroyAllUrl('other'))->assertNotFound();
+        foreach (['job','failed-job','batch'] as $kind) $this->delete($this->destroyAllUrl($kind))->assertRedirect();
+        $this->delete($this->destroyAllUrl('job'))->assertRedirect()->assertSessionHas('success', '0 data Pending Jobs dihapus.');
+        $this->get(route('admin.automation.index'))->assertOk()->assertSee('data-automation-delete-all="Job Batches"', false)->assertSee('data-automation-delete-all="Pending Jobs"', false)->assertSee('data-automation-delete-all="Failed Jobs"', false);
+    }
+
     public function test_notification_deletion_is_channel_scoped_and_preserves_processing_deliveries(): void
     {
         $email = $this->delivery(); $wa = $this->delivery('whatsapp'); $busy = $this->delivery('email', 'processing');
@@ -151,9 +202,9 @@ class AutomationDeletionTest extends TestCase
         }
         (require database_path('migrations/2026_11_01_130000_normalize_application_json_fields.php'))->up();
         $this->delete($this->historyUrl('email', $delivery->id))->assertRedirect();
-        $this->delete($this->destroyUrl('job', $job))->assertRedirect();
-        $this->delete($this->destroyUrl('failed-job', $failed))->assertRedirect();
-        $this->delete($this->destroyUrl('batch', $batch))->assertRedirect();
+        $this->delete($this->destroyAllUrl('job'))->assertRedirect();
+        $this->delete($this->destroyAllUrl('failed-job'))->assertRedirect();
+        $this->delete($this->destroyAllUrl('batch'))->assertRedirect();
         foreach (['notification_payload_values','queue_job_values','failed_job_values','batch_failure_values'] as $table) $this->assertSame(0, DB::table($table)->count());
     }
 }

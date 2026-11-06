@@ -9,6 +9,26 @@ use Illuminate\Support\Facades\Schema;
 
 class AutomationRecords
 {
+    public function forgetAllJobs(string $kind): array
+    {
+        $table = ['job'=>'jobs', 'failed-job'=>'failed_jobs', 'batch'=>'job_batches'][$kind] ?? null;
+        abort_unless($table, 404);
+        // Snapshot the requested section so jobs arriving later are left alone.
+        $ids = DB::table($table)->orderBy('id')->pluck('id');
+        $result = ['deleted'=>0, 'skipped'=>0];
+        foreach ($ids as $id) {
+            try {
+                $this->forgetJob($kind, (string) $id);
+                $result['deleted']++;
+            } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+                // Workers may claim or finish a job after the snapshot was taken.
+                if (!in_array($exception->getStatusCode(), [404, 409], true)) throw $exception;
+                $result['skipped']++;
+            }
+        }
+        return $result;
+    }
+
     public function descriptor(string $table, object $row): array
     {
         try {

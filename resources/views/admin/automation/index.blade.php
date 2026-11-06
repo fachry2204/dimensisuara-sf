@@ -13,6 +13,7 @@ Automation Status
             <div class="card automation-panel">
                 <div class="card-header">
                     <h6 class="card-title mb-0 fw-bold">Job Batches</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-automation-delete-url="{{ route('admin.automation.records.destroy-all', ['kind'=>'batch']) }}" data-automation-delete-all="Job Batches" data-bs-toggle="modal" data-bs-target="#delete-automation-modal" @disabled(count($batches) === 0)>Hapus Semua</button>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm" id="batches-table">
@@ -32,6 +33,7 @@ Automation Status
             <div class="card automation-panel">
                 <div class="card-header">
                     <h6 class="card-title mb-0 fw-bold">Pending Jobs</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-automation-delete-url="{{ route('admin.automation.records.destroy-all', ['kind'=>'job']) }}" data-automation-delete-all="Pending Jobs" data-bs-toggle="modal" data-bs-target="#delete-automation-modal" @disabled(count($jobs) === 0)>Hapus Semua</button>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm" id="jobs-table">
@@ -49,6 +51,7 @@ Automation Status
             <div class="card automation-panel">
                 <div class="card-header">
                     <h6 class="card-title mb-0 fw-bold">Failed Jobs</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-automation-delete-url="{{ route('admin.automation.records.destroy-all', ['kind'=>'failed-job']) }}" data-automation-delete-all="Failed Jobs" data-bs-toggle="modal" data-bs-target="#delete-automation-modal" @disabled(count($fails) === 0)>Hapus Semua</button>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm" id="fails-table">
@@ -68,7 +71,7 @@ Automation Status
         <div class="modal-dialog"><div class="modal-content">
             <div class="modal-header"><h5 class="modal-title" id="deleteAutomationTitle">Hapus data Job Monitor</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
             <form method="POST" id="delete-automation-form">@csrf @method('DELETE')
-                <div class="modal-body"><p>Hapus data ini secara permanen? Untuk batch, seluruh job terkait yang masih menunggu juga dibatalkan. Data yang sedang diproses tidak dapat dihapus.</p></div>
+                <div class="modal-body"><p id="delete-automation-message">Hapus data ini secara permanen? Untuk batch, seluruh job terkait yang masih menunggu juga dibatalkan. Data yang sedang diproses tidak dapat dihapus.</p></div>
                 <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button><button class="btn btn-danger" type="submit">Hapus</button></div>
             </form>
         </div></div>
@@ -123,6 +126,7 @@ Automation Status
 @push('css')
     <link href="{{ URL::asset('build/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
     <style>
+    .automation-panel .card-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
     .sf-app .main-wrapper .main-content{max-width:1440px!important;padding:28px 32px 46px!important;background:#081225!important}.automation-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}.automation-header h1{margin:0;color:#f5f9ff!important;font-size:1.9rem!important;font-weight:800!important}.automation-header p{margin:6px 0 0;color:#91afd0;font-size:.78rem}.automation-header>span{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border:1px solid #345a82;border-radius:8px;color:#9ec7ef;font-size:.69rem;font-weight:700}.automation-header i{font-size:17px}.automation-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:17px}.automation-summary article{display:flex;align-items:center;gap:13px;min-height:105px;padding:16px;border:1px solid #294c71;border-radius:13px;background:linear-gradient(140deg,#0f223a,#0a192c)}.automation-summary article>i{display:grid;place-items:center;width:44px;height:44px;border-radius:11px;font-size:23px}.automation-summary .blue{background:rgba(88,158,255,.16);color:#79b5ff}.automation-summary .green{background:rgba(73,219,155,.15);color:#65e2aa}.automation-summary .orange{background:rgba(255,151,92,.15);color:#ffab7f}.automation-summary small,.automation-summary span{display:block;color:#93b3d4;font-size:.68rem}.automation-summary strong{display:block;margin:2px 0;color:#f5f9ff;font-size:1.43rem;line-height:1.05}.automation-summary span{color:#789aba;font-size:.64rem}.automation-panel{overflow:hidden;border:1px solid #294c71!important;border-radius:14px!important;background:linear-gradient(145deg,#0e2036,#0a192b)!important}.automation-panel .card-header{padding:17px 19px;border-color:rgba(75,116,157,.35)!important;background:transparent!important;color:#f3f8ff}.automation-panel .card-body{padding:6px 14px 14px}.automation-panel .table{color:#c4d6e8}.automation-panel .table th{border-color:#3a5b7d;color:#8eb3d7;font-size:.63rem;text-transform:uppercase}.automation-panel .table td{border-color:rgba(57,90,124,.48);font-size:.75rem}.automation-panel .dataTables_filter input,.automation-panel .dataTables_length select{border:1px solid #365b83;border-radius:7px;background:#09192b;color:#edf6ff}.automation-panel .dataTables_paginate .paginate_button{border:1px solid #365b83!important;border-radius:6px!important;color:#b8d4ee!important;background:transparent!important}.automation-panel .dataTables_paginate .paginate_button.current{border-color:#ff7146!important;background:#ff7146!important;color:#fff!important}@media(max-width:700px){.sf-app .main-wrapper .main-content{padding:18px!important}.automation-header{align-items:flex-start;flex-direction:column}.automation-summary{grid-template-columns:1fr}}
     </style>
 @endpush
@@ -264,6 +268,11 @@ Automation Status
 
             $(document).on('click', '[data-automation-delete-url]', function() {
                 $('#delete-automation-form').attr('action', $(this).attr('data-automation-delete-url'));
+                const section = $(this).attr('data-automation-delete-all');
+                $('#deleteAutomationTitle').text(section ? 'Hapus Semua ' + section : 'Hapus data Job Monitor');
+                $('#delete-automation-message').text(section
+                    ? 'Hapus semua data ' + section + ' di seluruh halaman tabel? Pencarian tabel tidak membatasi penghapusan. Job yang sedang diproses dilewati. Anggota batch dihapus melalui Job Batches; menghapus batch juga membatalkan seluruh job terkait yang masih menunggu. Tindakan ini tidak dapat dibatalkan.'
+                    : 'Hapus data ini secara permanen? Untuk batch, seluruh job terkait yang masih menunggu juga dibatalkan. Data yang sedang diproses tidak dapat dihapus.');
             });
             $(document).on('click', '.retry-job', function() {
                 var link = $(this).data('link');

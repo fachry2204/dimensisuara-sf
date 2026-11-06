@@ -75,6 +75,15 @@ class AutomationController extends Controller
         return redirect()->route('admin.automation.index', ['tab'=>'jobs'])->with('success', 'Data Job Monitor dihapus. Job yang masih menunggu dalam data tersebut dibatalkan.');
     }
 
+    public function destroyAllJobs(string $kind, \App\Services\AutomationRecords $records)
+    {
+        $result = $records->forgetAllJobs($kind);
+        $label = ['job'=>'Pending Jobs', 'failed-job'=>'Failed Jobs', 'batch'=>'Job Batches'][$kind];
+        $message = "{$result['deleted']} data {$label} dihapus.";
+        if ($result['skipped']) $message .= " {$result['skipped']} data dilewati karena sedang diproses, termasuk anggota batch, atau sudah tidak tersedia.";
+        return redirect()->route('admin.automation.index', ['tab'=>'jobs'])->with('success', $message);
+    }
+
     public function retry_batch($id)
     {
         // Mark batch as not cancelled
