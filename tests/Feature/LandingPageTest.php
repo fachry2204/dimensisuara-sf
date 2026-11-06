@@ -18,6 +18,7 @@ class LandingPageTest extends TestCase
         Schema::create('system_settings', function ($t) { $t->string('key')->primary(); $t->text('value'); $t->timestamps(); });
         Schema::create('releases', function ($t) { $t->id(); $t->string('title'); $t->text('primaryartists'); $t->string('status'); $t->string('type')->default('single'); $t->date('releaseddate')->nullable(); $t->date('finalreleaseddate')->nullable(); $t->timestamps(); });
         Schema::create('filestorage', function ($t) { $t->id(); $t->string('disk'); $t->string('identifier'); $t->string('type'); $t->string('owner_type'); $t->unsignedBigInteger('owner_id'); $t->timestamps(); });
+        Schema::table('releases', fn ($t) => $t->date('releaseon')->nullable());
         $this->app->forgetInstance(SystemSettings::class);
     }
 
@@ -49,6 +50,56 @@ class LandingPageTest extends TestCase
         $this->get('/')->assertOk()->assertSee('Karya berikutnya bisa jadi milik Anda.')->assertSee(route('register'), false)->assertSee(route('login'), false);
     }
 
+    public function test_new_published_releases_use_planned_date_and_current_artist_data(): void
+    {
+        $older = $this->release('Older Catalogue', date: '2025-01-01');
+        $new = $this->release('New Published', 'pending');
+        DB::table('releases')->where('id', $new)->update([
+            'releaseddate'=>null, 'releaseon'=>today()->toDateString(),
+            'primaryartists'=>'[{"name":"Current Artist"}]',
+        ]);
+        $this->get('/')->assertOk()->assertDontSee('New Published');
+        DB::table('releases')->where('id', $new)->update(['status'=>'released']);
+        foreach (['/', '/rilis'] as $url) {
+            $response = $this->get($url)->assertOk()->assertSee('New Published')->assertSee('Current Artist');
+            $response->assertViewHas('releases', fn ($rows) => $rows->first()->id === $new);
+            $response->assertSee('Dirilis '.today()->locale('id')->translatedFormat('d F Y'));
+        }
+        DB::table('releases')->where('id', $new)->update(['primaryartists'=>'[{"name":"Updated Artist"}]']);
+        $this->get('/')->assertOk()->assertSee('Updated Artist')->assertDontSee('Current Artist');
+    }
+
+    public function test_catalogue_date_precedence_keeps_future_releases_private_and_sorts_rereleases(): void
+    {
+        $old = $this->release('Original Old', date: '2020-01-01');
+        $rerelease = $this->release('Current Rerelease', date: '2019-01-01');
+        DB::table('releases')->where('id', $rerelease)->update(['releaseon'=>today()->toDateString()]);
+        $future = $this->release('Scheduled Publication', date: '2018-01-01');
+        DB::table('releases')->where('id', $future)->update(['releaseon'=>today()->addWeek()->toDateString()]);
+        $final = $this->release('Final Overrides Plan', date: '2017-01-01');
+        DB::table('releases')->where('id', $final)->update(['releaseon'=>today()->toDateString(), 'finalreleaseddate'=>today()->addWeek()->toDateString()]);
+        foreach (['/', '/rilis'] as $url) {
+            $this->get($url)->assertOk()->assertSee('Current Rerelease')->assertSee('Original Old')
+                ->assertDontSee('Scheduled Publication')->assertDontSee('Final Overrides Plan')
+                ->assertViewHas('releases', fn ($rows) => $rows->first()->id === $rerelease);
+        }
+        $this->get('/rilis/'.$future.'/cover')->assertNotFound();
+        $this->get('/rilis/'.$final.'/cover')->assertNotFound();
+    }
+
+    public function test_latest_six_include_new_publications_with_normalized_artist_storage(): void
+    {
+        for ($i=0; $i<7; $i++) $this->release('Older Item '.$i, date: today()->subDays(10)->toDateString());
+        $latest = $this->release('Latest Live Release');
+        DB::table('releases')->where('id', $latest)->update(['releaseddate'=>null, 'releaseon'=>today()->toDateString()]);
+        (require database_path('migrations/2026_11_01_130000_normalize_application_json_fields.php'))->up();
+        \App\Database\RelationalFields::write('releases', $latest, 'primaryartists', [['name'=>'Latest Live Artist']]);
+        $this->get('/')->assertOk()->assertSee('Latest Live Release')->assertSee('Latest Live Artist')
+            ->assertDontSee('Older Item 0')->assertDontSee('Older Item 1')
+            ->assertViewHas('releases', fn ($rows) => $rows->count() === 6 && $rows->first()->id === $latest);
+        $this->get('/rilis')->assertOk()->assertSee('Latest Live Artist')->assertSee('Older Item 0');
+    }
+
     public function test_all_releases_button_opens_a_paginated_public_catalogue(): void
     {
         for ($i=1;$i<=26;$i++) $this->release('Public Track '.str_pad((string) $i,2,'0',STR_PAD_LEFT));
@@ -72,6 +123,47 @@ class LandingPageTest extends TestCase
         $this->get('/rilis/'.$private.'/cover')->assertNotFound();
         $this->get('/rilis/'.$future.'/cover')->assertNotFound();
         $this->get('/rilis/'.$missing.'/cover')->assertNotFound();
+    }
+
+    public function test_catalogue_search_matches_keywords_across_title_artist_and_all_pages(): void
+    {
+        for ($i=1; $i<=30; $i++) $this->release('Public Music '.$i);
+        $this->release('Hidden Music', 'pending');
+        $this->release('Future Music', date: today()->addWeek()->toDateString());
+        $this->get('/rilis?q=ARTIST%20public')->assertOk()->assertSee('30 hasil untuk')
+            ->assertSee('Public Music 30')->assertDontSee('Public Music 1</h3>', false)
+            ->assertDontSee('Hidden Music')->assertDontSee('Future Music')
+            ->assertSee('q=ARTIST%20public&amp;page=2#rilis', false)
+            ->assertSee('aria-current="page"', false)->assertSee('aria-label="Halaman 2"', false);
+        $this->get('/rilis?q=ARTIST%20public&page=2')->assertOk()->assertSee('Public Music 1')
+            ->assertSee('Halaman 2 dari 2')->assertDontSee('Public Music 30');
+        $this->get('/rilis?q=music%2030')->assertOk()->assertSee('1 hasil untuk')->assertSee('Public Music 30');
+        $this->get('/rilis?q=NoMatch')->assertOk()->assertSee('Rilisan belum ditemukan.')->assertSee('Reset pencarian');
+        $this->get('/rilis?q=%20%20%20')->assertOk()->assertSee('30 rilisan');
+        $this->getJson('/rilis?q[]=invalid')->assertUnprocessable();
+        $this->getJson('/rilis?q='.str_repeat('a', 121))->assertUnprocessable();
+    }
+
+    public function test_catalogue_search_supports_normalized_artists_and_literal_wildcards(): void
+    {
+        $id = $this->release('Lagu 100%_Love');
+        $this->release('Other Song');
+        (require database_path('migrations/2026_11_01_130000_normalize_application_json_fields.php'))->up();
+        \App\Database\RelationalFields::write('releases', $id, 'primaryartists', [['name'=>'Bayu Wafa', 'spotify'=>'private-metadata-match']]);
+        $this->get('/rilis?q=WAFA%20lagu')->assertOk()->assertSee('Lagu 100%_Love')->assertSee('Bayu Wafa')->assertDontSee('Other Song');
+        $this->get('/rilis?q='.urlencode('%_'))->assertOk()->assertSee('1 hasil untuk')->assertSee('Lagu 100%_Love');
+        $this->get('/rilis?q=private-metadata-match')->assertOk()->assertSee('0 hasil untuk')->assertDontSee('Lagu 100%_Love');
+        $this->get('/rilis?q='.urlencode('<script>alert(1)</script>'))->assertOk()->assertDontSee('<script>alert(1)</script>', false);
+    }
+
+    public function test_numbered_navigation_is_bounded_even_for_pages_outside_the_catalogue(): void
+    {
+        for ($i=0; $i<250; $i++) $this->release('Catalogue '.$i);
+        $this->get('/rilis?page=6')->assertOk()->assertSee('aria-label="Halaman 1"', false)
+            ->assertSee('aria-label="Halaman 5"', false)->assertSee('aria-label="Halaman 6"', false)
+            ->assertSee('aria-label="Halaman 7"', false)->assertSee('aria-label="Halaman 11"', false)
+            ->assertDontSee('aria-label="Halaman 3"', false);
+        $this->get('/rilis?page=999999')->assertOk()->assertSee('aria-label="Halaman 11"', false);
     }
 
     public function test_cover_endpoint_serves_only_a_real_image_from_the_cover_relation(): void

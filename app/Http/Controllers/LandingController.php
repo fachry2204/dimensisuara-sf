@@ -8,10 +8,16 @@ use Illuminate\Support\Facades\Storage;
 
 class LandingController extends Controller
 {
+    private const CATALOGUE_DATE = "COALESCE(NULLIF(finalreleaseddate, ''), NULLIF(releaseon, ''), NULLIF(releaseddate, ''))";
+
     private function catalogue()
     {
+        // New releases use releaseon; releaseddate is the original date of re-releases.
         return Release::query()->where('status', 'released')
-            ->whereRaw('COALESCE(finalreleaseddate, releaseddate) <= ?', [today()->toDateString()]);
+            ->select('releases.*')->selectRaw(self::CATALOGUE_DATE.' AS public_release_date')
+            ->withCasts(['public_release_date'=>'date'])
+            ->whereRaw(self::CATALOGUE_DATE.' <= ?', [today()->toDateString()])
+            ->orderByRaw(self::CATALOGUE_DATE.' DESC')->orderByDesc('id');
     }
 
     private function artwork(Release $release): string|\App\Models\File|null
@@ -30,7 +36,7 @@ class LandingController extends Controller
     public function index(SystemSettings $settings)
     {
         $releases = $this->catalogue()->with(['cover', 'thumbnail'])
-            ->orderByRaw('COALESCE(finalreleaseddate, releaseddate) DESC')->orderByDesc('id')->limit(6)->get();
+            ->limit(6)->get();
         $this->prepareReleases($releases);
         $phone = preg_replace('/\D+/', '', $settings->get('whatsapp_number') ?: $settings->get('company_phone'));
         if (str_starts_with($phone, '0')) $phone = '62'.substr($phone, 1);
@@ -42,12 +48,31 @@ class LandingController extends Controller
         ]);
     }
 
-    public function releases()
+    public function releases(\Illuminate\Http\Request $request)
     {
-        $releases = $this->catalogue()->with(['cover','thumbnail'])
-            ->orderByRaw('COALESCE(finalreleaseddate, releaseddate) DESC')->orderByDesc('id')->paginate(24);
+        $input = $request->validate(['q'=>['nullable', 'string', 'max:120']]);
+        $search = trim(preg_replace('/\s+/u', ' ', $input['q'] ?? ''));
+        $query = $this->catalogue()->with(['cover','thumbnail']);
+        // Match each keyword across title and artists, in any order, across all pages.
+        foreach (preg_split('/\s+/u', $search, -1, PREG_SPLIT_NO_EMPTY) as $term) {
+            $like = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($term)).'%';
+            $query->where(function ($match) use ($like) {
+                $match->whereRaw("LOWER(releases.title) LIKE ? ESCAPE '!'", [$like]);
+                if (\App\Database\RelationalFields::available('releases')) {
+                    $match->orWhereExists(function ($artists) use ($like) {
+                        $artists->selectRaw('1')->from('release_artist_values')
+                            ->whereColumn('owner_id', 'releases.id')->where('field', 'primaryartists')
+                            ->where('key_name', 'name')->where('value_type', 'string')
+                            ->whereRaw("LOWER(scalar_value) LIKE ? ESCAPE '!'", [$like]);
+                    });
+                } else {
+                    $match->orWhereRaw("LOWER(releases.primaryartists) LIKE ? ESCAPE '!'", [$like]);
+                }
+            });
+        }
+        $releases = $query->paginate(24)->appends($search !== '' ? ['q'=>$search] : []);
         $this->prepareReleases($releases);
-        return view('catalogue',compact('releases'));
+        return view('catalogue',compact('releases', 'search'));
     }
 
     private function prepareReleases(iterable $releases): void
