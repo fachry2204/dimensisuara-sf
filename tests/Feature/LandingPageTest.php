@@ -19,6 +19,7 @@ class LandingPageTest extends TestCase
         Schema::create('releases', function ($t) { $t->id(); $t->string('title'); $t->text('primaryartists'); $t->string('status'); $t->string('type')->default('single'); $t->date('releaseddate')->nullable(); $t->date('finalreleaseddate')->nullable(); $t->timestamps(); });
         Schema::create('filestorage', function ($t) { $t->id(); $t->string('disk'); $t->string('identifier'); $t->string('type'); $t->string('owner_type'); $t->unsignedBigInteger('owner_id'); $t->timestamps(); });
         Schema::table('releases', fn ($t) => $t->date('releaseon')->nullable());
+        Schema::table('releases', fn ($t) => $t->timestamp('verified_at')->nullable());
         $this->app->forgetInstance(SystemSettings::class);
     }
 
@@ -69,7 +70,7 @@ class LandingPageTest extends TestCase
         $this->get('/')->assertOk()->assertSee('Updated Artist')->assertDontSee('Current Artist');
     }
 
-    public function test_catalogue_date_precedence_keeps_future_releases_private_and_sorts_rereleases(): void
+    public function test_published_catalogue_hides_future_releases_and_keeps_date_precedence(): void
     {
         $old = $this->release('Original Old', date: '2020-01-01');
         $rerelease = $this->release('Current Rerelease', date: '2019-01-01');
@@ -81,7 +82,7 @@ class LandingPageTest extends TestCase
         foreach (['/', '/rilis'] as $url) {
             $this->get($url)->assertOk()->assertSee('Current Rerelease')->assertSee('Original Old')
                 ->assertDontSee('Scheduled Publication')->assertDontSee('Final Overrides Plan')
-                ->assertViewHas('releases', fn ($rows) => $rows->first()->id === $rerelease);
+                ->assertViewHas('releases', fn ($rows) => $rows->firstWhere('id', $rerelease)->public_release_date->toDateString() === today()->toDateString());
         }
         $this->get('/rilis/'.$future.'/cover')->assertNotFound();
         $this->get('/rilis/'.$final.'/cover')->assertNotFound();
@@ -100,11 +101,64 @@ class LandingPageTest extends TestCase
         $this->get('/rilis')->assertOk()->assertSee('Latest Live Artist')->assertSee('Older Item 0');
     }
 
+    public function test_newest_published_release_is_sorted_by_approval_time_instead_of_release_date(): void
+    {
+        $newestDate = $this->release('Recent Song Date', date: today()->toDateString());
+        DB::table('releases')->where('id', $newestDate)->update(['verified_at'=>now()->subDays(5), 'updated_at'=>now()]);
+        for ($i=0; $i<6; $i++) {
+            $id = $this->release('Previously Published '.$i);
+            DB::table('releases')->where('id', $id)->update(['verified_at'=>now()->subDays(4)]);
+        }
+        $approved = $this->release('Just Published Old Song', date: '2020-01-01');
+        DB::table('releases')->where('id', $approved)->update(['verified_at'=>now()->subMinute()]);
+        foreach (['/', '/rilis'] as $url) {
+            $this->get($url)->assertOk()->assertSee('Just Published Old Song')
+                ->assertViewHas('releases', fn ($rows) => $rows->first()->id === $approved);
+        }
+        // Editing metadata on an already published release does not change its approval time.
+        DB::table('releases')->where('id', $newestDate)->update(['updated_at'=>now()->addMinute()]);
+        $this->get('/')->assertOk()->assertViewHas('releases', fn ($rows) => $rows->first()->id === $approved);
+    }
+
+    public function test_imported_publications_without_approval_time_have_a_stable_timestamp_fallback(): void
+    {
+        $older = $this->release('Imported Old', date: today()->toDateString());
+        $newer = $this->release('Imported New', date: '2020-01-01');
+        DB::table('releases')->where('id', $older)->update(['created_at'=>now()->subMonth(), 'updated_at'=>now()->subWeek()]);
+        DB::table('releases')->where('id', $newer)->update(['created_at'=>now()->subMonth(), 'updated_at'=>now()->subDay()]);
+        $this->get('/')->assertOk()->assertViewHas('releases', fn ($rows) => $rows->first()->id === $newer);
+    }
+
+    public function test_published_little_soul_is_hidden_until_its_scheduled_release_date(): void
+    {
+        $id = $this->release('Little Soul Endless Love', 'pending');
+        DB::table('releases')->where('id', $id)->update(['releaseon'=>today()->addDays(9)->toDateString(), 'releaseddate'=>null]);
+        $this->get('/rilis?q=Little%20Soul')->assertOk()->assertDontSee('Lihat rilis Little Soul Endless Love');
+        DB::table('releases')->where('id', $id)->update(['status'=>'released', 'verified_at'=>now()]);
+        foreach (['/', '/rilis?q=Little%20Soul'] as $url) {
+            $this->get($url)->assertOk()->assertDontSee('Lihat rilis Little Soul Endless Love')
+                ->assertViewHas('releases', fn ($rows) => $rows->count() === 0);
+        }
+        $this->get('/rilis/'.$id.'/cover')->assertNotFound();
+        $releaseDay = today()->addDays(9);
+        try {
+            $this->travelTo($releaseDay);
+            foreach (['/', '/rilis?q=Little%20Soul'] as $url) {
+                $this->get($url)->assertOk()->assertSee('Lihat rilis Little Soul Endless Love')
+                    ->assertViewHas('releases', fn ($rows) => $rows->first()->id === $id);
+            }
+        } finally {
+            $this->travelBack();
+        }
+        DB::table('releases')->where('id', $id)->update(['releaseon'=>null]);
+        $this->get('/')->assertOk()->assertDontSee('Little Soul Endless Love');
+    }
+
     public function test_all_releases_button_opens_a_paginated_public_catalogue(): void
     {
         for ($i=1;$i<=26;$i++) $this->release('Public Track '.str_pad((string) $i,2,'0',STR_PAD_LEFT));
         $this->release('Unreleased Private Track','pending');
-        $this->release('Future Private Track','released',today()->addWeek()->toDateString());
+        $this->release('Future Private Track','uploading',today()->addWeek()->toDateString());
         $this->get('/')->assertOk()->assertSee('Lihat Semua Rilis')->assertSee(route('landing.releases'),false)
             ->assertDontSee('show-releases')->assertSee('Public Track 26')->assertDontSee('Public Track 01');
         $this->get('/rilis')->assertOk()->assertSee('Semua Rilis')->assertSee('26 rilisan')
@@ -115,10 +169,10 @@ class LandingPageTest extends TestCase
             ->assertDontSee('Public Track 26')->assertSee('Halaman 2 dari 2');
     }
 
-    public function test_public_cover_route_cannot_expose_private_or_future_release_files(): void
+    public function test_public_cover_route_cannot_expose_unpublished_release_files(): void
     {
         $private = $this->release('Private', 'pending');
-        $future = $this->release('Future', 'released', today()->addDay()->toDateString());
+        $future = $this->release('Future', 'uploading', today()->addDay()->toDateString());
         $missing = $this->release('Missing Cover');
         $this->get('/rilis/'.$private.'/cover')->assertNotFound();
         $this->get('/rilis/'.$future.'/cover')->assertNotFound();

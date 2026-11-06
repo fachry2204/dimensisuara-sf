@@ -17,7 +17,10 @@ class LandingController extends Controller
             ->select('releases.*')->selectRaw(self::CATALOGUE_DATE.' AS public_release_date')
             ->withCasts(['public_release_date'=>'date'])
             ->whereRaw(self::CATALOGUE_DATE.' <= ?', [today()->toDateString()])
-            ->orderByRaw(self::CATALOGUE_DATE.' DESC')->orderByDesc('id');
+            // Approval time determines the newest publication, not the song's release date.
+            // Imported catalogue entries may have no approval timestamp.
+            ->orderByRaw('COALESCE(verified_at, updated_at, created_at, '.self::CATALOGUE_DATE.') DESC')
+            ->orderByDesc('id');
     }
 
     private function artwork(Release $release): string|\App\Models\File|null

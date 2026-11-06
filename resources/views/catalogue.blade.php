@@ -28,10 +28,12 @@
     <form class="catalogue-search" method="GET" action="{{ route('landing.releases') }}" role="search">
         <div class="catalogue-search-field"><label for="catalogue-query">Cari musik favorit Anda</label><input id="catalogue-query" type="search" name="q" value="{{ $search }}" maxlength="120" placeholder="Cari judul lagu atau nama artis…" aria-describedby="catalogue-search-help"></div>
         <button type="submit" class="button button-primary button-small">Cari Rilis <x-landing-icon/></button>
-        @if($search !== '')<a class="catalogue-reset" href="{{ route('landing.releases') }}">Reset pencarian</a>@endif
+        <a class="catalogue-reset" href="{{ route('landing.releases') }}" @if($search === '') hidden @endif>Reset pencarian</a>
         <p id="catalogue-search-help">Gabungkan kata dari judul dan nama artis. Urutan kata bebas, pencarian mencakup seluruh katalog.</p>
         @error('q')<p class="catalogue-search-error" role="alert">{{ $message }}</p>@enderror
     </form>
+    <p class="catalogue-results" id="catalogue-search-status" role="status" aria-live="polite"></p>
+    <div id="catalogue-results-region" aria-busy="false">
     @if($search !== '')<p class="catalogue-results" role="status">{{ number_format($releases->total(), 0, ',', '.') }} hasil untuk “{{ $search }}”</p>@endif
     <div class="release-grid">@forelse($releases as $release)<x-landing-release-card :release="$release" :index="$loop->index"/>@empty<div class="empty-catalogue">@if($search !== '')<h2>Rilisan belum ditemukan.</h2><p>Coba potongan judul atau nama artis yang lain.</p><a class="button button-outline button-small" href="{{ route('landing.releases') }}">Lihat Semua Rilis</a>@else<h2>Belum ada rilisan tersedia.</h2><p>Katalog akan diperbarui setelah musik dirilis.</p>@endif</div>@endforelse</div>
     @if($releases->total() > 0)
@@ -49,8 +51,9 @@
         </div>
     </nav>
     @endif
+    @foreach($releases as $release)<x-landing-release-dialog :release="$release" :index="$loop->index"/>@endforeach
+    </div>
 </section>
 </main>
 <footer class="site-footer"><div class="wrap footer-bottom"><span>© {{ date('Y') }} {{ app_name() }}. Semua hak dilindungi.</span><a href="{{ route('landing') }}">Kembali ke Beranda</a></div></footer>
-@foreach($releases as $release)<x-landing-release-dialog :release="$release" :index="$loop->index"/>@endforeach
 </body></html>
