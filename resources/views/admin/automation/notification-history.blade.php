@@ -21,6 +21,14 @@
                                 <button class="btn btn-sm btn-outline-primary" type="submit">Jadwalkan Ulang</button>
                             </form>
                         @endif
+                        @if($delivery->status !== 'processing')
+                            <form class="mt-2" method="POST" action="{{ route('admin.automation.notifications.destroy', ['channel'=>$channel, 'delivery'=>$delivery->id]) }}" onsubmit="return confirm('Hapus riwayat notifikasi ini? Pesan yang sudah terkirim tidak ditarik kembali. Jika masih menunggu, pengirimannya dibatalkan.');">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Hapus</button>
+                            </form>
+                        @else
+                            <button class="btn btn-sm btn-outline-danger mt-2" type="button" disabled title="Notifikasi sedang dikirim">Hapus</button>
+                        @endif
                     </td></tr>
                 @empty
                     <tr><td colspan="5" class="text-center text-secondary">Belum ada notifikasi status pada kanal ini.</td></tr>

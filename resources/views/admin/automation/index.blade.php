@@ -38,6 +38,7 @@ Automation Status
                         <thead>
                             <th>Name</th>
                             <th>Queued At</th>
+                            <th>Action</th>
                         </thead>
                     </table>
                 </div>
@@ -63,6 +64,15 @@ Automation Status
     </div>    
 @endsection
 @push('modals')
+    <div class="modal fade" id="delete-automation-modal" tabindex="-1" aria-labelledby="deleteAutomationTitle" aria-hidden="true">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title" id="deleteAutomationTitle">Hapus data Job Monitor</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
+            <form method="POST" id="delete-automation-form">@csrf @method('DELETE')
+                <div class="modal-body"><p>Hapus data ini secara permanen? Untuk batch, seluruh job terkait yang masih menunggu juga dibatalkan. Data yang sedang diproses tidak dapat dihapus.</p></div>
+                <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button><button class="btn btn-danger" type="submit">Hapus</button></div>
+            </form>
+        </div></div>
+    </div>
     <!-- retry job modal -->
     <div class="modal fade" id="retry-job-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="retryJobModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -124,12 +134,17 @@ Automation Status
     <script type="application/json" id="json-fails">@json($fails)</script>
     <script>
         $(document).ready(function() {
+            const deleteUrl = @json(route('admin.automation.records.destroy', ['kind'=>'__KIND__','id'=>'__ID__']));
+            const escapeText = value => $('<div>').text(value ?? '').html();
+            const deleteButton = (kind, row) => row.can_delete === false
+                ? '<button type="button" class="btn btn-sm btn-outline-danger" disabled title="Job sedang diproses">Hapus</button>'
+                : `<button type="button" class="btn btn-sm btn-outline-danger" data-automation-delete-url="${deleteUrl.replace('__KIND__', kind).replace('__ID__', encodeURIComponent(row.id))}" data-bs-toggle="modal" data-bs-target="#delete-automation-modal">Hapus</button>`;
             $('#batches-table').DataTable({
                 data: JSON.parse(document.getElementById('json-batches').textContent),
                 // responsive: true,
                 order: [[ 1, "asc" ]],
                 columns: [
-                    { data: 'name' },
+                    { data: 'name', render: data => escapeText(data) },
                     {
                         data: 'created_at',
                         render: {
@@ -162,7 +177,7 @@ Automation Status
                         data: 'cancelled_at',
                         render: {
                             display: function(data, type, row) {
-                                return row.cancelled_at ? '<span class="badge bg-danger">Failed</span>' : '<span class="badge bg-warning">Waiting</span>';
+                                return row.cancelled_at ? '<span class="badge bg-danger">Failed</span>' : (row.finished_at ? '<span class="badge bg-success">Selesai</span>' : '<span class="badge bg-warning">Waiting</span>');
                             },
                         }
                     },
@@ -171,7 +186,7 @@ Automation Status
                         render: {
                             display: function(data, type, row) {
                                 var link = '{{ route('admin.automation.retry_batch', ':id') }}'.replace(':id', row.id);
-                                return `<div class="actions"><button data-link="${link}" class="btn btn-sm btn-outline-primary retry-batch" data-bs-toggle="modal" data-bs-target="#retry-batch-modal">Retry</button></div>`;
+                                return `<div class="actions d-flex flex-wrap gap-2"><button data-link="${link}" class="btn btn-sm btn-outline-primary retry-batch" data-bs-toggle="modal" data-bs-target="#retry-batch-modal">Retry</button>${deleteButton('batch',row)}</div>`;
                             },
                         }
                     },
@@ -183,9 +198,9 @@ Automation Status
                 order: [[ 1, "desc" ]],
                 columns: [
                     {
-                        data: 'payload',
+                        data: 'name',
                         render: function(data, type, row) {
-                            return JSON.parse(row.payload).displayName;
+                            return escapeText(data);
                         }
                     },
                     {
@@ -202,6 +217,7 @@ Automation Status
                             }
                         }
                     },
+                    { data: null, orderable: false, searchable: false, render: (data, type, row) => deleteButton('job', row) },
                 ]
             });
 
@@ -210,9 +226,9 @@ Automation Status
                 order: [[ 1, "desc" ]],
                 columns: [
                     {
-                        data: 'payload',
+                        data: 'name',
                         render: function(data, type, row) {
-                            return JSON.parse(row.payload).displayName;
+                            return escapeText(data);
                         }
                     },
                     {
@@ -236,8 +252,9 @@ Automation Status
 
                                 if(row.failed_at) {
                                     var link = '{{ route('admin.automation.retry', ':id') }}'.replace(':id', row.id);
-                                    return `<div class="actions"><button data-link="${link}" class="btn btn-sm btn-outline-primary retry-job" data-bs-toggle="modal" data-bs-target="#retry-job-modal">Retry</button></div>`;
+                                    return `<div class="actions d-flex flex-wrap gap-2"><button data-link="${link}" class="btn btn-sm btn-outline-primary retry-job" data-bs-toggle="modal" data-bs-target="#retry-job-modal">Retry</button>${deleteButton('failed-job',row)}</div>`;
                                 }
+                                return deleteButton('failed-job', row);
                             },
 
                         }
@@ -245,12 +262,15 @@ Automation Status
                 ]
             });
 
-            $('.retry-job').on('click', function() {
+            $(document).on('click', '[data-automation-delete-url]', function() {
+                $('#delete-automation-form').attr('action', $(this).attr('data-automation-delete-url'));
+            });
+            $(document).on('click', '.retry-job', function() {
                 var link = $(this).data('link');
                 $('#retry-job-form').attr('action', link);
             });
 
-            $('.retry-batch').on('click', function() {
+            $(document).on('click', '.retry-batch', function() {
                 var link = $(this).data('link');
                 $('#retry-batch-form').attr('action', link);
             });
