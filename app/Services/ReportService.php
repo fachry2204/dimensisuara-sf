@@ -29,6 +29,77 @@ use App\Jobs\Reporting\ProcessDetectionPerBatch;
 
 class ReportService
 {
+    public static function readUsageSource(string $path, string $source, ?string $sheet = null): array
+    {
+        $format = match ($source) {
+            'soundon' => 'Soundon',
+            'believe' => 'Believe',
+            'lokamusik' => 'Lokamusik',
+            default => throw new \RuntimeException('Sumber laporan tidak didukung.'),
+        };
+        $excel = self::{'validateExcelFile'.$format}($path, $sheet);
+        try {
+            if (!in_array('sales_type', $excel['map'], true)) {
+                throw new \RuntimeException('File sumber tidak memiliki kolom Sales Type. Gunakan ekspor sumber yang lengkap.');
+            }
+            return self::{'getExcelFileData'.$format}($excel['sheet'], $excel['highestRow'], $excel['highestColumn'], $excel['map']);
+        } finally {
+            $excel['sheet']->getParent()?->disconnectWorksheets();
+        }
+    }
+
+    public static function restoreUsageTypes(int $reportId, array $sourceRows, bool $apply = false): array
+    {
+        return self::withAggregateLock(function () use ($reportId, $sourceRows, $apply) {
+            return DB::transaction(function () use ($reportId, $sourceRows, $apply) {
+                $report = ReportImport::whereKey($reportId)->lockForUpdate()->firstOrFail();
+                if (!in_array($report->status, ['completed', 'pending_rate'], true)) {
+                    throw new \RuntimeException('Laporan harus selesai diproses sebelum dipulihkan.');
+                }
+                $rows = $report->rows()->orderBy('id')->lockForUpdate()->get();
+                if ($rows->count() !== count($sourceRows)) {
+                    throw new \RuntimeException('Jumlah baris file sumber tidak cocok. Tidak ada data yang diubah.');
+                }
+                $changes = [];
+                $missingTypes = 0;
+                $missingSubtypes = 0;
+                foreach ($rows as $index => $row) {
+                    $source = $sourceRows[$index];
+                    foreach (['reporting_month', 'sales_month', 'platform', 'upc', 'isrc', 'quantity', 'net_revenue'] as $field) {
+                        $old = $row->getRawOriginal($field);
+                        $new = $source[$field] ?? null;
+                        if (in_array($field, ['reporting_month', 'sales_month'], true)) {
+                            $old = Carbon::parse($old)->toDateString();
+                            $new = Carbon::parse($new)->toDateString();
+                        }
+                        $matches = $field === 'net_revenue'
+                            ? number_format((float) $old, 12, '.', '') === number_format((float) $new, 12, '.', '')
+                            : trim((string) $old) === trim((string) $new);
+                        if (!$matches) throw new \RuntimeException('Baris '.($index + 2).' tidak cocok pada '.$field.'. Tidak ada data yang diubah.');
+                    }
+                    $patch = [];
+                    foreach (['sales_type', 'sales_sub_type'] as $field) {
+                        $old = trim((string) $row->$field);
+                        $new = trim((string) ($source[$field] ?? ''));
+                        if ($old !== '' && $new !== '' && strtoupper($old) !== strtoupper($new)) {
+                            throw new \RuntimeException('Jenis yang sudah tersimpan berbeda pada baris '.($index + 2).'. Tidak ada data yang diubah.');
+                        }
+                        if ($old === '' && $new !== '') $patch[$field] = $new;
+                    }
+                    if (trim((string) ($source['sales_type'] ?? '')) === '') ++$missingTypes;
+                    if (trim((string) ($source['sales_sub_type'] ?? '')) === '') ++$missingSubtypes;
+                    if ($patch) $changes[$row->id] = $patch;
+                }
+                if ($apply && $changes) {
+                    foreach ($changes as $id => $patch) DB::table('report_rows')->where('id', $id)->update($patch);
+                    self::rebuildAggregates();
+                    Log::info('Jenis penggunaan laporan dipulihkan dari file sumber.', ['report_id'=>$reportId, 'updated_rows'=>count($changes)]);
+                }
+                return ['rows'=>$rows->count(), 'changes'=>count($changes), 'missing_types'=>$missingTypes, 'missing_subtypes'=>$missingSubtypes];
+            });
+        });
+    }
+
     private static function isSalesSubtypeHeader($header): bool
     {
         return preg_replace('/[^a-z0-9]/', '', strtolower(trim((string) $header))) === 'salessubtype';

@@ -103,4 +103,33 @@ class AdminReleaseIdentifiersTest extends TestCase
             $this->assertSame(1, $release->fresh()->tracks()->count());
         }
     }
+
+    public function test_direct_publication_records_admin_once_and_preserves_history_on_edits(): void
+    {
+        Schema::create('release_histories',function ($t) {
+            $t->id(); $t->integer('release_id'); $t->string('action'); $t->string('message'); $t->string('type');
+            $t->integer('user_id')->nullable(); $t->integer('admin_user_id')->nullable(); $t->timestamps();
+        });
+        $admin = new \App\Models\User\Admin;
+        $admin->forceFill(['id'=>7,'name'=>'Publishing Admin']);
+        $this->actingAs($admin,'admin');
+        $service = app(ReleaseService::class);
+        $data = ['title'=>'Direct publication','type'=>'single','tracks'=>[]];
+        $release = $service->store(new Release,42,'released',$data);
+        $history = $release->histories()->sole();
+        $this->assertSame('publish',$history->action);
+        $this->assertEquals(7,$history->admin_user_id);
+        $this->assertNull($history->user_id);
+        $service->store($release,42,'released',array_merge($data,['title'=>'Metadata edit']));
+        $this->assertSame(1,$release->histories()->count());
+        $draft = $service->store(new Release,42,'draft',$data);
+        $this->assertSame(0,$draft->histories()->count());
+        $service->store($draft,42,'released',$data);
+        $this->assertSame('publish',$draft->histories()->sole()->action);
+        DB::unprepared("CREATE TRIGGER reject_history BEFORE INSERT ON release_histories BEGIN SELECT RAISE(ABORT, 'simulated failure'); END");
+        $before = Release::count();
+        try { $service->store(new Release,42,'released',$data); $this->fail('History failure must roll back release'); }
+        catch (\Illuminate\Database\QueryException) {}
+        $this->assertSame($before,Release::count());
+    }
 }

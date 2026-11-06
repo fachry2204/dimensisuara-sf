@@ -88,6 +88,99 @@ class ReportAggregateDeletionTest extends TestCase
         ],$extra));
     }
 
+    private function usageRestoreFixture(): array
+    {
+        Schema::table('report_rows', function ($t) {
+            $t->string('sales_sub_type')->nullable(); $t->string('upc')->default('12345');
+            $t->string('isrc')->default('IDTEST'); $t->decimal('net_revenue',20,12)->default(1.25);
+        });
+        Schema::table('report_imports', function ($t) { $t->string('source')->default('soundon'); $t->string('sheet')->nullable(); });
+        DB::table('report_rows')->where('report_import_id',1)->update(['sales_type'=>null]);
+        return array_map(fn ($row)=>(array) $row, DB::table('report_rows')->where('report_import_id',1)->orderBy('id')->get()->all());
+    }
+
+    public function test_restore_usage_dry_run_then_apply_is_idempotent_and_preserves_royalties(): void
+    {
+        $source = $this->usageRestoreFixture();
+        $source[0]['sales_type'] = 'CREATION'; $source[0]['sales_sub_type'] = 'UGC';
+        ReportService::aggregate();
+        $before = DB::table('report_rows')->get()->map(fn ($row)=>(array) $row)->all();
+        $dry = ReportService::restoreUsageTypes(1,$source);
+        $this->assertSame(1,$dry['changes']);
+        $this->assertNull(DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+        $this->assertEquals(10,DB::table('report_aggregate_multi')->where('sales_type','Stream_Failback')->sum('quantity'));
+        $result = ReportService::restoreUsageTypes(1,$source,true);
+        $this->assertSame(1,$result['changes']);
+        $this->assertEquals(10,DB::table('report_aggregate_multi')->where('sales_type','CREATION')->sum('quantity'));
+        $this->assertSame('UGC',DB::table('report_rows')->where('report_import_id',1)->value('sales_sub_type'));
+        $after = DB::table('report_rows')->get()->map(fn ($row)=>(array) $row)->all();
+        foreach ($before as $index=>$row) foreach ($row as $key=>$value) {
+            if (!in_array($key,['sales_type','sales_sub_type'],true)) $this->assertEquals($value,$after[$index][$key],$key);
+        }
+        $this->assertSame(0,ReportService::restoreUsageTypes(1,$source,true)['changes']);
+        foreach ($this->dimensions as $name=>$keys) $this->assertEquals(150,DB::table('report_aggregate_'.$name)->sum('rupiah_exact'));
+    }
+
+    public function test_restore_rejects_row_mismatch_and_existing_category_conflict(): void
+    {
+        $source = $this->usageRestoreFixture();
+        $source[0]['sales_type']='CREATION'; $source[0]['quantity']=999;
+        try { ReportService::restoreUsageTypes(1,$source,true); $this->fail('Mismatch should fail'); }
+        catch (\RuntimeException $error) { $this->assertStringContainsString('quantity',$error->getMessage()); }
+        $this->assertNull(DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+        $source[0]['quantity']=10;
+        DB::table('report_rows')->where('report_import_id',1)->update(['sales_type'=>'STREAMING']);
+        try { ReportService::restoreUsageTypes(1,$source,true); $this->fail('Conflict should fail'); }
+        catch (\RuntimeException $error) { $this->assertStringContainsString('berbeda',$error->getMessage()); }
+        $this->assertSame('STREAMING',DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+    }
+
+    public function test_restore_rejects_missing_rows_and_does_not_guess_missing_source_categories(): void
+    {
+        $source = $this->usageRestoreFixture();
+        try { ReportService::restoreUsageTypes(1,[],true); $this->fail('Missing row should fail'); }
+        catch (\RuntimeException $error) { $this->assertStringContainsString('Jumlah baris',$error->getMessage()); }
+        $result = ReportService::restoreUsageTypes(1,$source,true);
+        $this->assertSame(0,$result['changes']);
+        $this->assertSame(1,$result['missing_types']);
+        $this->assertSame(1,$result['missing_subtypes']);
+        $this->assertNull(DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+        $this->artisan('reports:restore-sales-types',['report'=>1,'--apply'=>true])->assertFailed();
+        $this->assertNull(DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+    }
+
+    public function test_restore_rolls_back_types_when_summary_rebuild_fails(): void
+    {
+        $source = $this->usageRestoreFixture(); $source[0]['sales_type']='CREATION';
+        ReportService::aggregate();
+        DB::unprepared("CREATE TRIGGER reject_restore BEFORE INSERT ON report_aggregate_monthly BEGIN SELECT RAISE(ABORT, 'simulated failure'); END");
+        try { ReportService::restoreUsageTypes(1,$source,true); $this->fail('Rebuild should fail'); }
+        catch (\Illuminate\Database\QueryException) {}
+        $this->assertNull(DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+        $this->assertEquals(150,DB::table('report_aggregate_multi')->sum('rupiah_exact'));
+    }
+
+    public function test_command_reads_saved_soundon_file_and_defaults_to_read_only(): void
+    {
+        $this->usageRestoreFixture();
+        $sheet=(new \PhpOffice\PhpSpreadsheet\Spreadsheet)->getActiveSheet();
+        $sheet->fromArray([
+            ['Sales Period','Reporting Period','Track Title','ISRC','Track Artists','UPC Code','Album Title','Store Name','Sales Region','Units of Sold','Final Royalty','Sales Type','Sales Sub Type'],
+            ['2026-01','2026-02','Track','IDTEST','Artist','12345','Album','Spotify','ID',10,1.25,'VIDEO_VIEW','PGC'],
+        ]);
+        Storage::disk('local')->makeDirectory('reports');
+        (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($sheet->getParent()))->save(Storage::disk('local')->path('reports/restore.xlsx'));
+        DB::table('filestorage')->insert(['owner_type'=>ReportImport::class,'owner_id'=>1,'disk'=>'local','identifier'=>'reports/restore.xlsx']);
+        $exit = \Illuminate\Support\Facades\Artisan::call('reports:restore-sales-types',['report'=>1]);
+        $this->assertSame(0,$exit,\Illuminate\Support\Facades\Artisan::output());
+        $this->assertNull(DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+        $this->artisan('reports:restore-sales-types',['report'=>1,'--apply'=>true])->assertSuccessful();
+        $this->assertSame('VIDEO_VIEW',DB::table('report_rows')->where('report_import_id',1)->value('sales_type'));
+        $this->assertSame('PGC',DB::table('report_rows')->where('report_import_id',1)->value('sales_sub_type'));
+        $this->assertEquals(10,DB::table('report_aggregate_multi')->where('sales_type','VIDEO_VIEW')->sum('quantity'));
+        Storage::disk('local')->delete('reports/restore.xlsx');
+    }
+
     public function test_reporting_rows_and_csv_keep_creation_separate_from_stream_quantity(): void
     {
         Schema::table('report_rows', function ($t) {

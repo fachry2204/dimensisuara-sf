@@ -44,4 +44,20 @@ class ReleaseHistoryActorTest extends TestCase
         $this->assertStringContainsString('Admin: Nama akun tidak tersedia', $render($histories[2]));
         $this->assertStringNotContainsString('<script>', $render($histories[0]));
     }
+
+    public function test_published_release_without_history_keeps_panel_and_honest_empty_state(): void
+    {
+        $release = new \App\Models\Release(['status'=>'released']);
+        $release->setRelation('histories',collect());
+        $source = file_get_contents(resource_path('views/components/release.blade.php'));
+        $start = strrpos(substr($source,0,strpos($source,'$hasReleaseHistory')), '    @php');
+        $fragment = substr($source,$start);
+        $fragment = explode("@push('css')",$fragment,2)[0];
+        $html = Blade::render($fragment,compact('release'));
+        $this->assertStringContainsString('Release History',$html);
+        $this->assertStringContainsString('Belum ada riwayat aktivitas',$html);
+        $this->assertStringContainsString('Published',$html);
+        $this->assertStringContainsString('aria-expanded="true"',$html);
+        $this->assertStringNotContainsString('release-timeline-item ',$html);
+    }
 }

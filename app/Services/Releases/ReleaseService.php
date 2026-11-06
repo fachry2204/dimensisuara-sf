@@ -108,6 +108,8 @@ class ReleaseService
     {
         return DB::transaction(function () use ($release, $profileid, $status, $data, $aggregator) {
 
+            $wasPublished = $release->exists && $release->getRawOriginal('status') === 'released';
+
             // Set aggregator
             $release->aggregator = $aggregator;
 
@@ -352,6 +354,16 @@ class ReleaseService
 
             // Reload release track relation
             $release->load('tracks');
+
+            if ($status === 'released' && !$wasPublished) {
+                ReleaseHistory::create([
+                    'release_id' => $release->id,
+                    'action' => 'publish',
+                    'message' => 'Release published',
+                    'type' => 'accepted',
+                    ...account_actor(auth()->user()),
+                ]);
+            }
 
             // Return release
             return $release;

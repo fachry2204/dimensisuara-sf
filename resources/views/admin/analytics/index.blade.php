@@ -21,8 +21,10 @@
     <header class="aa-heading"><div><h1>Analitik Semua Rilis</h1><p>Pantau katalog, stream, dan pendapatan dari laporan royalti yang telah dihitung.</p></div><a class="btn btn-primary" href="{{ route('admin.analytics.export',request()->query()) }}"><span class="material-icons-outlined">download</span> Ekspor Rilis (CSV)</a></header>
     <nav class="aa-tabs" aria-label="Bagian analitik">@foreach($tabs as $key=>$label)<a href="{{ $link($key) }}" class="{{ $filters['tab']===$key?'active':'' }}" @if($filters['tab']===$key) aria-current="page" @endif>{{ $label }}</a>@endforeach</nav>
     @include('admin.analytics.filters')
-    <x-report-usage :totals="$totals" :platforms="$platforms" />
-    <x-report-subtypes :rows="$salesSubtypes" :export-url="route('admin.analytics.subtypes.export', request()->query())" revenue-label="Pendapatan total" />
+    @if($filters['tab']==='overview')
+        <x-report-usage :totals="$totals" :platforms="$platforms" />
+        <x-report-subtypes :rows="$salesSubtypes" :export-url="route('admin.analytics.subtypes.export', request()->query())" revenue-label="Pendapatan total" />
+    @endif
     <div class="aa-kpis">
         @foreach([['Total Stream',$number($totals->streams),'play_arrow',$delta($totals->streams,$previous->streams??0)],['Pendapatan Total',$money($totals->revenue),'payments',$delta($totals->revenue,$previous->revenue??0)],['Bagian User',$money($totals->user_revenue),'groups','Sesuai rate pada baris laporan'],['Bagian Sistem',$money($totals->system_revenue),'pie_chart','Pendapatan setelah bagian user']] as $kpi)
         <article class="aa-panel aa-kpi"><div><span class="aa-icon material-icons-outlined">{{ $kpi[2] }}</span><span>{{ $kpi[0] }}</span></div><strong>{{ $kpi[1] }}</strong><small>{{ $kpi[3] }}</small></article>

@@ -446,17 +446,25 @@
             </div>
         </div>
     </div>
-    @if($release->histories && $release->histories->isNotEmpty())
+    @php
+        $hasReleaseHistory = $release->histories && $release->histories->isNotEmpty();
+    @endphp
         <div class="col-12 mt-4 release-history-panel">
             <h3 class="section-toggle-heading">
                 <button type="button" class="section-toggle-btn" data-bs-toggle="collapse"
-                    data-bs-target="#release-history-collapse" aria-expanded="false"
+                    data-bs-target="#release-history-collapse" aria-expanded="{{ $hasReleaseHistory ? 'false' : 'true' }}"
                     aria-controls="release-history-collapse">
                     Release History
                     <span class="section-toggle-icon" aria-hidden="true"></span>
                 </button>
             </h3>
-            <div id="release-history-collapse" class="collapse">
+            <div id="release-history-collapse" class="collapse {{ $hasReleaseHistory ? '' : 'show' }}">
+                @if(!$hasReleaseHistory)
+                    <div class="p-3">
+                        <p class="mb-2">Belum ada riwayat aktivitas yang tersimpan untuk rilisan ini.</p>
+                        <p class="mb-0">Status saat ini: <x-badge-release :status="$release->status" /></p>
+                    </div>
+                @endif
                 <div class="release-timeline">
                     @foreach($release->histories as $history)
                         @php
@@ -485,7 +493,6 @@
                 </div>
             </div>
         </div>
-    @endif
 </div>
 
 @push('css')
