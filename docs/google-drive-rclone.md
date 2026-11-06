@@ -53,3 +53,7 @@ Tes dari tombol aplikasi berjalan melalui PHP web/PHP-FPM. Tes SSH sebagai pengg
 Pesan tes menyebut tahap yang gagal: membaca daftar remote, mengakses Drive, mengunggah file uji, atau membaca ukuran/checksum. Petunjuk kesalahan disaring menjadi pesan tetap untuk akses, otorisasi, kuota, jaringan, versi rclone, dan kemampuan PHP menjalankan proses. Stderr mentah maupun token tidak ditampilkan.
 
 Jika konfigurasi terbaca namun penyegaran token gagal, periksa izin tulis pengguna PHP pada file konfigurasi dan foldernya. Jika gagal menjalankan proses, periksa pengaturan fungsi PHP pada handler PHP-FPM domain terkait. Jika ukuran/checksum tidak cocok, pastikan kode aplikasi terbaru terpasang; nama hash `md5`, `MD5`, dan `Md5` didukung. Jangan menyatakan koneksi berhasil hanya berdasarkan hasil SSH; ulangi tombol Tes Koneksi pada aplikasi.
+
+Pemeriksaan awal binary/konfigurasi juga menangani peringatan PHP, termasuk open_basedir. Gunakan lokasi yang diizinkan bagi domain terkait; izin filesystem pengguna SSH tidak menjamin path diizinkan oleh PHP-FPM. File uji lokal dibuat di storage/app/temp, bukan folder temporary sistem yang mungkin berada di luar cakupan domain.
+
+Jika pesan lama tetap muncul sesudah pembaruan, pastikan repository telah di-deploy ke direktori aplikasi aktif di Plesk, jalankan optimize:clear, lalu restart PHP-FPM domain agar OPcache memakai kode terbaru. Push GitHub sendiri tidak memastikan kode aplikasi aktif sudah berubah. Untuk kegagalan tak terduga, log hanya mencatat jenis exception serta lokasi kode, tanpa pesan mentah atau token.

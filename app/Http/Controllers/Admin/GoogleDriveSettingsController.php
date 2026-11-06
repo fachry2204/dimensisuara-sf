@@ -45,8 +45,14 @@ class GoogleDriveSettingsController extends Controller
             $settings->save(['drive_connection_status'=>'ok','drive_checked_at'=>now()->toIso8601String()]);
             return $this->back()->with('success','Koneksi Google Drive berhasil.');
         } catch (\Throwable $e) {
+            if (!$e instanceof \App\Exceptions\DriveSetupException) {
+                // Exception messages may contain credentials; record only its code location.
+                \Illuminate\Support\Facades\Log::warning('Tes Google Drive gagal sebelum diagnosis selesai.', [
+                    'exception_type'=>get_class($e), 'source_file'=>basename($e->getFile()), 'source_line'=>$e->getLine(),
+                ]);
+            }
             $settings->save(['drive_connection_status'=>'failed','drive_checked_at'=>now()->toIso8601String()]);
-            return $this->back()->withErrors(['drive'=>$e instanceof \App\Exceptions\DriveSetupException ? $e->getMessage() : 'Tes rclone gagal. Pastikan remote bertipe Google Drive, konfigurasi terbaca oleh PHP, dan koneksi Drive tersedia.']);
+            return $this->back()->withErrors(['drive'=>$e instanceof \App\Exceptions\DriveSetupException ? $e->getMessage() : 'Tes koneksi gagal saat pemeriksaan PHP aplikasi. Minta pengelola memeriksa catatan “Tes Google Drive gagal sebelum diagnosis selesai” pada log aplikasi.']);
         }
     }
 

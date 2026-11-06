@@ -67,6 +67,7 @@ class RcloneChecksumTest extends TestCase
             if ($args[0] === 'listremotes') return "gdrive: drive\n";
             if ($args[0] === 'copyto') {
                 $temporary = $args[1]; $destination = $args[2];
+                $this->assertSame(realpath(storage_path('app/temp')),realpath(dirname($temporary)));
                 $content = file_get_contents($temporary);
                 $this->assertSame(32, strlen($content));
                 $this->assertStringStartsWith('gdrive:dimensisuara/.connection-test-', $destination);
@@ -163,5 +164,46 @@ class RcloneChecksumTest extends TestCase
             $this->assertStringContainsString('PHP tidak dapat menjalankan rclone',$error->getMessage());
             $this->assertStringNotContainsString('secret-test-token',$error->getMessage());
         }
+    }
+
+    public function test_php_file_warning_reports_preflight_stage_and_basedir_without_exposing_path(): void
+    {
+        $client=Mockery::mock(RcloneDrive::class)->makePartial()->shouldAllowMockingProtectedMethods();
+        $client->shouldReceive('checkSetup')->once()->andThrow(new \ErrorException('is_file(): open_basedir restriction in effect. private-path-and-token'));
+        $client->shouldNotReceive('run');
+        try { $client->testConnection(); $this->fail('Expected preflight failure'); }
+        catch (\App\Exceptions\DriveSetupException $error) {
+            $this->assertStringContainsString('tahap memeriksa pengaturan PHP dan akses file',$error->getMessage());
+            $this->assertStringContainsString('open_basedir',$error->getMessage());
+            $this->assertStringNotContainsString('private-path-and-token',$error->getMessage());
+        }
+    }
+
+    public function test_local_probe_failure_reports_stage_without_uploading(): void
+    {
+        $client=Mockery::mock(RcloneDrive::class)->makePartial()->shouldAllowMockingProtectedMethods();
+        $client->shouldReceive('run')->with(['listremotes','--long'])->once()->andReturn("gdrive: drive\n");
+        $client->shouldReceive('run')->with(['lsjson','gdrive:','--stat'])->once()->andReturn('{}');
+        $client->shouldReceive('createProbe')->once()->andThrow(new \ErrorException('tempnam(): permission denied private-path-and-token'));
+        try { $client->testConnection(); $this->fail('Expected temporary file failure'); }
+        catch (\App\Exceptions\DriveSetupException $error) {
+            $this->assertStringContainsString('tahap membuat file uji lokal',$error->getMessage());
+            $this->assertStringContainsString('Akses ditolak',$error->getMessage());
+            $this->assertStringNotContainsString('private-path-and-token',$error->getMessage());
+        }
+    }
+
+    public function test_unexpected_failure_logs_only_exception_location_and_shows_safe_fallback(): void
+    {
+        $failure = new \RuntimeException('private-refresh-token');
+        \Illuminate\Support\Facades\Log::shouldReceive('warning')->once()->with('Tes Google Drive gagal sebelum diagnosis selesai.',Mockery::on(function ($context) {
+            return $context['exception_type'] === \RuntimeException::class && isset($context['source_file'],$context['source_line'])
+                && !str_contains(json_encode($context),'private-refresh-token');
+        }));
+        $client=Mockery::mock(RcloneDrive::class);
+        $client->shouldReceive('testConnection')->once()->andThrow($failure);
+        app(\App\Http\Controllers\Admin\GoogleDriveSettingsController::class)->test(app(SystemSettings::class),$client);
+        $this->assertStringContainsString('pemeriksaan PHP aplikasi',session('errors')->first('drive'));
+        $this->assertStringNotContainsString('private-refresh-token',session('errors')->first('drive'));
     }
 }

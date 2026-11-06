@@ -43,6 +43,7 @@ class RcloneDrive
     {
         // Match diagnostics internally; only fixed messages can reach the browser or logs.
         return match (true) {
+            (bool) preg_match('/open_basedir/i', $error) => 'PHP-FPM membatasi akses lokasi file melalui open_basedir. Periksa izin path binary rclone dan rclone.conf pada PHP Settings domain di Plesk; gunakan lokasi yang diizinkan untuk aplikasi ini.',
             (bool) preg_match('/invalid_grant|invalid_token|token.*(?:expired|revoked)|oauth.*(?:failed|error)|unauthorized|invalid_client/i', $error) => 'Otorisasi Google Drive ditolak atau token kedaluwarsa. Hubungkan ulang remote sebagai pengguna aplikasi dengan konfigurasi yang sama.',
             (bool) preg_match('/permission denied|access denied|operation not permitted|insufficient.*permission|forbidden/i', $error) => 'Akses ditolak. Periksa izin pengguna PHP pada binary, folder konfigurasi, rclone.conf, dan folder tujuan Drive. Konfigurasi juga harus dapat diperbarui saat token disegarkan.',
             (bool) preg_match('/quota|storageQuotaExceeded|rateLimitExceeded|too many requests/i', $error) => 'Kuota penyimpanan atau batas permintaan Google Drive tercapai. Periksa kuota lalu coba kembali.',
@@ -60,7 +61,7 @@ class RcloneDrive
         catch (\Throwable $exception) {
             $detail = $exception instanceof \App\Exceptions\DriveSetupException
                 ? $exception->getMessage()
-                : 'Tahap ini gagal diselesaikan. Periksa konfigurasi dan izin pengguna PHP.';
+                : $this->failureMessage($exception->getMessage());
             throw new \App\Exceptions\DriveSetupException('Tes koneksi gagal pada tahap '.$stage.'. '.$detail);
         }
     }
@@ -76,7 +77,7 @@ class RcloneDrive
         return $remote.':'.$folder;
     }
 
-    public function testConnection(): void
+    protected function checkSetup(): void
     {
         if (!function_exists('proc_open')) {
             throw new \App\Exceptions\DriveSetupException('PHP belum mengizinkan proc_open untuk menjalankan rclone. Minta pengelola hosting mengaktifkannya untuk aplikasi ini.');
@@ -90,6 +91,31 @@ class RcloneDrive
         if ($configFile && (!is_file($configFile) || !is_readable($configFile))) {
             throw new \App\Exceptions\DriveSetupException('rclone.conf tidak ditemukan atau tidak terbaca oleh PHP. Jalankan rclone config file sebagai pengguna aplikasi, isi path hasilnya pada Lokasi rclone.conf, dan periksa izin folder/file.');
         }
+    }
+
+    protected function createProbe(): array
+    {
+        $directory = storage_path('app/temp');
+        if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
+            throw new \App\Exceptions\DriveSetupException('Folder temporary aplikasi tidak dapat dibuat. Periksa izin tulis pengguna PHP pada storage/app.');
+        }
+        $temporary = tempnam($directory, 'drive-probe-');
+        if (!$temporary) throw new \App\Exceptions\DriveSetupException('Folder temporary aplikasi tidak dapat ditulis untuk membuat file uji.');
+        try {
+            $content = random_bytes(32);
+            if (file_put_contents($temporary, $content) !== strlen($content)) {
+                throw new \App\Exceptions\DriveSetupException('File uji tidak dapat ditulis lengkap pada folder temporary aplikasi.');
+            }
+            return [$temporary, $content];
+        } catch (\Throwable $exception) {
+            @unlink($temporary);
+            throw $exception;
+        }
+    }
+
+    public function testConnection(): void
+    {
+        $this->connectionStep('memeriksa pengaturan PHP dan akses file', fn () => $this->checkSetup());
         $remote = app(SystemSettings::class)->get('drive_remote');
         $remotes = $this->connectionStep('membaca daftar remote', fn () => $this->run(['listremotes','--long']));
         if (!preg_match('/^'.preg_quote($remote, '/').':\s+drive(?:\s|$)/m', $remotes)) {
@@ -97,14 +123,8 @@ class RcloneDrive
         }
         $this->connectionStep('mengakses Google Drive', fn () => $this->run(['lsjson',$remote.':','--stat']));
         $root = $this->connectionStep('memeriksa remote dan folder tujuan', fn () => $this->root());
-        $temporary = tempnam(sys_get_temp_dir(),'drive-probe-');
-        if (!$temporary) throw new \App\Exceptions\DriveSetupException('Folder temporary PHP tidak dapat ditulis untuk membuat file uji.');
-        $content = random_bytes(32);
-        if (file_put_contents($temporary,$content) !== strlen($content)) {
-            @unlink($temporary);
-            throw new \App\Exceptions\DriveSetupException('File uji tidak dapat ditulis lengkap pada folder temporary PHP.');
-        }
         $destination = rtrim($root,'/').'/.connection-test-'.bin2hex(random_bytes(12));
+        [$temporary, $content] = $this->connectionStep('membuat file uji lokal', fn () => $this->createProbe());
         try {
             $this->connectionStep('mengunggah file uji ke folder tujuan', fn () => $this->run(['copyto',$temporary,$destination,'--immutable']));
             $stat = $this->connectionStep('membaca ukuran dan checksum file uji', fn () => $this->stat($destination));
