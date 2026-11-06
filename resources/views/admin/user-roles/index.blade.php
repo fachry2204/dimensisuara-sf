@@ -132,6 +132,7 @@ Admin Roles and Permissions
                                     @can('manage-admins')
                                         <td>
                                             <button class="btn btn-sm btn-outline-danger" onclick="revokeAdmin({{ $admin->id }})">Revoke</button>
+                                            <a class="btn btn-sm btn-outline-primary" href="{{ route('admin.user-admin.edit', $admin->id) }}">Edit</a>
                                         </td>
                                     @endcan
                                 </tr>

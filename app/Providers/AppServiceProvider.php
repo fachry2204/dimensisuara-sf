@@ -28,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSending::class, \App\Services\AdminNotificationPreferences::class);
         $this->app->afterResolving('queue', function ($manager) {
             $manager->addConnector('database', fn () => new \App\Queue\RelationalDatabaseConnector($this->app['db']));
         });
@@ -57,6 +58,13 @@ class AppServiceProvider extends ServiceProvider
         }
         \Illuminate\Support\Facades\Queue::before(function () {
             app(\App\Services\SystemSettings::class)->refresh();
+        });
+        \Illuminate\Support\Facades\Queue::looping(function ($event) {
+            $health = app(\App\Services\NotificationHealth::class);
+            if ($health->observesNotificationQueue($event->connectionName, $event->queue)) {
+                try { $health->record('worker'); }
+                catch (\Throwable) { \Illuminate\Support\Facades\Log::warning('Heartbeat worker notifikasi tidak dapat disimpan.'); }
+            }
         });
 
         Gate::before(function ($user, string $ability) {

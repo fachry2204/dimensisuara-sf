@@ -1,7 +1,19 @@
 <div class="card mb-4"><div class="card-body p-4">
     <div class="d-flex align-items-center gap-2 mb-2"><span class="material-icons-outlined" aria-hidden="true">cloud_upload</span><h4 class="mb-0">Setting Google Drive</h4></div>
     <p class="text-secondary">Pindahkan WAV/audio, cover art, thumbnail, dan IPL ke Google Drive setelah rilis berstatus Released. File lokal dihapus setelah ukuran dan checksum salinan Drive cocok.</p>
-    @if(!$driveReady)<div class="alert alert-warning">Jalankan <code>php artisan migrate --force</code> untuk menyiapkan riwayat pemindahan.</div>@endif
+    <details class="border rounded-3 p-3 mb-4"><summary>Panduan koneksi Google Drive dari awal</summary>
+        <ol class="mt-3">
+            <li>Masuk SSH sebagai pengguna hosting/PHP aplikasi. Pastikan rclone tersedia dengan <code>command -v rclone</code>. Salin hasilnya ke kolom <strong>Lokasi rclone</strong>. Jika hasil kosong, rclone perlu dipasang oleh pengelola VPS.</li>
+            <li>Jalankan <code>rclone config</code>, pilih remote baru, beri nama <code>gdrive</code>, lalu pilih jenis <code>drive</code> (Google Drive). Selesaikan login dan izin Google sesuai petunjuk rclone. Mengisi nama gdrive di halaman ini saja belum menghubungkan akun Google.</li>
+            <li>Jalankan <code>rclone config file</code>. Salin path konfigurasi yang ditampilkan ke <strong>Lokasi rclone.conf</strong>. Jalankan perintah dengan pengguna yang sama dengan PHP/worker agar file konfigurasi bisa dibaca dan token bisa diperbarui. Jangan membagikan isi rclone.conf karena berisi token.</li>
+            <li>Isi <strong>Nama Remote</strong> dengan <code>gdrive</code> tanpa titik dua, dan <strong>Folder Tujuan</strong> dengan nama folder seperti <code>dimensisuara</code>, bukan tautan Google Drive.</li>
+            <li>Biarkan pemindahan otomatis nonaktif, klik <strong>Simpan Setting Google Drive</strong>, lalu <strong>Tes Koneksi</strong>.</li>
+            <li>Setelah tes berhasil, aktifkan pemindahan otomatis dan simpan lagi. Pastikan Scheduled Task di bawah sudah berhasil. Scheduler memeriksa file released setiap 5 menit; worker Drive memproses antreannya.</li>
+        </ol>
+        <p class="form-text mb-0">Jika server tidak mempunyai browser, ikuti <a href="https://rclone.org/remote_setup/" target="_blank" rel="noopener noreferrer">panduan resmi otorisasi rclone pada server</a>. Letakkan rclone.conf di folder privat di luar public, dengan izin untuk pengguna aplikasi.</p>
+    </details>
+    @include('admin.system-settings.scheduler-help')
+    @if(!$driveReady)<div class="alert alert-warning">Tabel riwayat Drive belum tersedia. Dari folder aplikasi, gunakan PHP yang sama dengan website untuk menjalankan migrasi khusus ini: <code class="d-block mt-2 text-break">php artisan migrate --path=database/migrations/2026_10_31_110000_create_drive_transfers_table.php --force</code><small class="d-block mt-2">Migrasi tabel berbeda dari koneksi rclone. Selesaikan keduanya sebelum mengaktifkan pemindahan otomatis.</small></div>@endif
     <form method="POST" action="{{ route('admin.system-settings.drive.save') }}">
         @csrf<input type="hidden" name="section" value="google-drive"><input type="hidden" name="drive_enabled" value="0">
         <div class="form-check form-switch mb-4"><input class="form-check-input" id="drive-enabled" name="drive_enabled" type="checkbox" value="1" @checked(old('section') === 'google-drive' ? old('drive_enabled') : $settings['drive_enabled'])><label class="form-check-label" for="drive-enabled">Pindahkan file released secara otomatis</label></div>

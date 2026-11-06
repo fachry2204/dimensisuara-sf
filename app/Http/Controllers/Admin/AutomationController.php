@@ -11,8 +11,20 @@ use App\Http\Controllers\Controller;
 
 class AutomationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $automationTab = $request->input('tab', 'jobs');
+        if (in_array($automationTab, ['email', 'whatsapp'], true)) {
+            $channel = $automationTab;
+            $channelLabel = $channel === 'email' ? 'Email' : 'WhatsApp';
+            $notificationsReady = \Illuminate\Support\Facades\Schema::hasTable('status_notification_deliveries');
+            $history = $notificationsReady
+                ? \App\Models\StatusNotificationDelivery::select(['id','event','channel','user_id','status','attempts','error','sent_at','updated_at'])
+                    ->where('channel', $channel)->latest('id')->paginate(30)->withQueryString()
+                : null;
+            $notificationEvents = app(\App\Services\StatusNotificationTemplates::class)->events();
+            return view('admin.automation.notification-history', compact('automationTab', 'channel', 'channelLabel', 'notificationsReady', 'history', 'notificationEvents'));
+        }
         $fails      = DB::table('failed_jobs')->get();
         $batches    = DB::table('job_batches')->get();
         $jobs       = DB::table('jobs')->get();
@@ -59,7 +71,8 @@ class AutomationController extends Controller
 
         $fails = $fails->values();
         $jobs = $jobs->values();
-        return view('admin.automation.index', compact('jobs', 'batches', 'fails'));
+        $automationTab = 'jobs';
+        return view('admin.automation.index', compact('jobs', 'batches', 'fails', 'automationTab'));
     }
 
     public function retry($id)

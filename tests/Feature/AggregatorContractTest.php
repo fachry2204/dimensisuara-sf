@@ -399,6 +399,74 @@ class AggregatorContractTest extends TestCase
             ->assertOk()->assertHeader('Content-Type', 'application/pdf')->assertStreamedContent($pdf);
     }
 
+    private function signInContractOwner(int $profileId = 1): void
+    {
+        $user = new class extends User {
+            public function hasPermission(string $permission): bool { return false; }
+        };
+        $user->forceFill(['id'=>1, 'email'=>'client@example.test', 'email_verified_at'=>now()]);
+        $profile = Profile::find(1);
+        $profile->id = $profileId;
+        $user->setRelation('profile', $profile)->setRelation('unreadNotifications', collect());
+        $this->actingAs($user);
+    }
+
+    public function test_customer_contract_links_prefer_latest_stamped_upload_and_protect_ownership(): void
+    {
+        $this->app->useStoragePath($this->directory.'/storage');
+        config(['filesystems.disks.local.root'=>$this->directory.'/storage/app']);
+        \Illuminate\Support\Facades\Storage::forgetDisk('local');
+        $contract = $this->generate();
+        app(ContractService::class)->upload($contract, ['file'=>\Illuminate\Http\UploadedFile::fake()->createWithContent('manual.pdf', "%PDF-1.4\nUnsigned")]);
+        app(ContractService::class)->uploadDigitalStamp($contract, \Illuminate\Http\UploadedFile::fake()->createWithContent('stamped.pdf', "%PDF-1.4\nStamped v1"));
+        $this->signInContractOwner();
+        foreach (['profile.contract.retrieve', 'publishing.contract.retrieve'] as $route) {
+            $this->get(route($route, $contract->id))->assertOk()->assertHeader('Content-Type', 'application/pdf')
+                ->assertHeader('X-Content-Type-Options', 'nosniff')->assertContent("%PDF-1.4\nStamped v1");
+        }
+        app(ContractService::class)->uploadDigitalStamp($contract, \Illuminate\Http\UploadedFile::fake()->createWithContent('stamped.pdf', "%PDF-1.4\nStamped v2"));
+        $response = $this->get(route('profile.contract.retrieve', $contract->id))->assertOk()->assertContent("%PDF-1.4\nStamped v2");
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
+        $this->signInContractOwner(2);
+        $this->withoutExceptionHandling();
+        foreach (['profile.contract.retrieve', 'publishing.contract.retrieve'] as $route) {
+            try {
+                $this->get(route($route, $contract->id));
+                $this->fail('Another profile must not access this contract.');
+            } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $exception) {
+                $this->assertSame(404, $exception->getStatusCode());
+            }
+        }
+    }
+
+    public function test_customer_contract_still_uses_manual_file_when_no_stamp_is_uploaded(): void
+    {
+        $this->app->useStoragePath($this->directory.'/storage');
+        config(['filesystems.disks.local.root'=>$this->directory.'/storage/app']);
+        \Illuminate\Support\Facades\Storage::forgetDisk('local');
+        $contract = $this->generate();
+        app(ContractService::class)->upload($contract, ['file'=>\Illuminate\Http\UploadedFile::fake()->createWithContent('manual.pdf', "%PDF-1.4\nManual only")]);
+        $this->signInContractOwner();
+        foreach (['profile.contract.retrieve', 'publishing.contract.retrieve'] as $route) {
+            $this->get(route($route, $contract->id))->assertOk()->assertContent("%PDF-1.4\nManual only");
+        }
+    }
+
+    public function test_missing_stamped_file_does_not_silently_return_unsigned_contract(): void
+    {
+        $this->app->useStoragePath($this->directory.'/storage');
+        config(['filesystems.disks.local.root'=>$this->directory.'/storage/app']);
+        \Illuminate\Support\Facades\Storage::forgetDisk('local');
+        $contract = $this->generate();
+        app(ContractService::class)->upload($contract, ['file'=>\Illuminate\Http\UploadedFile::fake()->createWithContent('manual.pdf', "%PDF-1.4\nUnsigned")]);
+        $stamp = app(ContractService::class)->uploadDigitalStamp($contract, \Illuminate\Http\UploadedFile::fake()->createWithContent('stamped.pdf', "%PDF-1.4\nStamped"));
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($stamp->identifier);
+        $this->signInContractOwner();
+        foreach (['profile.contract.retrieve', 'publishing.contract.retrieve'] as $route) {
+            $this->get(route($route, $contract->id))->assertNotFound()->assertDontSee('Unsigned');
+        }
+    }
+
     public function test_replacing_stamped_pdf_removes_previous_file_and_delete_cleans_up(): void
     {
         \Illuminate\Support\Facades\Storage::fake('local');

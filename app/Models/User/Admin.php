@@ -9,6 +9,20 @@ class Admin extends User
 {
     protected $table = 'user_admin';
 
+    protected function casts(): array
+    {
+        return array_merge(parent::casts(), ['email_notifications_enabled'=>'boolean', 'whatsapp_notifications_enabled'=>'boolean']);
+    }
+
+    public function allowsNotificationChannel(string $channel): bool
+    {
+        return match ($channel) {
+            'mail' => $this->email_notifications_enabled ?? true,
+            \App\Services\WhatsAppService::class, 'whatsapp' => $this->whatsapp_notifications_enabled ?? true,
+            default => true,
+        };
+    }
+
     protected static function newFactory()
     {
         return \Database\Factories\AdminFactory::new();

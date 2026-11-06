@@ -46,10 +46,22 @@ class RcloneDrive
 
     public function testConnection(): void
     {
+        if (!function_exists('proc_open')) {
+            throw new \App\Exceptions\DriveSetupException('PHP belum mengizinkan proc_open untuk menjalankan rclone. Minta pengelola hosting mengaktifkannya untuk aplikasi ini.');
+        }
+        $settings = app(SystemSettings::class);
+        $binary = $settings->get('drive_binary') ?: 'rclone';
+        if ((str_contains($binary, '/') || str_contains($binary, '\\')) && (!is_file($binary) || !is_executable($binary))) {
+            throw new \App\Exceptions\DriveSetupException('Lokasi rclone tidak ditemukan atau tidak dapat dijalankan oleh PHP. Jalankan command -v rclone di SSH, lalu simpan path hasilnya pada Lokasi rclone.');
+        }
+        $configFile = $settings->get('drive_config');
+        if ($configFile && (!is_file($configFile) || !is_readable($configFile))) {
+            throw new \App\Exceptions\DriveSetupException('rclone.conf tidak ditemukan atau tidak terbaca oleh PHP. Jalankan rclone config file sebagai pengguna aplikasi, isi path hasilnya pada Lokasi rclone.conf, dan periksa izin folder/file.');
+        }
         $remote = app(SystemSettings::class)->get('drive_remote');
         $remotes = $this->run(['listremotes','--long']);
         if (!preg_match('/^'.preg_quote($remote, '/').':\s+drive(?:\s|$)/m', $remotes)) {
-            throw new RuntimeException('Remote tidak ditemukan atau bukan tipe Google Drive. Jalankan rclone config sebagai pengguna worker aplikasi.');
+            throw new \App\Exceptions\DriveSetupException('Remote tidak ditemukan pada konfigurasi PHP atau bukan tipe Google Drive. Isi Lokasi rclone.conf dengan path dari rclone config file dan pastikan Nama Remote sama dengan hasil rclone listremotes --long.');
         }
         $this->run(['lsjson',$remote.':','--stat']);
         $temporary = tempnam(sys_get_temp_dir(),'drive-probe-');

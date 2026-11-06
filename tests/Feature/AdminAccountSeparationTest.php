@@ -402,4 +402,81 @@ class AdminAccountSeparationTest extends TestCase
         }
     }
 
+    public function test_admin_can_be_edited_with_independent_channel_preferences(): void
+    {
+        (require base_path('database/migrations/2026_11_06_180000_add_admin_notification_preferences.php'))->up();
+        $actor = Admin::find(20);
+        $actor->setRelation('unreadNotifications', collect());
+        $this->actingAs($actor, 'admin');
+        $this->get(route('admin.user-admin.edit', 20))->assertOk()->assertSee('Aktifkan notifikasi Email')->assertSee('Aktifkan notifikasi WhatsApp');
+        $this->put(route('admin.user-admin.update', 20), [
+            'name'=>'Admin Updated', 'email'=>'updated@example.test', 'notification_phone'=>'6281234567890',
+            'email_notifications_enabled'=>0, 'whatsapp_notifications_enabled'=>1,
+            'role'=>999, 'password'=>'not-an-authorized-password-change',
+        ])->assertRedirect(route('admin.user-roles.index'))->assertSessionHasNoErrors();
+        $admin = Admin::find(20);
+        $this->assertSame('Admin Updated', $admin->name);
+        $this->assertSame('updated@example.test', $admin->email);
+        $this->assertSame('6281234567890', $admin->notification_phone);
+        $this->assertFalse($admin->email_notifications_enabled);
+        $this->assertTrue($admin->whatsapp_notifications_enabled);
+        $this->assertSame($this->originalHash, $admin->getRawOriginal('password'));
+        $this->assertTrue($admin->roles()->where('access_roles.id', 1)->exists());
+        $this->assertSame('customer@example.test', User::find(21)->email);
+    }
+
+    public function test_admin_edit_validates_fields_and_requires_admin_management_permission(): void
+    {
+        (require base_path('database/migrations/2026_11_06_180000_add_admin_notification_preferences.php'))->up();
+        $this->actingAs(Admin::find(20), 'admin');
+        $this->putJson(route('admin.user-admin.update', 20), [
+            'name'=>'Admin', 'email'=>'customer@example.test', 'notification_phone'=>'invalid',
+            'email_notifications_enabled'=>'invalid', 'whatsapp_notifications_enabled'=>1,
+        ])->assertUnprocessable()->assertJsonValidationErrors(['email','notification_phone','email_notifications_enabled']);
+        DB::table('access_role_permissions')->where('permission_id',1)->delete();
+        $this->getJson(route('admin.user-admin.edit', 20))->assertForbidden();
+        $this->putJson(route('admin.user-admin.update', 20), [])->assertForbidden();
+    }
+
+    public function test_admin_notification_preferences_are_checked_at_delivery_time_per_channel(): void
+    {
+        (require base_path('database/migrations/2026_11_06_180000_add_admin_notification_preferences.php'))->up();
+        $staleAdmin = Admin::find(20);
+        foreach ([[false,false], [true,false], [false,true], [true,true]] as [$email, $whatsapp]) {
+            DB::table('user_admin')->where('id',20)->update(['email_notifications_enabled'=>$email,'whatsapp_notifications_enabled'=>$whatsapp]);
+            \Illuminate\Support\Facades\Notification::forgetDrivers();
+            $mailChannel = \Mockery::mock(\Illuminate\Notifications\Channels\MailChannel::class);
+            $mailChannel->shouldReceive('send')->times($email ? 1 : 0);
+            $waChannel = \Mockery::mock(\App\Services\WhatsAppService::class);
+            $waChannel->shouldReceive('send')->times($whatsapp ? 1 : 0);
+            $databaseChannel = \Mockery::mock(\App\Notifications\Channels\DatabaseChannel::class);
+            $databaseChannel->shouldReceive('send')->once();
+            $this->app->instance(\Illuminate\Notifications\Channels\MailChannel::class, $mailChannel);
+            $this->app->instance(\App\Services\WhatsAppService::class, $waChannel);
+            $this->app->instance(\App\Notifications\Channels\DatabaseChannel::class, $databaseChannel);
+            $notification = new class extends \Illuminate\Notifications\Notification {
+                public function via($notifiable) { return ['mail', \App\Services\WhatsAppService::class, \App\Notifications\Channels\DatabaseChannel::class]; }
+            };
+            \Illuminate\Support\Facades\Notification::sendNow($staleAdmin, $notification);
+        }
+        $listener = app(\App\Services\AdminNotificationPreferences::class);
+        $this->assertNull($listener->handle(new \Illuminate\Notifications\Events\NotificationSending(User::find(21), $notification, 'mail')));
+    }
+
+    public function test_admin_whatsapp_uses_current_notification_phone(): void
+    {
+        (require base_path('database/migrations/2026_11_06_180000_add_admin_notification_preferences.php'))->up();
+        Schema::create('notify_whatsapp', function ($t) { $t->id(); foreach (['gwid','deviceid','phone','message','added_on'] as $field) $t->text($field)->nullable(); });
+        $staleAdmin = Admin::find(20);
+        DB::table('user_admin')->where('id',20)->update(['notification_phone'=>'081234567890']);
+        config(['system-settings.whatsapp.token'=>'test-token']);
+        \Illuminate\Support\Facades\Http::preventStrayRequests();
+        \Illuminate\Support\Facades\Http::fake(['https://api.fonnte.com/send'=>\Illuminate\Support\Facades\Http::response(['status'=>true, 'id'=>['test-message']])]);
+        $notification = new class extends \Illuminate\Notifications\Notification {
+            public function via($notifiable) { return [\App\Services\WhatsAppService::class]; }
+            public function toWhatsAppService($notifiable) { return 'Admin notification test'; }
+        };
+        \Illuminate\Support\Facades\Notification::sendNow($staleAdmin, $notification);
+        \Illuminate\Support\Facades\Http::assertSent(fn ($request) => $request['target'] === '6281234567890');
+    }
 }

@@ -7,6 +7,7 @@
         <h2 class="mt-2">Setting System</h2>
         <p class="text-secondary">Kelola identitas aplikasi, perusahaan, tampilan, kontrak, dan koneksi layanan.</p>
     </div>
+    @include('admin.system-settings.notification-health')
     @php($settingsTab = old('section', request('tab', 'general')))
     @php($contractTab = in_array($settingsTab, ['contracts', 'contract_prefix'], true))
     @php($companyTab = $settingsTab === 'company')
@@ -92,6 +93,7 @@
             </div>
             <button class="btn btn-primary mt-4" type="submit">Simpan SMTP</button>
         </form>
+        @include('admin.system-settings.gateway-test', ['channel' => 'email'])
     </div></div>
     <div class="card mb-4"><div class="card-body p-4">
         <h5 class="d-flex align-items-center gap-2"><span class="material-icons-outlined">chat</span> WhatsApp Gateway — Fonnte</h5>
@@ -106,6 +108,7 @@
             </div>
             <button class="btn btn-primary mt-4" type="submit">Simpan WhatsApp Gateway</button>
         </form>
+        @include('admin.system-settings.gateway-test', ['channel' => 'whatsapp'])
     </div></div>
     </div>
     <div class="tab-pane fade {{ $contractTab ? 'show active' : '' }}" id="system-contract" role="tabpanel" aria-labelledby="system-contract-tab">
@@ -131,6 +134,15 @@
     </div>
 </div>
 <script>
+document.querySelectorAll('[data-gateway-test]').forEach(form => {
+    form.addEventListener('submit', event => {
+        if (form.dataset.sending) { event.preventDefault(); return; }
+        form.dataset.sending = '1';
+        const button = form.querySelector('button[type="submit"]');
+        button.disabled = true;
+        button.textContent = 'Mengirim tes…';
+    });
+});
 document.querySelectorAll('[data-preview]').forEach(input => {
     let previewUrl;
     input.addEventListener('change', () => {

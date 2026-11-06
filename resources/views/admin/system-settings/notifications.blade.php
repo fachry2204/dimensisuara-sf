@@ -4,8 +4,6 @@
     $template = $configuration['templates'][$notificationEvent];
     $hasOld = old('section') === 'notifications-'.$channel;
     $field = fn ($key,$fallback) => $hasOld ? old($key,$fallback) : $fallback;
-    $history = $notificationHistory->get($channel, collect());
-    $deliveryLabels = ['pending'=>'Menunggu worker','processing'=>'Sedang dikirim','sent'=>'Diterima penyedia','failed'=>'Perlu diperiksa','skipped'=>'Dilewati'];
 @endphp
 <div class="card mb-4"><div class="card-body p-4">
     <h4 class="d-flex align-items-center gap-2"><span class="material-icons-outlined" aria-hidden="true">{{ $channel === 'email' ? 'mail_outline' : 'chat' }}</span>Notifikasi {{ $channelLabel }}</h4>
@@ -46,13 +44,4 @@
         </div>
     </div>
 </div></div>
-<div class="card"><div class="card-body p-4">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"><h5 class="mb-0">Riwayat Notifikasi {{ $channelLabel }}</h5><a class="btn btn-outline-primary" href="{{ route('admin.system-settings.index',['tab'=>'notifications-'.$channel,'notification_event'=>$notificationEvent]) }}">Perbarui Riwayat</a></div>
-    <p class="text-secondary">Pesan dikirim melalui worker setelah perubahan status berhasil disimpan. Mengubah template tidak mengirim ulang riwayat lama. Status diterima penyedia belum memastikan pesan dibaca penerima.</p>
-    <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Status Pemicu</th><th>User</th><th>Pengiriman</th><th>Waktu</th><th>Keterangan / Aksi</th></tr></thead><tbody>
-        @forelse($history as $delivery)<tr><td>{{ $notificationEvents[$delivery->event]['label'] ?? $delivery->event }}</td><td>#{{ $delivery->user_id }}</td><td>{{ $deliveryLabels[$delivery->status] ?? $delivery->status }}</td><td>{{ $delivery->updated_at->format('d-m-Y H:i') }}</td><td>{{ $delivery->error ?: '—' }}
-            @if(in_array($delivery->status,['failed','skipped'],true))<form class="mt-2" method="POST" action="{{ route('admin.system-settings.notifications.retry',$delivery->id) }}">@csrf<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="notification-check-{{ $delivery->id }}" name="provider_checked" value="1" required><label class="form-check-label" for="notification-check-{{ $delivery->id }}">Sudah memeriksa penyedia dan memastikan pesan belum terkirim.</label></div><button class="btn btn-sm btn-outline-primary" type="submit">Jadwalkan Ulang</button></form>@endif
-        </td></tr>@empty<tr><td colspan="5" class="text-center text-secondary">Belum ada notifikasi status pada kanal ini.</td></tr>@endforelse
-    </tbody></table></div>
-    <details class="mt-3"><summary>Aktivasi pengiriman di hosting</summary><p class="mt-2">Setelah deploy, jalankan migrasi khusus berikut. Ini menyiapkan tabel riwayat notifikasi tanpa menjalankan ulang migrasi awal database:</p><pre class="border rounded p-3 text-wrap"><code>php artisan migrate --path=database/migrations/2026_10_31_120000_create_status_notification_deliveries.php --force</code></pre><p>Worker antrean default dan jadwal Laravel yang sudah ada dapat memproses notifikasi. Jika worker belum aktif, jalankan:</p><pre class="border rounded p-3 text-wrap"><code>php artisan queue:work --queue=default --timeout=60 --tries=1</code></pre><p class="form-text">Pengiriman WhatsApp mengikuti device dan kuota Fonnte. Notifikasi hanya untuk perubahan status baru; impor database lama tidak memicu pengiriman massal.</p></details>
-</div></div>
+<div class="mt-3"><a class="btn btn-outline-primary" href="{{ route('admin.automation.index', ['tab'=>$channel]) }}">Lihat Riwayat Notifikasi {{ $channelLabel }} di Automation</a></div>

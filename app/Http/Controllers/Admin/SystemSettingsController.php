@@ -24,9 +24,9 @@ class SystemSettingsController extends Controller
         $importRuns = $importsReady ? \App\Models\LegacyImportRun::latest('id')->limit(20)->get() : collect();
         $selectedImport = $importsReady && request('import') ? \App\Models\LegacyImportRun::find(request('import')) : $importRuns->first();
         return view('admin.system-settings.index', [
+            'notificationHealth' => app(\App\Services\NotificationHealth::class)->snapshot(),
             'notificationEvents'=>$notificationEvents,'notificationEvent'=>$notificationEvent,'notificationsReady'=>$notificationsReady,
             'notificationConfigurations'=>['email'=>$notificationTemplates->configuration('email'),'whatsapp'=>$notificationTemplates->configuration('whatsapp')],
-            'notificationHistory'=>$notificationsReady ? \App\Models\StatusNotificationDelivery::select(['id','event','channel','user_id','status','attempts','error','sent_at','updated_at'])->latest('id')->limit(40)->get()->groupBy('channel') : collect(),
             'driveReady'=>$driveReady,
             'driveStats'=>$driveReady ? \Illuminate\Support\Facades\DB::table('drive_transfers')->selectRaw('status, COUNT(*) AS total, SUM(size) AS bytes')->groupBy('status')->get()->keyBy('status') : collect(),
             'driveHistory'=>$driveReady ? \Illuminate\Support\Facades\DB::table('drive_transfers')->orderByDesc('updated_at')->limit(30)->get() : collect(),

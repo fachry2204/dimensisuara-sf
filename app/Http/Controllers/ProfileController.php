@@ -137,12 +137,17 @@ class ProfileController extends Controller
             $contract = Contract::where('profileid', current_user()->profile->id)->findOrFail($id);
             $file = $mime = null;
 
-            // Check if contract is uploaded
-            if($contract->file) {
+            // The stamped upload is the authoritative customer copy when available.
+            $uploadedContract = $contract->digitalStamp ?? $contract->file;
+            if($uploadedContract) {
 
                 // Get file
-                $file = Storage::disk($contract->file->disk)->get($contract->file->identifier);
-                $mime = $contract->file->mime_type;
+                $disk = Storage::disk($uploadedContract->disk);
+                if (!$disk->exists($uploadedContract->identifier)) {
+                    return response('Dokumen kontrak belum dapat diakses.', 404)->header('Cache-Control', 'private, no-store');
+                }
+                $file = $disk->get($uploadedContract->identifier);
+                $mime = $uploadedContract->mime_type;
             }
             else {
                 // Generate PDF and return
@@ -152,6 +157,8 @@ class ProfileController extends Controller
 
             // Return response
             return response($file)
+                ->header('Cache-Control', 'private, no-store')
+                ->header('X-Content-Type-Options', 'nosniff')
                 ->header('Content-Type', $mime)
                 ->header('Content-Disposition', 'inline; filename="'.$contract->docnum.'"');
 

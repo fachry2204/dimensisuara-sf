@@ -15,6 +15,35 @@ use App\Models\User\Admin as User;
 
 class UserAdminController extends Controller
 {
+    public function edit(int $id)
+    {
+        $admin = User::findOrFail($id);
+        $preferencesReady = \Illuminate\Support\Facades\Schema::hasColumns('user_admin', ['email_notifications_enabled', 'whatsapp_notifications_enabled', 'notification_phone']);
+        return view('admin.user-roles.edit-admin', compact('admin', 'preferencesReady'));
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $admin = User::findOrFail($id);
+        if (!\Illuminate\Support\Facades\Schema::hasColumns('user_admin', ['email_notifications_enabled', 'whatsapp_notifications_enabled', 'notification_phone'])) {
+            return back()->withErrors(['admin'=>'Jalankan migrasi preferensi notifikasi admin terlebih dahulu.']);
+        }
+        $values = $request->validate([
+            'name'=>['required','string','max:191'],
+            'email'=>['required','email','max:191', \Illuminate\Validation\Rule::unique('user_admin','email')->ignore($admin->id), 'unique:users,email'],
+            'notification_phone'=>['nullable','string','regex:/^(?:\+?[1-9][0-9]{7,14}|08[0-9]{7,12})$/'],
+            'email_notifications_enabled'=>['required','boolean'],
+            'whatsapp_notifications_enabled'=>['required','boolean'],
+        ]);
+        $admin->name = $values['name'];
+        $admin->email = $values['email'];
+        $admin->notification_phone = $values['notification_phone'] ?? null;
+        $admin->email_notifications_enabled = $request->boolean('email_notifications_enabled');
+        $admin->whatsapp_notifications_enabled = $request->boolean('whatsapp_notifications_enabled');
+        $admin->save();
+        return redirect()->route('admin.user-roles.index')->with('success', 'Data admin dan preferensi notifikasi berhasil diperbarui.');
+    }
+
     public function store(CreateAdminRequest $request)
     {
         try {

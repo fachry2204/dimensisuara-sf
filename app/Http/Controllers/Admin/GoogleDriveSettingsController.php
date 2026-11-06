@@ -46,7 +46,7 @@ class GoogleDriveSettingsController extends Controller
             return $this->back()->with('success','Koneksi Google Drive berhasil.');
         } catch (\Throwable $e) {
             $settings->save(['drive_connection_status'=>'failed','drive_checked_at'=>now()->toIso8601String()]);
-            return $this->back()->withErrors(['drive'=>'Tes rclone gagal. Pastikan remote bertipe Google Drive, konfigurasi terbaca oleh PHP, dan koneksi Drive tersedia.']);
+            return $this->back()->withErrors(['drive'=>$e instanceof \App\Exceptions\DriveSetupException ? $e->getMessage() : 'Tes rclone gagal. Pastikan remote bertipe Google Drive, konfigurasi terbaca oleh PHP, dan koneksi Drive tersedia.']);
         }
     }
 

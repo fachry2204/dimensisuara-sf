@@ -6,6 +6,7 @@ Automation Status
     <div class="automation-header"><div><h1>Automation</h1><p>Pantau batch, antrean pekerjaan, dan pekerjaan yang perlu dicoba ulang.</p></div><span><i class="material-icons-outlined">settings_suggest</i> Job monitor</span></div>
 @endsection
 @section('content')
+    @include('admin.automation.tabs', ['automationTab' => $automationTab ?? 'jobs'])
     <div class="automation-summary"><article><i class="material-icons-outlined blue">queue</i><div><small>Menunggu diproses</small><strong>{{ count($jobs) }}</strong><span>Job dalam antrean</span></div></article><article><i class="material-icons-outlined green">task_alt</i><div><small>Batch tersedia</small><strong>{{ count($batches) }}</strong><span>Riwayat batch</span></div></article><article><i class="material-icons-outlined orange">warning_amber</i><div><small>Gagal diproses</small><strong>{{ count($fails) }}</strong><span>Memerlukan retry</span></div></article></div>
     <div class="row automation-page">
         <div class="col-12 mb-3">

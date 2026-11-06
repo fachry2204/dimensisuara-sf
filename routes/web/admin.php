@@ -353,6 +353,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
         // System settings: restricted to server administrators.
         Route::prefix('system-settings')->middleware(['can:manage-automation'])->group(function () {
+            Route::post('gateway/{channel}/test', [\App\Http\Controllers\Admin\GatewayTestController::class, 'send'])->whereIn('channel', ['email', 'whatsapp'])->middleware('throttle:3,1')->name('admin.system-settings.gateway.test');
             Route::post('status-notifications/{channel}', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'save'])->whereIn('channel',['email','whatsapp'])->name('admin.system-settings.notifications.save');
             Route::match(['get','post'],'status-notifications/{channel}/preview', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'preview'])->whereIn('channel',['email','whatsapp'])->name('admin.system-settings.notifications.preview');
             Route::post('status-notifications/delivery/{delivery}/retry', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'retry'])->whereNumber('delivery')->middleware('throttle:5,1')->name('admin.system-settings.notifications.retry');
@@ -371,6 +372,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
         // Automation
         Route::prefix('automation')->middleware(['can:manage-automation'])->group(function () {
+            Route::post('notifications/{delivery}/retry', [\App\Http\Controllers\Admin\StatusNotificationSettingsController::class, 'retry'])->whereNumber('delivery')->middleware('throttle:5,1')->name('admin.automation.notifications.retry');
             Route::get('/',                 [AutomationController::class, 'index'])->name('admin.automation.index');
             Route::post('{id}/retry',       [AutomationController::class, 'retry'])->name('admin.automation.retry');
             Route::post('{id}/retry_batch', [AutomationController::class, 'retry_batch'])->name('admin.automation.retry_batch');
@@ -388,6 +390,8 @@ Route::middleware(['auth','verified'])->group(function () {
            });
 
             Route::prefix('admin')->middleware(['can:manage-admins'])->group(function () {
+                Route::get('{id}/edit', [UserAdminController::class, 'edit'])->whereNumber('id')->name('admin.user-admin.edit');
+                Route::put('{id}', [UserAdminController::class, 'update'])->whereNumber('id')->name('admin.user-admin.update');
                 Route::post('store',            [UserAdminController::class, 'store'])->name('admin.user-admin.store');
                 Route::put('{id}/verify-email', [UserAdminController::class, 'verifyEmail'])->whereNumber('id')->name('admin.user-admin.verify-email');
                 Route::delete('{id}/revoke',    [UserAdminController::class, 'revoke'])->name('admin.user-admin.revoke');

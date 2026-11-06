@@ -231,6 +231,49 @@ class StatusNotificationTest extends TestCase
         $this->postJson($url,['provider_checked'=>1])->assertStatus(409);
     }
 
+    public function test_automation_history_is_paginated_per_channel_and_settings_only_link_to_it(): void
+    {
+        $this->signIn();
+        foreach (range(1, 31) as $number) {
+            StatusNotificationDelivery::create(['event_id'=>(string) \Illuminate\Support\Str::uuid(), 'event'=>'release.pending', 'channel'=>'email', 'user_id'=>99, 'status'=>'failed', 'error'=>sprintf('email-marker-%03d', $number), 'payload'=>['recipient'=>'private@example.test', 'message'=>['body'=>'private-message']]]);
+        }
+        StatusNotificationDelivery::create(['event_id'=>(string) \Illuminate\Support\Str::uuid(), 'event'=>'release.pending', 'channel'=>'whatsapp', 'user_id'=>99, 'status'=>'failed', 'error'=>'whatsapp-marker', 'payload'=>['recipient'=>'6281234567890']]);
+        $email = $this->get(route('admin.automation.index', ['tab'=>'email']))->assertOk()
+            ->assertSee('email-marker-031')->assertDontSee('email-marker-001')->assertDontSee('whatsapp-marker')
+            ->assertDontSee('private@example.test')->assertDontSee('private-message')->assertDontSee('id="jobs-table"', false);
+        $this->assertSame(31, $email->viewData('history')->total());
+        $this->assertCount(30, $email->viewData('history'));
+        $this->assertStringContainsString('tab=email', $email->viewData('history')->nextPageUrl());
+        $this->get(route('admin.automation.index', ['tab'=>'email', 'page'=>2]))->assertOk()->assertSee('email-marker-001')->assertDontSee('whatsapp-marker');
+        $this->get(route('admin.automation.index', ['tab'=>'whatsapp']))->assertOk()->assertSee('whatsapp-marker')->assertDontSee('email-marker-031');
+        $this->get(route('admin.system-settings.index', ['tab'=>'notifications-email']))->assertOk()
+            ->assertSee('Lihat Riwayat Notifikasi Email di Automation')->assertDontSee('email-marker-031')->assertDontSee('whatsapp-marker');
+    }
+
+    public function test_automation_has_job_and_channel_tabs_and_missing_history_is_handled(): void
+    {
+        $this->signIn();
+        foreach (['jobs', 'failed_jobs', 'job_batches'] as $table) Schema::create($table, fn ($t) => $t->id());
+        $this->get(route('admin.automation.index'))->assertOk()->assertSee('Job Monitor')->assertSee('Riwayat Notifikasi Email')->assertSee('Riwayat Notifikasi WhatsApp')->assertSee('id="jobs-table"', false);
+        Schema::drop('status_notification_deliveries');
+        $this->get(route('admin.automation.index', ['tab'=>'email']))->assertOk()->assertSee('Riwayat belum tersedia');
+        $this->signIn(false);
+        $this->get(route('admin.automation.index', ['tab'=>'whatsapp']))->assertForbidden();
+    }
+
+    public function test_retry_from_automation_returns_to_the_same_channel_and_keeps_duplicate_protection(): void
+    {
+        $this->profile();
+        $row = StatusNotificationDelivery::first();
+        $row->update(['status'=>'failed']);
+        $this->signIn();
+        $url = route('admin.automation.notifications.retry', $row->id);
+        $this->post($url)->assertSessionHasErrors('provider_checked');
+        $this->post($url, ['provider_checked'=>1])->assertRedirect(route('admin.automation.index', ['tab'=>$row->channel]));
+        $this->assertSame('pending', $row->fresh()->status);
+        $this->postJson($url, ['provider_checked'=>1])->assertStatus(409);
+    }
+
     public function test_email_verification_is_a_distinct_event_and_missing_phone_is_skipped(): void
     {
         $wa=app(StatusNotificationTemplates::class)->configuration('whatsapp');$wa['enabled']=true;

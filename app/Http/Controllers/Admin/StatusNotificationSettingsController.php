@@ -79,6 +79,6 @@ class StatusNotificationSettingsController extends Controller
             SendStatusNotification::dispatch($item->id)->afterCommit();
             return $item;
         });
-        return redirect()->route('admin.system-settings.index',['tab'=>'notifications-'.$item->channel,'notification_event'=>$item->event])->with('success','Notifikasi dijadwalkan ulang.');
+        return redirect()->route('admin.automation.index',['tab'=>$item->channel])->with('success','Notifikasi dijadwalkan ulang.');
     }
 }

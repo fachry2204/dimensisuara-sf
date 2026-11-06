@@ -15,6 +15,9 @@ class WhatsAppService {
     public function send(object $notifiable, Notification $notification): void
     {
         $phone = null;
+        if ($notifiable instanceof \App\Models\User\Admin) {
+            $phone = $notifiable->notification_phone;
+        }
         
         // Get phone number from anonymous user
         if(!empty($notifiable->phone)) {
