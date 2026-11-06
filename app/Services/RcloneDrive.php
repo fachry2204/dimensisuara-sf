@@ -84,6 +84,10 @@ class RcloneDrive
         $this->validateRemote($remote);
         $stat = json_decode($this->run(['lsjson',$remote,'--stat','--hash','--hash-type','MD5']), true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($stat) || ($stat['IsDir'] ?? true)) throw new RuntimeException('File Google Drive tidak ditemukan.');
+        // Rclone versions differ in the casing of hash names such as md5 and MD5.
+        if (isset($stat['Hashes']) && is_array($stat['Hashes'])) {
+            $stat['Hashes'] = array_change_key_case($stat['Hashes'], CASE_UPPER);
+        }
         return $stat;
     }
 

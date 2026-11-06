@@ -81,13 +81,16 @@ class ReportingController extends Controller
         // Get summary
         $totals = $report->rows->reduce(function ($carry, $row) {
             $carry['total_revenue']         += $row->rupiah_exact;
-            $carry['total_views']           += $row->quantity;
+            $carry[\App\Services\ReportUsage::type($row->sales_type)] += $row->quantity;
             return $carry;
-        }, ['total_revenue' => 0, 'total_views' => 0]);
+        }, ['total_revenue' => 0] + array_fill_keys(array_keys(\App\Services\ReportUsage::LABELS), 0));
         extract($totals);
+        $usageBreakdown = array_intersect_key($totals, \App\Services\ReportUsage::LABELS);
+        $salesSubtypes = \App\Services\ReportSubtypes::breakdown(DB::table('report_rows')->where('report_import_id', $id), 'rupiah_exact');
 
         $pendingRows = $report->rows()->where('status','pending')->count();
-        return view('admin.aggregator.reporting.show', compact('report','reps','total_revenue','total_views','pendingRows'));
+        $total_views = $streams;
+        return view('admin.aggregator.reporting.show', compact('report','reps','total_revenue','total_views','creations','other_units','usageBreakdown','salesSubtypes','pendingRows'));
     }
 
     public function process($id)
@@ -249,7 +252,14 @@ class ReportingController extends Controller
                     'period'            => $row->reporting_month,
                     'platform'          => $row->platform,
                     'region'            => $row->region,
-                    'views'             => $row->quantity,
+                    'views'             => \App\Services\ReportUsage::type($row->sales_type) === 'streams' ? $row->quantity : 0,
+                    'creations'         => \App\Services\ReportUsage::type($row->sales_type) === 'creations' ? $row->quantity : 0,
+                    'video_views'       => \App\Services\ReportUsage::type($row->sales_type) === 'video_views' ? $row->quantity : 0,
+                    'promotion_advertising' => \App\Services\ReportUsage::type($row->sales_type) === 'promotion_advertising' ? $row->quantity : 0,
+                    'nonpromotion_advertising' => \App\Services\ReportUsage::type($row->sales_type) === 'nonpromotion_advertising' ? $row->quantity : 0,
+                    'other_units'       => \App\Services\ReportUsage::type($row->sales_type) === 'other_units' ? $row->quantity : 0,
+                    'sales_type'        => \App\Services\ReportUsage::display($row->sales_type),
+                    'sales_sub_type'    => \App\Services\ReportUsage::display($row->sales_sub_type),
                     'rupiah'            => $row->rupiah,
                     'client_rupiah'     => $row->client_rupiah,
                     'aggregator_rupiah' => $row->aggregator_rupiah
@@ -323,7 +333,14 @@ class ReportingController extends Controller
                     $months[$row->month - 1] ?? '-',
                     $row->platform ?? '-',
                     $row->region ?? '-',
-                    $row->quantity ?? 0,
+                    \App\Services\ReportSubtypes::safeCsvText(\App\Services\ReportUsage::display($row->sales_type)),
+                    \App\Services\ReportSubtypes::safeCsvText(\App\Services\ReportUsage::display($row->sales_sub_type)),
+                    \App\Services\ReportUsage::type($row->sales_type) === 'streams' ? $row->quantity : 0,
+                    \App\Services\ReportUsage::type($row->sales_type) === 'creations' ? $row->quantity : 0,
+                    \App\Services\ReportUsage::type($row->sales_type) === 'video_views' ? $row->quantity : 0,
+                    \App\Services\ReportUsage::type($row->sales_type) === 'promotion_advertising' ? $row->quantity : 0,
+                    \App\Services\ReportUsage::type($row->sales_type) === 'nonpromotion_advertising' ? $row->quantity : 0,
+                    \App\Services\ReportUsage::type($row->sales_type) === 'other_units' ? $row->quantity : 0,
                     $row->rupiah_exact ?? 0,
                     $row->client_rupiah_exact ?? 0,
                     $row->aggregator_rupiah_exact ?? 0,
@@ -343,7 +360,14 @@ class ReportingController extends Controller
                 'Bulan',
                 'Platform',
                 'Region',
-                'Jumlah Views',
+                'Sales Type',
+                'Sales Sub Type',
+                'STREAMING',
+                'CREATION',
+                'VIDEO VIEW',
+                'PROMOTIONADVERTISING',
+                'NONPROMOTIONADVERTISING',
+                'Unit lainnya',
                 'Total Rupiah',
                 'Rupiah Client',
                 'Rupiah Aggregator',

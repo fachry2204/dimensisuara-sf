@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Schema;
 class AdminAnalytics
 {
     private ?bool $hasReleaseId = null;
-    private const METRICS = 'SUM(COALESCE(quantity,0)) as streams, SUM(COALESCE(rupiah_exact,0)) as revenue, SUM(COALESCE(client_rupiah_exact,0)) as user_revenue, SUM(COALESCE(aggregator_rupiah_exact,0)) as system_revenue';
+    private static function metrics(): string
+    {
+        return ReportUsage::metrics().', SUM(COALESCE(rupiah_exact,0)) as revenue, SUM(COALESCE(client_rupiah_exact,0)) as user_revenue, SUM(COALESCE(aggregator_rupiah_exact,0)) as system_revenue';
+    }
 
     public function filters(Request $request): array
     {
@@ -22,7 +25,7 @@ class AdminAnalytics
             'platform'=>['nullable','string','max:100'], 'country'=>['nullable','string','max:100'],
             'compare'=>['nullable','in:previous,year,none'],
             'tab'=>['nullable','in:overview,releases,artists,platforms,countries,geography,quality'],
-            'q'=>['nullable','string','max:150'], 'sort'=>['nullable','in:streams,revenue,user_revenue,system_revenue,title'],
+            'q'=>['nullable','string','max:150'], 'sort'=>['nullable','in:streams,creations,video_views,promotion_advertising,nonpromotion_advertising,other_units,revenue,user_revenue,system_revenue,title'],
         ]);
         // Preserve older bookmarks for the former combined tab.
         if (($input['tab'] ?? null) === 'geography') $input['tab'] = 'platforms';
@@ -90,13 +93,13 @@ class AdminAnalytics
 
     public function releaseQuery(array $f): Builder
     {
-        $totals = $this->rows($f)->whereNotNull('resolved_release')->select('resolved_release')->selectRaw(self::METRICS)->groupBy('resolved_release');
+        $totals = $this->rows($f)->whereNotNull('resolved_release')->select('resolved_release')->selectRaw(self::metrics())->groupBy('resolved_release');
         $query = DB::table('releases as r')->leftJoinSub($totals,'totals','r.id','=','totals.resolved_release')
             ->leftJoin('user_profiles as p','p.id','=','r.profileid')
             ->select('r.id','r.title','r.upc','r.profileid','r.status','p.userid','p.firstname','p.lastname')
-            ->selectRaw('COALESCE(totals.streams,0) as streams, COALESCE(totals.revenue,0) as revenue, COALESCE(totals.user_revenue,0) as user_revenue, COALESCE(totals.system_revenue,0) as system_revenue');
+            ->selectRaw('COALESCE(totals.streams,0) as streams, COALESCE(totals.creations,0) as creations, COALESCE(totals.video_views,0) as video_views, COALESCE(totals.promotion_advertising,0) as promotion_advertising, COALESCE(totals.nonpromotion_advertising,0) as nonpromotion_advertising, COALESCE(totals.other_units,0) as other_units, COALESCE(totals.revenue,0) as revenue, COALESCE(totals.user_revenue,0) as user_revenue, COALESCE(totals.system_revenue,0) as system_revenue');
         if ($f['compare'] !== 'none') {
-            $prior = $this->rows($f,true)->whereNotNull('resolved_release')->select('resolved_release')->selectRaw(self::METRICS)->groupBy('resolved_release');
+            $prior = $this->rows($f,true)->whereNotNull('resolved_release')->select('resolved_release')->selectRaw(self::metrics())->groupBy('resolved_release');
             $query->leftJoinSub($prior,'prior','r.id','=','prior.resolved_release')
                 ->selectRaw('COALESCE(prior.streams,0) as previous_streams, COALESCE(prior.revenue,0) as previous_revenue');
         }
@@ -117,14 +120,14 @@ class AdminAnalytics
 
     private function monthly(Builder $query): \Illuminate\Support\Collection
     {
-        return $query->selectRaw('SUBSTR(sales_month,1,7) as month, '.self::METRICS)->groupByRaw('SUBSTR(sales_month,1,7)')->orderBy('month')->get()->keyBy('month');
+        return $query->selectRaw('SUBSTR(sales_month,1,7) as month, '.self::metrics())->groupByRaw('SUBSTR(sales_month,1,7)')->orderBy('month')->get()->keyBy('month');
     }
 
     public function dashboard(array $f): array
     {
         $rows = $this->activity($f);
-        $totals = (clone $rows)->selectRaw(self::METRICS)->first();
-        $previous = $f['compare']==='none' ? null : $this->activity($f,true)->selectRaw(self::METRICS)->first();
+        $totals = (clone $rows)->selectRaw(self::metrics())->first();
+        $previous = $f['compare']==='none' ? null : $this->activity($f,true)->selectRaw(self::metrics())->first();
         $currentMonths = $this->monthly(clone $rows);
         $previousMonths = $f['compare']==='none' ? collect() : $this->monthly($this->activity($f,true));
         $series = [];
@@ -134,16 +137,21 @@ class AdminAnalytics
             $current = $currentMonths->get($date->format('Y-m'));
             $prior = $previousMonths->get($priorDate->format('Y-m'));
             $series[] = ['month'=>$date->locale('id')->isoFormat('MMM YYYY'), 'streams'=>(float)($current->streams??0), 'revenue'=>(float)($current->revenue??0),
+                'creations'=>(float)($current->creations??0), 'other_units'=>(float)($current->other_units??0),
+                'previous_creations'=>(float)($prior->creations??0), 'previous_other_units'=>(float)($prior->other_units??0),
+                'video_views'=>(float)($current->video_views??0), 'previous_video_views'=>(float)($prior->video_views??0),
+                'promotion_advertising'=>(float)($current->promotion_advertising??0), 'previous_promotion_advertising'=>(float)($prior->promotion_advertising??0),
+                'nonpromotion_advertising'=>(float)($current->nonpromotion_advertising??0), 'previous_nonpromotion_advertising'=>(float)($prior->nonpromotion_advertising??0),
                 'previous_streams'=>(float)($prior->streams??0), 'previous_revenue'=>(float)($prior->revenue??0)];
             $date=$date->addMonth(); $priorDate=$priorDate->addMonth();
         }
-        $platforms = (clone $rows)->select('platform')->selectRaw(self::METRICS)->groupBy('platform')->orderByDesc('revenue')->get();
-        $countries = (clone $rows)->select('country')->selectRaw(self::METRICS)->groupBy('country')->orderByDesc('streams')->get();
-        $users = (clone $rows)->select('profileid')->selectRaw(self::METRICS)->groupBy('profileid');
+        $platforms = (clone $rows)->select('platform')->selectRaw(self::metrics())->groupBy('platform')->orderByDesc('revenue')->get();
+        $countries = (clone $rows)->select('country')->selectRaw(self::metrics())->groupBy('country')->orderByDesc('streams')->get();
+        $users = (clone $rows)->select('profileid')->selectRaw(self::metrics())->groupBy('profileid');
         $userQuery = DB::query()->fromSub($users,'u')->leftJoin('user_profiles as p','p.id','=','u.profileid')
             ->select('u.*','p.userid','p.firstname','p.lastname')->orderByDesc('revenue');
-        $artists = (clone $rows)->select('artist_name')->selectRaw(self::METRICS)->groupBy('artist_name')->orderByDesc('streams');
-        $tracks = (clone $rows)->select('trackid','isrc','track_title','artist_name')->selectRaw(self::METRICS)
+        $artists = (clone $rows)->select('artist_name')->selectRaw(self::metrics())->groupBy('artist_name')->orderByDesc('streams');
+        $tracks = (clone $rows)->select('trackid','isrc','track_title','artist_name')->selectRaw(self::metrics())
             ->groupBy('trackid','isrc','track_title','artist_name')->orderByDesc('streams');
         $statuses = $this->raw($f)->select('ri.status')->selectRaw('COUNT(DISTINCT ri.id) as batches')->groupBy('ri.status')->pluck('batches','status');
         $quality = [
@@ -161,11 +169,17 @@ class AdminAnalytics
             'countries'=>DB::table('report_rows')->whereNotNull('country')->distinct()->orderBy('country')->pluck('country'),
         ];
         return compact('totals','previous','series','platforms','countries','quality','releases','topReleases','options','statuses') + [
+            'salesSubtypes' => $this->subtypes($f),
             'users'=>$userQuery->paginate(15,['*'],'user_page')->withQueryString(),
             'artists'=>$artists->paginate(15,['*'],'artist_page')->withQueryString(),
             'tracks'=>$tracks->paginate(15,['*'],'track_page')->withQueryString(),
             'activeUsers'=>(clone $rows)->distinct()->count('profileid'),
             'activeTracks'=>(clone $rows)->distinct()->count('trackid'),
         ];
+    }
+
+    public function subtypes(array $filters): \Illuminate\Support\Collection
+    {
+        return ReportSubtypes::breakdown($this->activity($filters), 'rupiah_exact');
     }
 }

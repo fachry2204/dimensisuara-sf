@@ -21,14 +21,16 @@
     <header class="aa-heading"><div><h1>Analitik Semua Rilis</h1><p>Pantau katalog, stream, dan pendapatan dari laporan royalti yang telah dihitung.</p></div><a class="btn btn-primary" href="{{ route('admin.analytics.export',request()->query()) }}"><span class="material-icons-outlined">download</span> Ekspor Rilis (CSV)</a></header>
     <nav class="aa-tabs" aria-label="Bagian analitik">@foreach($tabs as $key=>$label)<a href="{{ $link($key) }}" class="{{ $filters['tab']===$key?'active':'' }}" @if($filters['tab']===$key) aria-current="page" @endif>{{ $label }}</a>@endforeach</nav>
     @include('admin.analytics.filters')
+    <x-report-usage :totals="$totals" :platforms="$platforms" />
+    <x-report-subtypes :rows="$salesSubtypes" :export-url="route('admin.analytics.subtypes.export', request()->query())" revenue-label="Pendapatan total" />
     <div class="aa-kpis">
-        @foreach([['Total Stream / Unit',$number($totals->streams),'play_arrow',$delta($totals->streams,$previous->streams??0)],['Pendapatan Total',$money($totals->revenue),'payments',$delta($totals->revenue,$previous->revenue??0)],['Bagian User',$money($totals->user_revenue),'groups','Sesuai rate pada baris laporan'],['Bagian Sistem',$money($totals->system_revenue),'pie_chart','Pendapatan setelah bagian user']] as $kpi)
+        @foreach([['Total Stream',$number($totals->streams),'play_arrow',$delta($totals->streams,$previous->streams??0)],['Pendapatan Total',$money($totals->revenue),'payments',$delta($totals->revenue,$previous->revenue??0)],['Bagian User',$money($totals->user_revenue),'groups','Sesuai rate pada baris laporan'],['Bagian Sistem',$money($totals->system_revenue),'pie_chart','Pendapatan setelah bagian user']] as $kpi)
         <article class="aa-panel aa-kpi"><div><span class="aa-icon material-icons-outlined">{{ $kpi[2] }}</span><span>{{ $kpi[0] }}</span></div><strong>{{ $kpi[1] }}</strong><small>{{ $kpi[3] }}</small></article>
         @endforeach
     </div>
     @if($filters['tab']==='overview')
         <div class="aa-chart-grid">
-            <article class="aa-panel"><div class="aa-section-title"><h2>Tren Performa</h2><select id="aa-metric" class="form-select" aria-label="Metrik grafik"><option value="streams">Stream / Unit</option><option value="revenue">Pendapatan</option></select></div><div id="aa-trend" class="aa-chart" aria-label="Grafik tren performa"></div><p class="aa-note">{{ $filters['start'] }} s.d. {{ $filters['end'] }}@if($filters['compare']!=='none') dibandingkan {{ substr($filters['previous_from'],0,7) }} s.d. {{ substr($filters['previous_to'],0,7) }}@endif. Bulan tanpa laporan ditampilkan 0.</p></article>
+            <article class="aa-panel"><div class="aa-section-title"><h2>Tren Performa</h2><select id="aa-metric" class="form-select" aria-label="Metrik grafik">@foreach(\App\Services\ReportUsage::LABELS as $metric => $label)<option value="{{ $metric }}">{{ $label }}</option>@endforeach<option value="revenue">Pendapatan</option></select></div><div id="aa-trend" class="aa-chart" aria-label="Grafik tren performa"></div><p class="aa-note">{{ $filters['start'] }} s.d. {{ $filters['end'] }}@if($filters['compare']!=='none') dibandingkan {{ substr($filters['previous_from'],0,7) }} s.d. {{ substr($filters['previous_to'],0,7) }}@endif. Bulan tanpa laporan ditampilkan 0.</p></article>
             <article class="aa-panel"><h2>Sumber Pendapatan</h2><div id="aa-platform-chart" class="aa-chart" aria-label="Kontribusi pendapatan platform"></div><p class="aa-note">Kontribusi positif per platform. Koreksi negatif tetap dihitung dalam total dan tabel.</p><a class="aa-more" href="{{ $link('platforms') }}">Lihat semua platform →</a></article>
         </div>
         <div class="aa-halves">

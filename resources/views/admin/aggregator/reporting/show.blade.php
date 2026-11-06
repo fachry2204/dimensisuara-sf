@@ -113,13 +113,18 @@
                         </div>
                         <div>
                             <h4 class="mb-0" style="height: 30px;" id="sum-earnings">{{ number_format( $total_views , 0 , ',' , '.' ) }}</h4>
-                            <p class="mb-0">Total Views</p>
+                            <p class="mb-0">Total Stream</p>
+                            @foreach(\App\Services\ReportUsage::LABELS as $metric => $label)
+                                @if($metric !== 'streams')<p class="mb-0">{{ $label }}: {{ number_format($usageBreakdown[$metric] ?? 0, 0, ',', '.') }}</p>@endif
+                            @endforeach
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <x-report-subtypes :rows="$salesSubtypes" revenue-label="Pendapatan total" :calculated="$report->status === 'completed'" />
 
     @if ($report->status == 'pending_review')
         <p>Make sure the ISRC in the report match the registered track's ISRC in this system to map the revenue to the respective artist.</p>

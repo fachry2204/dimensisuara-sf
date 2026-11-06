@@ -1,5 +1,6 @@
 /* Admin catalogue analytics: shared theme variables keep both palettes consistent. */
-.admin-analytics{display:grid;gap:22px;min-width:0;color:var(--sf-text)}
+.admin-analytics{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;min-width:0;color:var(--sf-text)}
+.admin-analytics > *{min-width:0}
 .admin-analytics h1{font-size:clamp(1.6rem,2.2vw,2.2rem);font-weight:750;letter-spacing:-.04em;margin:0 0 8px}
 .admin-analytics h2{font-size:1.08rem;font-weight:700;margin:0 0 14px}
 .admin-analytics h3{font-size:1rem;font-weight:650;margin-top:24px}
@@ -26,7 +27,7 @@
 .aa-halves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
 .aa-section-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px}
 .aa-section-title h2{margin-bottom:0}
-.aa-section-title .form-select{width:155px;font-size:.8rem}
+.aa-section-title .form-select{width:280px;max-width:100%;font-size:.8rem}
 .aa-chart{min-height:300px}
 .aa-note{font-size:.76rem;color:var(--sf-muted);line-height:1.6;margin:7px 0 0}
 .aa-empty{padding:32px 10px!important;text-align:center;color:var(--sf-muted)}

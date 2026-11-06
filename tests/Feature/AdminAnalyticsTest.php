@@ -34,6 +34,7 @@ class AdminAnalyticsTest extends TestCase
             foreach (['profileid','trackid','releaseid'] as $field) $t->integer($field)->nullable();
             foreach (['upc','isrc','artist_name','track_title','country','platform'] as $field) $t->string($field)->nullable();
             $t->date('sales_month');$t->integer('quantity');
+            $t->string('sales_type')->nullable()->default('Stream');
             foreach (['rupiah_exact','client_rupiah_exact','aggregator_rupiah_exact'] as $field) $t->decimal($field,18,4);
         });
         DB::table('report_imports')->insert([['id'=>1,'status'=>'completed'],['id'=>2,'status'=>'pending_calculation']]);
@@ -211,6 +212,75 @@ class AdminAnalyticsTest extends TestCase
         $this->assertSame('platforms', $this->data(['tab'=>'geography'])['filters']['tab']);
     }
 
+    public function test_creation_and_unknown_units_are_separate_from_streams_and_keep_revenue(): void
+    {
+        $before = $this->data();
+        $this->row(['sales_type'=>'CREATION','quantity'=>5000,'rupiah_exact'=>500,'platform'=>'TikTok']);
+        $this->row(['sales_type'=>'creation','quantity'=>-100,'rupiah_exact'=>-10,'platform'=>'TikTok']);
+        $this->row(['sales_type'=>'Download','quantity'=>20,'rupiah_exact'=>20,'platform'=>'TikTok']);
+        $this->row(['sales_type'=>null,'quantity'=>7,'rupiah_exact'=>7,'platform'=>'TikTok']);
+        $after = $this->data();
+        $this->assertEquals($before['totals']->streams, $after['totals']->streams);
+        $this->assertEquals(4900, $after['totals']->creations);
+        $this->assertEquals(4900, array_sum(array_column($after['series'], 'creations')));
+        $this->assertEquals(27, $after['totals']->other_units);
+        $this->assertEquals($before['totals']->revenue + 517, $after['totals']->revenue);
+        $platform = $after['platforms']->firstWhere('platform','TikTok');
+        $this->assertEquals(0, $platform->streams);
+        $this->assertEquals(4900, $platform->creations);
+        $this->assertEquals(27, $platform->other_units);
+        $release = $after['releases']->firstWhere('id',1);
+        $this->assertEquals(4900, $release->creations);
+        $this->assertEquals(27, $release->other_units);
+    }
+
+    public function test_all_five_sales_types_on_one_platform_remain_separate_in_analytics(): void
+    {
+        $before = $this->data();
+        $types = ['STREAMING'=>11,'CREATION'=>22,'VIDEO_VIEW'=>33,'PROMOTIONADVERTISING'=>44,'NONPROMOTIONADVERTISING'=>55];
+        foreach ($types as $type => $quantity) $this->row(['sales_type'=>$type,'quantity'=>$quantity,'rupiah_exact'=>$quantity,'platform'=>'Mixed Platform']);
+        $this->row(['sales_type'=>' video_view ','quantity'=>-3,'rupiah_exact'=>-3,'platform'=>'Mixed Platform']);
+        $after = $this->data();
+        $platform = $after['platforms']->firstWhere('platform','Mixed Platform');
+        $expected = ['streams'=>11,'creations'=>22,'video_views'=>30,'promotion_advertising'=>44,'nonpromotion_advertising'=>55,'other_units'=>0];
+        foreach ($expected as $metric => $quantity) {
+            $this->assertEquals($quantity, $platform->$metric, $metric);
+            $this->assertEquals(($before['totals']->$metric ?? 0) + $quantity, $after['totals']->$metric, $metric);
+            $this->assertEquals(($before['releases']->firstWhere('id',1)->$metric ?? 0) + $quantity, $after['releases']->firstWhere('id',1)->$metric, $metric);
+            $this->assertEquals($quantity, array_sum(array_column($after['series'],$metric))-array_sum(array_column($before['series'],$metric)), $metric);
+        }
+        $this->assertEquals($before['totals']->revenue + 162, $after['totals']->revenue);
+        $sorted = $this->data(['sort'=>'video_views']);
+        $this->assertSame(1, (int) $sorted['releases']->first()->id);
+        $response = $this->get(route('admin.analytics.export',['start'=>'2026-01','end'=>'2026-02']));
+        $response->assertOk();
+        $csvRows = array_map('str_getcsv',explode("\n",trim($response->streamedContent())));
+        $header = $csvRows[2];
+        $csvRelease = collect(array_slice($csvRows,3))->first(fn ($row) => ($row[0] ?? null) === '1');
+        foreach (\App\Services\ReportUsage::LABELS as $metric => $label) {
+            $column = array_search($label,$header,true);
+            $this->assertNotFalse($column,$label);
+            $this->assertEquals($after['releases']->firstWhere('id',1)->$metric,$csvRelease[$column],$label);
+        }
+    }
+
+    public function test_release_platform_details_separate_creation_from_stream_even_on_the_same_platform(): void
+    {
+        Schema::table('release_track', function ($table) { $table->integer('track_order')->default(1); $table->timestamps(); });
+        $request = Request::create('/admin/releases/statistics/1');
+        $controller = app(\App\Http\Controllers\Admin\HomeController::class);
+        $before = $controller->releaseStatistics($request, 1)->getData();
+        $this->row(['sales_type'=>'CREATION','quantity'=>5000,'rupiah_exact'=>500,'platform'=>'Spotify']);
+        $this->row(['sales_type'=>'Stream','quantity'=>25,'rupiah_exact'=>25,'platform'=>'Spotify']);
+        $this->row(['sales_type'=>'CREATION','quantity'=>9999,'profileid'=>2,'platform'=>'Spotify']);
+        $after = $controller->releaseStatistics($request, 1)->getData();
+        $this->assertEquals($before['totalStreams'] + 25, $after['totalStreams']);
+        $this->assertEquals(5000, $after['totalCreations']);
+        $platform = $after['platformPerformance']->firstWhere('platform','Spotify');
+        $this->assertEquals(5000, $platform->creations);
+        $this->assertEquals($before['totalEarnings'] + 367.5, $after['totalEarnings']);
+    }
+
     public function test_release_detail_buttons_open_release_analytics_in_both_catalogue_tabs(): void
     {
         foreach (['overview', 'releases'] as $tab) {
@@ -224,6 +294,22 @@ class AdminAnalyticsTest extends TestCase
             }
             $page->assertSee('Lihat analitik rilis');
         }
+    }
+
+    public function test_subtype_export_preserves_filters_and_requires_reporting_permission(): void
+    {
+        (require database_path('migrations/2026_11_07_040000_add_sales_sub_type_to_report_rows.php'))->up();
+        DB::table('report_rows')->where('platform','Spotify')->update(['sales_sub_type'=>'INDIVIDUAL']);
+        $response = $this->get(route('admin.analytics.subtypes.export', ['start'=>'2026-01','end'=>'2026-02','platform'=>'Spotify','profile'=>1]));
+        $response->assertOk();
+        $csv = $response->streamedContent();
+        $this->assertStringContainsString('INDIVIDUAL', $csv);
+        $this->assertStringNotContainsString('YouTube', $csv);
+        $lines = array_map('str_getcsv', explode("\n",trim($csv)));
+        $this->assertCount(2,$lines);
+        $this->assertEquals(95,$lines[1][3]);
+        $this->admin(false);
+        $this->get(route('admin.analytics.subtypes.export'))->assertForbidden();
     }
 
     public function test_country_codes_display_names_and_keep_raw_filter_values(): void

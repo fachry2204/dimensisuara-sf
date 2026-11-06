@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\Track;
 use App\Models\Release;
 use App\Database\RelationalFields;
+use App\Services\ReportUsage;
 
 
 class AnalyticController extends Controller
@@ -20,7 +21,7 @@ class AnalyticController extends Controller
         $profileId = current_user()->profile->id;
 
         // Use the artist's actual report coverage, including the first month.
-        $coverage = DB::table('report_aggregate_platforms')
+        $coverage = ReportUsage::customerRows()
             ->where('profileid', $profileId)
             ->selectRaw('MIN(sales_month) as first_month, MAX(sales_month) as last_month')
             ->first();
@@ -95,33 +96,36 @@ class AnalyticController extends Controller
         }
 
 
-        $periodPlatformRows = DB::table('report_aggregate_platforms')
+        $periodPlatformRows = ReportUsage::customerRows()
             ->where('profileid', $profileId)
             ->whereBetween('sales_month', [$startDate, $endDate]);
 
         $monthlyRows = (clone $periodPlatformRows)
-            ->selectRaw('sales_month, SUM(quantity) as streams, SUM(COALESCE(client_rupiah_exact, 0)) as revenue')
+            ->selectRaw('sales_month, SUM(quantity) as streams, SUM(creations) as creations, SUM(video_views) as video_views, SUM(promotion_advertising) as promotion_advertising, SUM(nonpromotion_advertising) as nonpromotion_advertising, SUM(other_units) as other_units, SUM(COALESCE(client_rupiah_exact, 0)) as revenue')
             ->groupBy('sales_month')->orderBy('sales_month')->get();
         $monthsFormatted = $monthlyRows->map(fn ($row) => Carbon::parse($row->sales_month)->locale('id')->isoFormat('MMM YYYY'))->values();
         $streamSeries = $monthlyRows->pluck('streams')->map(fn ($value) => (int) $value)->values();
         $revenueSeries = $monthlyRows->pluck('revenue')->map(fn ($value) => (float) $value)->values();
 
         $currentPeriod = (int) $monthlyRows->sum('streams');
+        $creationTotal = (int) $monthlyRows->sum('creations');
+        $otherUnitsTotal = (int) $monthlyRows->sum('other_units');
+        $usageBreakdown = collect(ReportUsage::LABELS)->mapWithKeys(fn ($label, $metric) => [$metric => (int) $monthlyRows->sum($metric)])->all();
         $periodRevenue = (float) $monthlyRows->sum('revenue');
 
         $platformRows = (clone $periodPlatformRows)
-            ->selectRaw('platform, SUM(quantity) as streams, SUM(COALESCE(client_rupiah_exact, 0)) as revenue')
-            ->groupBy('platform')->orderByDesc('streams')->limit(5)->get();
+            ->selectRaw('platform, SUM(quantity) as streams, SUM(creations) as creations, SUM(video_views) as video_views, SUM(promotion_advertising) as promotion_advertising, SUM(nonpromotion_advertising) as nonpromotion_advertising, SUM(other_units) as other_units, SUM(COALESCE(client_rupiah_exact, 0)) as revenue')
+            ->groupBy('platform')->orderByDesc('streams')->get();
         $platformCount = (clone $periodPlatformRows)->distinct('platform')->count('platform');
 
-        $countryRows = DB::table('report_aggregate_countries')
+        $countryRows = ReportUsage::customerRows()
             ->where('profileid', $profileId)->whereBetween('sales_month', [$startDate, $endDate])
             ->selectRaw('country, SUM(quantity) as streams')
             ->groupBy('country')->orderByDesc('streams')->limit(5)->get();
 
         $topTrack = Track::query()
             ->where('tracks.profileid', $profileId)
-            ->leftJoin('report_aggregate_tracks as reports', function ($join) use ($profileId, $startDate, $endDate) {
+            ->leftJoinSub(ReportUsage::customerRows(), 'reports', function ($join) use ($profileId, $startDate, $endDate) {
                 $join->on('reports.trackid', '=', 'tracks.id')
                     ->where('reports.profileid', $profileId)
                     ->whereBetween('reports.sales_month', [$startDate, $endDate]);
@@ -134,7 +138,7 @@ class AnalyticController extends Controller
         $releases = Release::query()
             ->where('releases.profileid', $profileId)
             ->leftJoin('release_track', 'release_track.release_id', '=', 'releases.id')
-            ->leftJoin('report_aggregate_tracks as reports', function ($join) use ($profileId, $startDate, $endDate) {
+            ->leftJoinSub(ReportUsage::customerRows(), 'reports', function ($join) use ($profileId, $startDate, $endDate) {
                 $join->on('reports.trackid', '=', 'release_track.track_id')
                     ->where('reports.profileid', $profileId)
                     ->whereBetween('reports.sales_month', [$startDate, $endDate]);
@@ -145,6 +149,8 @@ class AnalyticController extends Controller
                 'releases.type',
                 'releases.releaseon',
                 DB::raw('SUM(COALESCE(reports.quantity, 0)) as streams'),
+                DB::raw('SUM(COALESCE(reports.creations, 0)) as creations'),
+                DB::raw('SUM(COALESCE(reports.video_views, 0)) as video_views'), DB::raw('SUM(COALESCE(reports.promotion_advertising, 0)) as promotion_advertising'), DB::raw('SUM(COALESCE(reports.nonpromotion_advertising, 0)) as nonpromotion_advertising'), DB::raw('SUM(COALESCE(reports.other_units, 0)) as other_units'),
                 DB::raw('SUM(COALESCE(reports.client_rupiah_exact, 0)) as revenue')
             )
             ->groupBy('releases.id', 'releases.title', 'releases.type', 'releases.releaseon')
@@ -166,7 +172,7 @@ class AnalyticController extends Controller
         $trendDirection = 'neutral';
 
         if ($comparisonStart && $comparisonEnd) {
-            $previousPeriod = DB::table('report_aggregate_platforms')
+            $previousPeriod = ReportUsage::customerRows()
                 ->where('profileid', $profileId)
                 ->where('sales_month', '>=', $comparisonStart)
                 ->where('sales_month', '<=', $comparisonEnd)
@@ -182,11 +188,12 @@ class AnalyticController extends Controller
         }
 
         $trackShare = $currentPeriod > 0 && $topTrack ? round(($topTrack->streams / $currentPeriod) * 100, 1) : null;
+        $salesSubtypes = \App\Services\ReportSubtypes::customer($profileId, $startDate, $endDate);
 
         return view('customer.analytic.index', compact(
-            'monthsFormatted', 'streamSeries', 'revenueSeries', 'currentPeriod', 'periodRevenue',
+            'monthsFormatted', 'streamSeries', 'revenueSeries', 'currentPeriod', 'creationTotal', 'otherUnitsTotal', 'usageBreakdown', 'periodRevenue',
             'platformRows', 'platformCount', 'countryRows', 'releases', 'releaseCount', 'trendPercentage', 'trendDirection',
-            'dateRange', 'topTrack', 'trackShare', 'startDate', 'endDate', 'latestAvailableDate'
+            'dateRange', 'topTrack', 'trackShare', 'startDate', 'endDate', 'latestAvailableDate', 'salesSubtypes'
         ));
     }
 
@@ -212,14 +219,17 @@ class AnalyticController extends Controller
             })
             ->when(in_array($selectedQuarter, [1, 2, 3, 4], true), fn ($query) => $query->whereRaw('QUARTER(sales_month) = ?', [$selectedQuarter]));
 
-        $totalStreams = (clone $reportRows)->sum('quantity');
+        $usageTotals = (clone $reportRows)->selectRaw(\App\Services\ReportUsage::metrics())->first();
+        $totalStreams = $usageTotals->streams ?? 0;
+        $totalCreations = $usageTotals->creations ?? 0;
+        $totalOtherUnits = $usageTotals->other_units ?? 0;
         $totalEarnings = (clone $reportRows)->sum('client_rupiah_exact');
         $latestReportDate = (clone $reportRows)->max('sales_month');
         $platformPerformance = (clone $reportRows)
-            ->select('platform', DB::raw('SUM(quantity) as streams'), DB::raw('SUM(client_rupiah_exact) as earnings'), DB::raw('MAX(sales_month) as latest_report_date'))
+            ->select('platform')->selectRaw(\App\Services\ReportUsage::metrics())->selectRaw('SUM(client_rupiah_exact) as earnings, MAX(sales_month) as latest_report_date')
             ->groupBy('platform')->orderByDesc('streams')->get();
         $recentPlatformRows = (clone $reportRows)
-            ->select('sales_month', 'platform', DB::raw('SUM(quantity) as streams'))
+            ->select('sales_month', 'platform')->selectRaw(\App\Services\ReportUsage::metrics())
             ->groupBy('sales_month', 'platform')->orderBy('sales_month')->get()
             ->groupBy('sales_month')
             ->sortKeys()
@@ -257,6 +267,8 @@ class AnalyticController extends Controller
         $topPlatformByMonth = $topPlatformsByMonth->map(fn ($platforms) => $platforms->first())->filter()->values();
 
         return view('admin.release-statistics', compact('release', 'totalStreams', 'totalEarnings', 'latestReportDate', 'platformPerformance', 'topPlatformByMonth', 'topPlatformsByMonth', 'platformPeriodLabels', 'availablePlatforms', 'selectedPlatform', 'selectedMonth', 'selectedQuarter', 'selectedPeriodGroup') + [
+            'totalCreations' => $totalCreations, 'totalOtherUnits' => $totalOtherUnits, 'usageBreakdown' => (array) $usageTotals,
+            'salesSubtypes' => \App\Services\ReportSubtypes::breakdown($reportRows),
             'backRoute' => route('analytics.index'),
             'backLabel' => 'Analytics & Penghasilan',
             'releaseDetailsRoute' => route('releases.show', $release->id),
@@ -272,9 +284,9 @@ class AnalyticController extends Controller
             $query = $query->select(
                     'tracks.id as id',
                     'tracks.title as title',
-                    DB::raw('SUM(viewstbl.quantity) as views')
+                    DB::raw('SUM(viewstbl.quantity) as views'), DB::raw('SUM(viewstbl.creations) as creations'), DB::raw('SUM(viewstbl.video_views) as video_views'), DB::raw('SUM(viewstbl.promotion_advertising) as promotion_advertising'), DB::raw('SUM(viewstbl.nonpromotion_advertising) as nonpromotion_advertising'), DB::raw('SUM(viewstbl.other_units) as other_units')
                 )
-                ->leftJoin('report_aggregate_tracks as viewstbl', function ($join) use ($profileId) {
+                ->leftJoinSub(ReportUsage::customerRows(), 'viewstbl', function ($join) use ($profileId) {
                     $join->on('viewstbl.trackid', '=', 'tracks.id')->where('viewstbl.profileid', $profileId);
                 })
                 ->groupBy('tracks.id', 'tracks.title')
@@ -308,6 +320,11 @@ class AnalyticController extends Controller
                     'title' => $track->title,
                     'primaryartists' => $track->primaryartists,
                     'views' => $track->getAttributes()['views'] ?? 0,
+                    'creations' => $track->getAttributes()['creations'] ?? 0,
+                    'other_units' => $track->getAttributes()['other_units'] ?? 0,
+                    'video_views' => $track->getAttributes()['video_views'] ?? 0,
+                    'promotion_advertising' => $track->getAttributes()['promotion_advertising'] ?? 0,
+                    'nonpromotion_advertising' => $track->getAttributes()['nonpromotion_advertising'] ?? 0,
                 ]);
             
             return response()->json([
@@ -334,13 +351,19 @@ class AnalyticController extends Controller
         }
     }
 
+    public function exportSubtypes(Request $request)
+    {
+        $data = $this->index($request)->getData();
+        return \App\Services\ReportSubtypes::export($data['salesSubtypes'], 'sales-sub-types.csv');
+    }
+
     public function get_artists(Request $request)
     {
         try {
-            $query = DB::table('report_aggregate_artists')->where('profileid', current_user()->profile->id)
+            $query = ReportUsage::customerRows()->where('profileid', current_user()->profile->id)
                 ->select(
                     'artist_name',
-                    DB::raw('SUM(quantity) as views')
+                    DB::raw('SUM(quantity) as views'), DB::raw('SUM(creations) as creations'), DB::raw('SUM(video_views) as video_views, SUM(promotion_advertising) as promotion_advertising, SUM(nonpromotion_advertising) as nonpromotion_advertising, SUM(other_units) as other_units')
                 )
                 ->groupBy('artist_name');
             $recordsTotal = $query->get()->count();

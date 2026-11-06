@@ -88,6 +88,57 @@ class ReportAggregateDeletionTest extends TestCase
         ],$extra));
     }
 
+    public function test_reporting_rows_and_csv_keep_creation_separate_from_stream_quantity(): void
+    {
+        Schema::table('report_rows', function ($t) {
+            foreach (['upc','isrc','track_title','release_title','region'] as $column) $t->string($column)->nullable();
+        });
+        Schema::create('user_profiles',function ($t) { $t->id(); $t->string('firstname')->nullable(); $t->string('lastname')->nullable(); });
+        DB::connection()->getPdo()->sqliteCreateFunction('Month',fn($date)=>(int)date('n',strtotime($date)),1);
+        $this->row(1,25,500,['sales_type'=>'CREATION']);
+        $this->row(1,3,3,['sales_type'=>null]);
+        $controller = app(\App\Http\Controllers\Admin\Aggregator\ReportingController::class);
+        $result = $controller->get_data(\Illuminate\Http\Request::create('/reporting/data'))->getData(true);
+        $this->assertEquals(15, array_sum(array_column($result['results'],'views')));
+        $this->assertEquals(500, array_sum(array_column($result['results'],'creations')));
+        $this->assertEquals(3, array_sum(array_column($result['results'],'other_units')));
+        $summary = $controller->show(1)->getData();
+        $this->assertEquals(10, $summary['total_views']);
+        $this->assertEquals(500, $summary['creations']);
+        $this->assertEquals(3, $summary['other_units']);
+        $response = $controller->export(\Illuminate\Http\Request::create('/reporting/export'));
+        ob_start(); $response->sendContent(); $csv = ob_get_clean();
+        $this->assertStringContainsString('CREATION', $csv);
+        $this->assertStringContainsString('Unit lainnya', $csv);
+        $lines = array_map(fn ($line) => str_getcsv($line, ';'),explode("\n",trim($csv)));
+        $this->assertCount(count($lines[0]), $lines[1]);
+    }
+
+    public function test_reporting_json_summary_and_csv_have_individual_columns_for_each_sales_type(): void
+    {
+        Schema::table('report_rows',function ($t) { foreach (['upc','isrc','track_title','release_title','region'] as $column) $t->string($column)->nullable(); });
+        Schema::create('user_profiles',function ($t) { $t->id(); $t->string('firstname')->nullable(); $t->string('lastname')->nullable(); });
+        DB::connection()->getPdo()->sqliteCreateFunction('Month',fn($date)=>(int)date('n',strtotime($date)),1);
+        foreach (['CREATION'=>22,'VIDEO_VIEW'=>33,'PROMOTIONADVERTISING'=>44,'NONPROMOTIONADVERTISING'=>55] as $type=>$quantity) $this->row(1,$quantity,$quantity,['sales_type'=>$type]);
+        $controller = app(\App\Http\Controllers\Admin\Aggregator\ReportingController::class);
+        $data = $controller->get_data(\Illuminate\Http\Request::create('/reporting/data'))->getData(true);
+        $summary = $controller->show(1)->getData();
+        foreach (['creations'=>22,'video_views'=>33,'promotion_advertising'=>44,'nonpromotion_advertising'=>55] as $metric=>$quantity) {
+            $this->assertEquals($quantity, array_sum(array_column($data['results'],$metric)));
+            $this->assertEquals($quantity, $summary['usageBreakdown'][$metric]);
+        }
+        $this->assertEquals(15, array_sum(array_column($data['results'],'views')));
+        $response = $controller->export(\Illuminate\Http\Request::create('/reporting/export'));
+        ob_start(); $response->sendContent(); $csv = ob_get_clean();
+        $lines = array_map(fn($line)=>str_getcsv($line,';'),explode("\n",trim($csv)));
+        foreach (\App\Services\ReportUsage::LABELS as $metric=>$label) {
+            $column = array_search($label,$lines[0],true);
+            $this->assertNotFalse($column,$label);
+            $expected = ['streams'=>15,'creations'=>22,'video_views'=>33,'promotion_advertising'=>44,'nonpromotion_advertising'=>55,'other_units'=>0][$metric];
+            $this->assertEquals($expected,array_sum(array_column(array_slice($lines,1),$column)));
+        }
+    }
+
     public function test_delete_rebuilds_all_dimensions_immediately_and_retains_other_reports(): void
     {
         $this->row(1,200,20,['profileid'=>2,'trackid'=>2,'releaseid'=>2,'platform'=>'YouTube','artist_name'=>'Deleted artist']);

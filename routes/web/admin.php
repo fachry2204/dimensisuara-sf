@@ -57,6 +57,7 @@ Route::middleware(['auth','verified'])->group(function () {
         Route::middleware('can:view-reporting')->group(function () {
             Route::get('analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics.index');
             Route::get('analytics/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'export'])->name('admin.analytics.export');
+            Route::get('analytics/sales-sub-types/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'exportSubtypes'])->name('admin.analytics.subtypes.export');
         });
 
         /**

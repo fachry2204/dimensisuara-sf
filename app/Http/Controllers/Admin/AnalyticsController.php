@@ -29,14 +29,20 @@ class AnalyticsController extends Controller
             fwrite($out,"\xEF\xBB\xBF");
             $write = static fn (array $values) => fputcsv($out,$values,',','"','');
             $write(['Periode penjualan',$filters['start'],$filters['end']]);
-            $write(['Sumber','Laporan completed, baris finalized dengan akun; stream/unit = quantity laporan']);
-            $write(['ID Rilis','Rilis','UPC','User','Stream / Unit','Pendapatan IDR','Bagian User IDR','Bagian Sistem IDR']);
+            $write(['Sumber','Laporan completed, baris finalized dengan akun; setiap Sales Type dihitung terpisah. Pendapatan mencakup seluruh kategori.']);
+            $write(array_merge(['ID Rilis','Rilis','UPC','User'], array_values(\App\Services\ReportUsage::LABELS), ['Pendapatan IDR','Bagian User IDR','Bagian Sistem IDR']));
             foreach ($analytics->sortedReleases($filters)->cursor() as $row) {
                 $safe = static fn ($value) => preg_match('/^[\s]*[=+@-]/u',(string)$value) ? "'".$value : (string)$value;
                 $write([$row->id,$safe($row->title),"'".$row->upc,$safe(trim($row->firstname.' '.$row->lastname)),
-                    $row->streams,$row->revenue,$row->user_revenue,$row->system_revenue]);
+                    $row->streams,$row->creations,$row->video_views,$row->promotion_advertising,$row->nonpromotion_advertising,$row->other_units,$row->revenue,$row->user_revenue,$row->system_revenue]);
             }
             fclose($out);
         },'analitik-rilis-'.$filters['start'].'-'.$filters['end'].'.csv',['Content-Type'=>'text/csv; charset=UTF-8']);
+    }
+
+    public function exportSubtypes(Request $request, AdminAnalytics $analytics)
+    {
+        $filters = $analytics->filters($request);
+        return \App\Services\ReportSubtypes::export($analytics->subtypes($filters), 'analytics-sales-sub-types.csv', 'Pendapatan total IDR');
     }
 }

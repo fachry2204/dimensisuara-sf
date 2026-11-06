@@ -507,3 +507,266 @@ html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-
     html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .earn-platform em { display: none; }
     html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.earnings-workspace .report-filter-actions { flex-wrap: wrap; }
 }
+/* Usage counts have separate labels and columns, without changing royalty totals. */
+html[data-bs-theme="light"] .report-usage-panel { --usage-surface: #fff; }
+html[data-bs-theme="dark"] .report-usage-panel { --usage-surface: #141e2d; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .report-usage-panel {
+    background: var(--usage-surface);
+    min-width: 0;
+    border: 1px solid var(--sf-border);
+    border-radius: 14px;
+    padding: 20px;
+    color: var(--sf-text);
+}
+.report-usage-panel h2 { font-size: 1.1rem; margin: 0 0 8px; }
+.report-usage-panel > p { color: var(--sf-muted); font-size: .85rem; }
+.report-usage-totals { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.report-usage-totals dt { color: var(--sf-muted); font-size: .85rem; overflow-wrap: anywhere; }
+.report-usage-totals dd { color: var(--sf-text); font-size: 1.4rem; font-weight: 700; overflow-wrap: anywhere; }
+.report-usage-panel table { min-width: 460px; }
+.report-subtypes-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.report-subtypes-heading .btn { min-height: 44px; display: inline-flex; align-items: center; }
+.report-subtypes-panel table { min-width: 760px; }
+.report-subtypes-panel td { overflow-wrap: anywhere; }
+@media(max-width:600px) { .report-usage-totals { grid-template-columns: 1fr; gap: 8px; } }
+
+/* Transaction summaries, progress and history need a surface in both themes. */
+html[data-bs-theme="light"] .workspace-content.customer-transactions {
+    --tx-surface: #fff;
+    --tx-soft: #f8fafc;
+    --tx-success-bg: #dcfce7;
+    --tx-success-text: #166534;
+    --tx-pending-bg: #fef3c7;
+    --tx-pending-text: #92400e;
+    --tx-carry-bg: #dbeafe;
+    --tx-carry-text: #1e40af;
+}
+html[data-bs-theme="dark"] .workspace-content.customer-transactions {
+    --tx-surface: #141e2d;
+    --tx-soft: #1d293a;
+    --tx-success-bg: #123f36;
+    --tx-success-text: #6ee7b7;
+    --tx-pending-bg: #594116;
+    --tx-pending-text: #fde68a;
+    --tx-carry-bg: #203c63;
+    --tx-carry-text: #bfdbfe;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions {
+    --sf-surface: var(--tx-surface);
+    --sf-surface-soft: var(--tx-soft);
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-summary,.tx-card,.tx-note,.sd-card,.sd-hero) {
+    background: var(--tx-surface) !important;
+    border: 1px solid var(--sf-border) !important;
+    color: var(--sf-text) !important;
+    box-shadow: 0 4px 16px rgb(15 23 42 / 4%) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-page,.tx-summary strong,.tx-steps strong,.sd-page,.sd-bank dd,.sd-breakdown dd) { color: var(--sf-text) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-header p,.tx-summary p,.tx-summary small,.tx-card header p,.tx-empty,.tx-note,.sd-hero p,.sd-total small,.sd-card header p,.sd-muted,.sd-bank dt,.sd-breakdown dt,.sd-download small) { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-summary article,.sd-total,.sd-bank > div,.sd-breakdown > div) { border-color: var(--sf-border) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-summary > article > span,.tx-note > span,.sd-hero > div:first-child > span) {
+    background: var(--sf-accent-soft) !important;
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-steps::before { background: var(--sf-border); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-steps i { background: var(--tx-soft); color: var(--sf-muted); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-steps .done i,.tx-badge.transferred) { background: var(--tx-success-bg); color: var(--tx-success-text); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-steps .active i,.tx-badge.pending) { background: var(--tx-pending-bg); color: var(--tx-pending-text); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-badge.carried_over { background: var(--tx-carry-bg); color: var(--tx-carry-text); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .sd-status { background: var(--tx-pending-bg); color: var(--tx-pending-text); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .sd-status.transferred { background: var(--tx-success-bg); color: var(--tx-success-text); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-export,.tx-detail,.sd-head a,.sd-download) {
+    background: var(--tx-surface) !important;
+    color: var(--sf-accent) !important;
+    border-color: var(--sf-border) !important;
+    min-height: 44px;
+    min-width: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.tx-export,.tx-detail,.sd-download):hover { background: var(--sf-accent-soft) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(.sd-total strong,.sd-breakdown .final dd,.sd-download > span:last-child) { color: var(--sf-accent) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions :is(a,input,select):focus-visible { outline: 2px solid var(--sf-accent); outline-offset: 3px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-tools :is(input,select) { min-height: 44px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-tools label span { color: var(--sf-muted); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-note { margin-bottom: 16px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-note > span { background: transparent !important; align-self: flex-start; flex: 0 0 24px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .sd-grid > * { min-width: 0; }
+@media(max-width:950px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .sd-grid { grid-template-columns: minmax(0,1fr); }
+}
+@media(max-width:600px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-tools { min-width: 0; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-tools :is(label,input,select) { max-width: 100%; min-width: 0; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .tx-steps::before { display: none; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-transactions .sd-bank > div { flex-wrap: wrap; gap: 8px; overflow-wrap: anywhere; }
+}
+
+/* Client analytics uses the same surfaces and action palette as the dashboard. */
+html[data-bs-theme="light"] .workspace-content.customer-analytics {
+    --analytics-surface: #fff;
+    --analytics-soft: #f8fafc;
+}
+html[data-bs-theme="dark"] .workspace-content.customer-analytics {
+    --analytics-surface: #141e2d;
+    --analytics-soft: #1d293a;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics {
+    --sf-surface: var(--analytics-surface);
+    --sf-surface-soft: var(--analytics-soft);
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-card,.analytics-summary-card,.analytics-period-form,.analytics-data-note) {
+    background: var(--analytics-surface) !important;
+    border: 1px solid var(--sf-border) !important;
+    color: var(--sf-text) !important;
+    box-shadow: 0 4px 16px rgb(15 23 42 / 4%) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-summary-card {
+    --analytics-accent: var(--sf-accent);
+    border-top: 3px solid var(--sf-accent) !important;
+    min-width: 0;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-summary-card:hover {
+    transform: none;
+    background: var(--analytics-surface) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-summary-icon {
+    background: var(--sf-accent-soft) !important;
+    color: var(--sf-accent) !important;
+    border-color: transparent !important;
+    flex: 0 0 48px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-summary-card:hover .analytics-summary-icon,.analytics-view-button:hover) { transform: none; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-page,.analytics-summary-card strong,.analytics-rank strong,.analytics-country strong,.analytics-rank em,.analytics-country em,.analytics-insight strong,.analytics-release-link,.analytics-release-link strong,.analytics-period-display) {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-page-header p,.analytics-summary-card small,.analytics-summary-card em,.analytics-card header p,.analytics-rank > small,.analytics-insight p,.analytics-no-data,.analytics-pagination-summary) {
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-summary-card em.up { color: var(--sf-valid) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-summary-card em.down { color: var(--sf-invalid) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-data-note > span,.analytics-period-form > .material-icons-outlined,.analytics-insight small,.analytics-release-link > i) { color: var(--sf-accent) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-rank > b,.analytics-country > b,.analytics-rank > div > span,.analytics-country > div > span) {
+    background: var(--analytics-soft) !important;
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-rank > div > span i,.analytics-country > div > span i,.analytics-legend .green) { background: var(--sf-accent) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-legend .red { background: var(--sf-valid) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-insight > span,.analytics-release-link > span) {
+    background: var(--sf-accent-soft) !important;
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-insight { border-color: var(--sf-border) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-insight.featured { background: var(--analytics-soft) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-view-button,.analytics-pagination-links a,.analytics-pagination-links > span:not(.is-current)) {
+    color: var(--sf-accent) !important;
+    border-color: var(--sf-border) !important;
+    background: var(--analytics-surface) !important;
+    min-height: 44px;
+    min-width: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(.analytics-view-button:hover,.analytics-view-button:focus-visible,.analytics-pagination-links .is-current) {
+    background: var(--sf-primary-background) !important;
+    border-color: var(--sf-primary-end) !important;
+    color: var(--sf-on-primary) !important;
+    min-height: 44px;
+    min-width: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-view-button:is(:hover,:focus-visible) span { color: var(--sf-on-primary) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-pagination-links .is-disabled { color: var(--sf-muted) !important; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics :is(a,select):focus-visible { outline: 2px solid var(--sf-accent); outline-offset: 3px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-summary-card > div { min-width: 0; overflow-wrap: anywhere; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-data-note { flex-wrap: wrap; }
+@media(max-width:700px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-period-form { width: 100%; height: auto; min-height: 48px; flex-wrap: wrap; padding: 10px; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-period-form select { min-width: 0; max-width: calc(100% - 36px); }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-analytics .analytics-card header { flex-wrap: wrap; }
+}
+
+/* Dashboard sections keep a distinct surface within the shared workspace. */
+html[data-bs-theme] body.sf-app:has(.customer-dashboard) { background: var(--sf-canvas) !important; }
+html[data-bs-theme="light"] .workspace-content.customer-dashboard {
+    --dashboard-surface: #fff;
+    --dashboard-soft: #f8fafc;
+}
+html[data-bs-theme="dark"] .workspace-content.customer-dashboard {
+    --dashboard-surface: #141e2d;
+    --dashboard-soft: #1d293a;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard {
+    --sf-surface: var(--dashboard-surface);
+    --sf-surface-soft: var(--dashboard-soft);
+    --dashboard-chart-stream: var(--sf-accent);
+    --dashboard-chart-revenue: var(--sf-valid);
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-panel,.dashboard-kpi-card,.dashboard-welcome,.dashboard-announcements,.sf-welcome) {
+    background: var(--dashboard-surface) !important;
+    border: 1px solid var(--sf-border) !important;
+    box-shadow: 0 4px 16px rgb(15 23 42 / 4%) !important;
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .dashboard-welcome {
+    border-inline-start: 4px solid var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-welcome,.sf-welcome,.dashboard-announcements) :is(p,strong,small,h2) {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-welcome-icon,.dashboard-eyebrow,.dashboard-panel-link,.announcement-link,.sf-welcome__eyebrow) {
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-period,.dashboard-secondary-btn,.dashboard-create-btn) {
+    background: var(--dashboard-surface) !important;
+    color: var(--sf-accent) !important;
+    border: 1px solid var(--sf-border) !important;
+    min-height: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-kpi-card p,.dashboard-kpi-card small,.dashboard-panel-heading p,.dashboard-legend,.release-health-copy small,.dashboard-action small,.dashboard-empty,.release-more) {
+    color: var(--sf-muted) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-kpi-card h3,.dashboard-panel h5,.dashboard-panel,.dashboard-song-table tbody strong,.release-health-copy strong,.dashboard-action) {
+    color: var(--sf-text) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-kpi-icon,.dashboard-action > span:first-child) {
+    color: var(--sf-accent) !important;
+    background: var(--sf-accent-soft) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-action,.release-health-row) {
+    border-color: var(--sf-border) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .dashboard-upload-btn {
+    background: var(--sf-primary-background) !important;
+    color: var(--sf-on-primary) !important;
+    border: 1px solid var(--sf-primary-end) !important;
+    min-height: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.dashboard-action:hover strong,.dashboard-secondary-btn:hover,.dashboard-create-btn:hover) {
+    color: var(--sf-accent) !important;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(a,button):focus-visible {
+    outline: 2px solid var(--sf-accent);
+    outline-offset: 3px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .sf-welcome button {
+    color: var(--sf-muted) !important;
+    min-width: 44px;
+    min-height: 44px;
+}
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard :is(.announcement-link,.dashboard-panel-link) { min-height: 44px; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .legend-stream { background: var(--dashboard-chart-stream); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .legend-revenue { background: var(--dashboard-chart-revenue); }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .dashboard-kpi-card { min-width: 0; }
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .dashboard-kpi-card > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+@media(max-width:575px) {
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .dashboard-welcome h2 { overflow-wrap: anywhere; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .release-health-row { flex-wrap: wrap; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .release-state { display: inline-flex; align-items: center; }
+    html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-dashboard .dashboard-header > div:last-child { flex-wrap: wrap; }
+}
+
+/* Shared release badges must remain readable in customer and admin tables. */
+.sf-app .badge.release-status-review {
+    background-color: #f47c3c !important;
+    color: #24140a !important;
+}
+.sf-app .badge.release-status-revision {
+    background-color: #6d28d9 !important;
+    color: #fff !important;
+}

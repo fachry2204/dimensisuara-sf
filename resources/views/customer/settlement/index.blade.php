@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'My Transactions')
+@section('content-class', 'customer-transactions')
 @section('header')
 <div class="tx-header"><div><h1>My Transactions</h1><p>Riwayat settlement dan pembayaran royalti Anda.</p></div><a href="{{ route('home.earnings') }}" class="tx-export"><span class="material-icons-outlined">download</span>Ekspor riwayat</a></div>
 @endsection

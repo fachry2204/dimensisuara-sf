@@ -31,6 +31,7 @@ class ReportRow extends Model
         'subscription_type',
         'release_type',
         'sales_type',
+        'sales_sub_type',
         'quantity',
         'currency_code',
 

@@ -30,6 +30,8 @@
 
 @section('content')
     <main class="release-statistics-page">
+        <x-report-usage :totals="$usageBreakdown" />
+        <x-report-subtypes :rows="$salesSubtypes" />
         <section class="release-stat-scope" aria-label="Statistics scope">
             <i class="material-icons-outlined">filter_alt</i>
             <span>Menampilkan data laporan hanya untuk <strong>{{ $release->title }}</strong>, bukan total semua rilis.</span>
@@ -126,7 +128,7 @@
             @if($platformPerformance->isNotEmpty())
                 <div class="release-platform-table-wrap">
                     <table>
-                        <thead><tr><th>Platform</th><th>Streams</th><th>Estimasi penghasilan</th><th>Kontribusi</th><th>Laporan terakhir</th></tr></thead>
+                        <thead><tr><th>Platform</th>@foreach(\App\Services\ReportUsage::LABELS as $label)<th>{{ $label }}</th>@endforeach<th>Estimasi penghasilan</th><th>Kontribusi streaming</th><th>Laporan terakhir</th></tr></thead>
                         <tbody>
                             @foreach($platformPerformance as $platform)
                                 @php
@@ -134,7 +136,9 @@
                                 @endphp
                                 <tr>
                                     <td><span class="platform-name"><i class="material-icons-outlined">music_note</i>{{ $platform->platform ?: 'Unknown platform' }}</span></td>
-                                    <td>{{ number_format($platform->streams, 0, ',', '.') }}</td>
+                                    @foreach(\App\Services\ReportUsage::LABELS as $metric => $label)
+                                        <td>{{ number_format((float) data_get($platform, $metric, 0), 0, ',', '.') }}</td>
+                                    @endforeach
                                     <td>Rp{{ number_format($platform->earnings, 0, ',', '.') }}</td>
                                     <td><span class="platform-share"><i style="width: {{ min($share, 100) }}%"></i></span><b>{{ number_format($share, 1, ',', '.') }}%</b></td>
                                     <td>{{ $platform->latest_report_date ? \Carbon\Carbon::parse($platform->latest_report_date)->translatedFormat('M Y') : '—' }}</td>

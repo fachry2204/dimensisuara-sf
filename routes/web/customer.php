@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('release/{id}', [AnalyticController::class, 'releaseStatistics'])->name('analytics.release.statistics');
                 Route::get('tracks', [AnalyticController::class, 'get_tracks'])->name('analytics.get_tracks');
                 Route::get('artists', [AnalyticController::class, 'get_artists'])->name('analytics.get_artists');
+                Route::get('sales-sub-types/export', [AnalyticController::class, 'exportSubtypes'])->name('analytics.subtypes.export');
             });
 
             // Earnings

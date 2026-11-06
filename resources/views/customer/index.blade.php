@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Overview')
+@section('content-class', 'customer-dashboard')
 
 @section('header')
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 dashboard-header">
@@ -73,6 +74,47 @@
 <script src="{{ URL::asset('build/plugins/apexchart/apexcharts.min.js') }}"></script>
 <script type="application/json" id="json-views">@json($views)</script><script type="application/json" id="json-revenue">@json($revenue)</script>
 <script>
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.announcement-link').forEach(function(link){link.addEventListener('click',function(){document.getElementById('modal-announcement-title').textContent=this.dataset.title;document.getElementById('modal-announcement-content').textContent=this.dataset.content;});});new ApexCharts(document.querySelector('#performance-graph'),{series:[{name:'Streams',data:JSON.parse(document.getElementById('json-views').textContent)},{name:'Earnings (Rp)',data:JSON.parse(document.getElementById('json-revenue').textContent)}],chart:{height:300,type:'bar',toolbar:{show:false},foreColor:'#64748b'},colors:['#ff6a00','#fbbf24'],plotOptions:{bar:{horizontal:false,columnWidth:'56%',borderRadius:4,borderRadiusApplication:'end'}},dataLabels:{enabled:false},grid:{borderColor:'#eef2f7',strokeDashArray:4},legend:{show:false},xaxis:{type:'category',axisBorder:{show:false},axisTicks:{show:false}},yaxis:[{labels:{formatter:value=>Math.round(value).toLocaleString('id-ID')}},{opposite:true,labels:{formatter:value=>'Rp'+Math.round(value/1000)+'k'}}],tooltip:{theme:'light',shared:true,intersect:false}}).render();});
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.announcement-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            document.getElementById('modal-announcement-title').textContent = this.dataset.title;
+            document.getElementById('modal-announcement-content').textContent = this.dataset.content;
+        });
+    });
+    const workspace = document.querySelector('.customer-dashboard');
+    const palette = function () {
+        const style = getComputedStyle(workspace);
+        // Resolve inherited CSS variables to actual colors for ApexCharts.
+        const color = function (variable) {
+            const probe = document.createElement('span');
+            probe.style.color = 'var(' + variable + ')';
+            workspace.appendChild(probe);
+            const resolved = getComputedStyle(probe).color;
+            probe.remove();
+            return resolved;
+        };
+        return {
+            chart: { foreColor: style.getPropertyValue('--sf-muted').trim() },
+            colors: [color('--dashboard-chart-stream'), color('--dashboard-chart-revenue')],
+            grid: { borderColor: style.getPropertyValue('--sf-border').trim(), strokeDashArray: 4 },
+            tooltip: { theme: document.documentElement.dataset.bsTheme === 'dark' ? 'dark' : 'light', shared: true, intersect: false }
+        };
+    };
+    const initialPalette = palette();
+    const chart = new ApexCharts(document.querySelector('#performance-graph'), {
+        series: [{name: 'Streams', data: JSON.parse(document.getElementById('json-views').textContent)}, {name: 'Earnings (Rp)', data: JSON.parse(document.getElementById('json-revenue').textContent)}],
+        chart: {height: 300, type: 'bar', toolbar: {show: false}, foreColor: initialPalette.chart.foreColor},
+        colors: initialPalette.colors,
+        plotOptions: {bar: {horizontal: false, columnWidth: '56%', borderRadius: 4, borderRadiusApplication: 'end'}},
+        dataLabels: {enabled: false}, grid: initialPalette.grid, legend: {show: false},
+        xaxis: {type: 'category', axisBorder: {show: false}, axisTicks: {show: false}},
+        yaxis: [{labels: {formatter: value => Math.round(value).toLocaleString('id-ID')}}, {opposite: true, labels: {formatter: value => 'Rp' + Math.round(value / 1000) + 'k'}}],
+        tooltip: initialPalette.tooltip
+    });
+    chart.render().then(function () {
+        new MutationObserver(function () { chart.updateOptions(palette(), false, false); })
+            .observe(document.documentElement, {attributes: true, attributeFilter: ['data-bs-theme']});
+    });
+});
 </script>
 @endpush

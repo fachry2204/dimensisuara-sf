@@ -247,7 +247,9 @@
                                 <th>UPC</th>
                                 <th>ISRC</th>
                                 <th>Platform</th>
-                                <th>Qty</th>
+                                <th>Sales Type</th>
+                                <th>Sales Sub Type</th>
+                                @foreach(\App\Services\ReportUsage::LABELS as $label)<th>{{ $label }}</th>@endforeach
                                 <th>Country</th>
                                 <th>Total Revenue (Rupiah)</th>
                             </thead>
@@ -604,7 +606,14 @@
                     { "data": "upc", render: $.fn.dataTable.render.text() },
                     { "data": "isrc", render: $.fn.dataTable.render.text() },
                     { "data": "platform", render: $.fn.dataTable.render.text() },
+                    { "data": "sales_type", render: $.fn.dataTable.render.text() },
+                    { "data": "sales_sub_type", render: $.fn.dataTable.render.text() },
                     { "data": "views" },
+                    { "data": "creations" },
+                    { "data": "video_views" },
+                    { "data": "promotion_advertising" },
+                    { "data": "nonpromotion_advertising" },
+                    { "data": "other_units" },
                     { "data": "region", render: $.fn.dataTable.render.text() },
                     {
                         "data": "rupiah",

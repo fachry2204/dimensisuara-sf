@@ -5,7 +5,7 @@
 @elseif($status == 'pending')
     <span class="badge bg-warning text-dark">Pending</span>
 @elseif($status == 'review')
-    <span class="badge release-status-review">Under Review</span>
+    <span class="badge bg-warning text-dark release-status-review">Under Review</span>
 @elseif($status == 'revision')
     <span class="badge release-status-revision">Revision</span>
 @elseif($status == 'rejected')

@@ -475,7 +475,7 @@
                             <div class="release-timeline-content">
                                 <div class="release-timeline-header">
                                     <span class="release-timeline-action"
-                                        style="white-space:pre-wrap">{{ $history->message }}</span>
+                                        style="white-space:pre-wrap">{{ $history->message }}<br><x-release-history-actor :history="$history" /></span>
                                     <span
                                         class="release-timeline-date">{{ $history->created_at?->format('l, F j, Y H:i') }}</span>
                                 </div>

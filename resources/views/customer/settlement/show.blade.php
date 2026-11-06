@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title','Detail Settlement')
+@section('content-class', 'customer-transactions')
 @section('header')
 <div class="sd-head"><a href="{{ route('settlements.index') }}"><span class="material-icons-outlined">arrow_back</span>My Transactions</a><h1>Detail settlement</h1></div>
 @endsection

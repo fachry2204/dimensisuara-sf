@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Analytics & Penghasilan')
+@section('content-class', 'customer-analytics')
 
 @section('header')
     <div class="analytics-page-header">
@@ -58,6 +59,8 @@
         <div class="analytics-data-note mb-3"><span class="material-icons-outlined">date_range</span>Periode yang dipilih belum memiliki laporan. <a href="{{ route('analytics.index', ['date_range' => 'all_time']) }}">Lihat semua data yang tersedia</a>.</div>
     @endif
 
+    <x-report-usage :totals="$usageBreakdown" :platforms="$platformRows" />
+    <x-report-subtypes :rows="$salesSubtypes" :export-url="route('analytics.subtypes.export', request()->query())" />
     <div class="analytics-summary-grid">
         <article class="analytics-summary-card">
             <span class="analytics-summary-icon stream material-icons-outlined">headphones</span>
@@ -84,7 +87,7 @@
         </article>
         <article class="analytics-card">
             <header><div><h2>Platform teratas</h2><p>Berdasarkan total stream</p></div></header>
-            @forelse($platformRows as $index => $platform)
+            @forelse($platformRows->take(5) as $index => $platform)
                 @php($share = $currentPeriod ? ($platform->streams / $currentPeriod) * 100 : 0)
                 <div class="analytics-rank"><b>{{ $index + 1 }}</b><div><strong>{{ $platform->platform }}</strong><span><i style="width:{{ min($share, 100) }}%"></i></span></div><em>{{ $formatStreams($platform->streams) }}</em><small>{{ number_format($share, 1, ',', '.') }}%</small></div>
             @empty
@@ -115,7 +118,24 @@
         <header><div><h2>Performa rilismu</h2><p>Semua rilis diurutkan berdasarkan stream pada periode ini · 20 rilis per halaman</p></div></header>
         @if($releases->isEmpty())<div class="analytics-no-data compact"><span class="material-icons-outlined">album</span>Belum ada rilis pada akun ini.</div>
         @else
-            <div class="table-responsive"><table class="analytics-performance-table analytics-release-table"><thead><tr><th>#</th><th>Rilis</th><th>Artis</th><th>Format</th><th>Stream</th><th>Estimasi penghasilan</th><th class="analytics-action-heading">Aksi</th></tr></thead><tbody>@foreach($releases as $index => $release)@php($artistNames = collect($release->primaryartists ?? [])->map(fn ($artist) => data_get($artist, 'name'))->filter()->implode(', '))<tr><td>{{ $releases->firstItem() + $index }}</td><td><a class="analytics-release-link" href="{{ route('analytics.release.statistics', $release->id) }}" aria-label="Lihat statistik rilis untuk {{ $release->title }}"><span class="material-icons-outlined">album</span><strong>{{ $release->title }}</strong><i class="material-icons-outlined">arrow_forward</i></a></td><td>{{ $artistNames ?: '—' }}</td><td>{{ ucfirst($release->type ?: 'Rilis') }}</td><td>{{ $formatStreams($release->streams) }}</td><td>{{ $formatMoney($release->revenue) }}</td><td class="analytics-action-cell"><a class="analytics-view-button" href="{{ route('analytics.release.statistics', $release->id) }}" aria-label="Lihat detail analitik {{ $release->title }}"><span class="material-icons-outlined">visibility</span><span>View</span></a></td></tr>@endforeach</tbody></table></div>
+            <div class="table-responsive">
+                <table class="analytics-performance-table analytics-release-table">
+                    <thead><tr><th>#</th><th>Rilis</th><th>Artis</th><th>Format</th>@foreach(\App\Services\ReportUsage::LABELS as $label)<th>{{ $label }}</th>@endforeach<th>Estimasi penghasilan</th><th class="analytics-action-heading">Aksi</th></tr></thead>
+                    <tbody>
+                    @foreach($releases as $index => $release)
+                        @php($artistNames = collect($release->primaryartists ?? [])->map(fn ($artist) => data_get($artist, 'name'))->filter()->implode(', '))
+                        <tr>
+                            <td>{{ $releases->firstItem() + $index }}</td>
+                            <td><a class="analytics-release-link" href="{{ route('analytics.release.statistics', $release->id) }}" aria-label="Lihat statistik rilis untuk {{ $release->title }}"><span class="material-icons-outlined">album</span><strong>{{ $release->title }}</strong><i class="material-icons-outlined">arrow_forward</i></a></td>
+                            <td>{{ $artistNames ?: '—' }}</td><td>{{ ucfirst($release->type ?: 'Rilis') }}</td>
+                            @foreach(\App\Services\ReportUsage::LABELS as $metric => $label)<td>{{ $formatStreams(data_get($release, $metric, 0)) }}</td>@endforeach
+                            <td>{{ $formatMoney($release->revenue) }}</td>
+                            <td class="analytics-action-cell"><a class="analytics-view-button" href="{{ route('analytics.release.statistics', $release->id) }}" aria-label="Lihat detail analitik {{ $release->title }}"><span class="material-icons-outlined">visibility</span><span>View</span></a></td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
             <nav class="analytics-pagination" aria-label="Navigasi halaman rilis">
                 <span class="analytics-pagination-summary">Menampilkan {{ $releases->firstItem() }}–{{ $releases->lastItem() }} dari {{ $releases->total() }} rilis</span>
                 @if($releases->hasPages())
@@ -191,7 +211,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const revenue = JSON.parse(document.getElementById('analytics-revenue').textContent);
     const rupiah = value => 'Rp' + Number(value).toLocaleString('id-ID', {maximumFractionDigits: 0});
     chart.setOption({grid:{left:44,right:66,top:18,bottom:40},tooltip:{trigger:'axis',backgroundColor:'#182536',borderColor:'#3b4f6a',textStyle:{color:'#eef4fa'},formatter(items){return '<b>'+items[0].axisValue+'</b><br>'+items.map(item=>item.marker+' '+item.seriesName+': <b>'+(item.seriesName === 'Penghasilan' ? rupiah(item.value) : Number(item.value).toLocaleString('id-ID'))+'</b>').join('<br>')}},xAxis:{type:'category',data:months,axisLine:{lineStyle:{color:'#3a4b63'}},axisLabel:{color:'#9fb1c7',fontSize:10}},yAxis:[{type:'value',splitLine:{lineStyle:{color:'#263850'}},axisLabel:{color:'#9fb1c7',fontSize:10,formatter:value=>Number(value).toLocaleString('id-ID',{notation:'compact'})}},{type:'value',splitLine:{show:false},axisLabel:{color:'#9fb1c7',fontSize:10,formatter:value=>rupiah(value)}}],series:[{name:'Stream',type:'bar',data:streams,barMaxWidth:32,itemStyle:{color:'#29c687',borderRadius:[5,5,0,0]}},{name:'Penghasilan',type:'bar',yAxisIndex:1,data:revenue,barMaxWidth:32,itemStyle:{color:'#f05252',borderRadius:[5,5,0,0]}}]});
-    window.addEventListener('resize', () => chart.resize());
+    function updateChartTheme() {
+        const workspace = node.closest('.customer-analytics');
+        const style = getComputedStyle(workspace);
+        const color = variable => style.getPropertyValue(variable).trim();
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--sf-accent)';
+        workspace.appendChild(probe);
+        const accent = getComputedStyle(probe).color;
+        probe.remove();
+        chart.setOption({
+            tooltip: {backgroundColor: color('--analytics-surface'), borderColor: color('--sf-border'), textStyle: {color: color('--sf-text')}},
+            xAxis: {axisLine: {lineStyle: {color: color('--sf-border')}}, axisLabel: {color: color('--sf-muted')}},
+            yAxis: [{splitLine: {lineStyle: {color: color('--sf-border')}}, axisLabel: {color: color('--sf-muted')}}, {axisLabel: {color: color('--sf-muted')}}],
+            series: [{name: 'Stream', itemStyle: {color: accent}}, {name: 'Penghasilan', itemStyle: {color: color('--sf-valid')}}]
+        });
+    }
+    updateChartTheme();
+    new MutationObserver(updateChartTheme).observe(document.documentElement, {attributes: true, attributeFilter: ['data-bs-theme']});
+    new ResizeObserver(() => chart.resize()).observe(node);
 });
 </script>
 @endpush

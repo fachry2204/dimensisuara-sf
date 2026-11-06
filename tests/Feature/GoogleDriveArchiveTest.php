@@ -76,6 +76,20 @@ class GoogleDriveArchiveTest extends LegacyImportTest
         $this->assertSame('failed',DB::table('drive_transfers')->where('file_id',$file->id)->value('status'));
     }
 
+    public function test_lowercase_rclone_md5_is_verified_before_archiving_and_local_cleanup(): void
+    {
+        $file = $this->media(); $local = $file->identifier;
+        $client = Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('run')->with(Mockery::on(fn ($args) => $args[0] === 'copyto'))->once()->andReturn('');
+        $client->shouldReceive('run')->with(Mockery::on(fn ($args) => $args[0] === 'lsjson'))->twice()
+            ->andReturn(json_encode(['Size'=>26, 'IsDir'=>false, 'Hashes'=>['md5'=>md5('exact original media bytes')]]));
+        $this->app->instance(RcloneDrive::class, $client);
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame('rclone', $file->fresh()->disk);
+        Storage::disk('local')->assertMissing($local);
+        $this->assertSame('complete', DB::table('drive_transfers')->where('file_id', $file->id)->value('status'));
+    }
+
     public function test_non_released_and_shared_with_pending_release_stay_local(): void
     {
         $file = $this->media();

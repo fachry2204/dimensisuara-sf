@@ -134,14 +134,19 @@ class HomeController extends Controller
             })
             ->when(in_array($selectedQuarter, [1, 2, 3, 4], true), fn ($query) => $query->whereRaw('QUARTER(sales_month) = ?', [$selectedQuarter]));
 
-        $totalStreams = (clone $reportRows)->sum('quantity');
+        $usageTotals = (clone $reportRows)->selectRaw(\App\Services\ReportUsage::metrics())->first();
+        $totalStreams = $usageTotals->streams ?? 0;
+        $totalCreations = $usageTotals->creations ?? 0;
+        $totalOtherUnits = $usageTotals->other_units ?? 0;
+        $usageBreakdown = (array) $usageTotals;
+        $salesSubtypes = \App\Services\ReportSubtypes::breakdown($reportRows);
         $totalEarnings = (clone $reportRows)->sum('client_rupiah_exact');
         $latestReportDate = (clone $reportRows)->max('sales_month');
 
         $platformPerformance = (clone $reportRows)
             ->select(
                 'platform',
-                DB::raw('SUM(quantity) as streams'),
+                DB::raw(\App\Services\ReportUsage::metrics()),
                 DB::raw('SUM(client_rupiah_exact) as earnings'),
                 DB::raw('MAX(sales_month) as latest_report_date')
             )
@@ -150,7 +155,7 @@ class HomeController extends Controller
             ->get();
 
         $recentPlatformRows = (clone $reportRows)
-            ->select('sales_month', 'platform', DB::raw('SUM(quantity) as streams'))
+            ->select('sales_month', 'platform')->selectRaw(\App\Services\ReportUsage::metrics())
             ->groupBy('sales_month', 'platform')
             ->orderBy('sales_month')
             ->get()
@@ -196,6 +201,10 @@ class HomeController extends Controller
         return view('admin.release-statistics', compact(
             'release',
             'totalStreams',
+            'totalCreations',
+            'totalOtherUnits',
+            'usageBreakdown',
+            'salesSubtypes',
             'totalEarnings',
             'latestReportDate',
             'platformPerformance',

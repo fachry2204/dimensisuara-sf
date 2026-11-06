@@ -29,6 +29,17 @@ use App\Jobs\Reporting\ProcessDetectionPerBatch;
 
 class ReportService
 {
+    private static function isSalesSubtypeHeader($header): bool
+    {
+        return preg_replace('/[^a-z0-9]/', '', strtolower(trim((string) $header))) === 'salessubtype';
+    }
+
+    private static function salesSubtypeValue($cell, int $row): ?string
+    {
+        $value = trim((string) $cell->getFormattedValue());
+        if (mb_strlen($value) > 255) throw new \Exception("Sales Sub Type exceeds 255 characters at row $row");
+        return $value === '' ? null : $value;
+    }
     /**
      * Import report excel
      */
@@ -508,7 +519,11 @@ class ReportService
             }
 
             // Map row header
-            if(isset($map_row[$value])) {
+            if (self::isSalesSubtypeHeader($value)) {
+                if (in_array('sales_sub_type', $map, true)) throw new \Exception('Duplicate Sales Sub Type column');
+                $map[$col] = 'sales_sub_type';
+            }
+            elseif(isset($map_row[$value])) {
                 $map[$col] = $map_row[$value];
             }
         }
@@ -544,7 +559,11 @@ class ReportService
                 }
 
                 $cell   = $sheet->getCell($col . $row);
-                $value  = $cell->getValue();
+                $value = $cell->getValue();
+                if ($map[$col] === 'sales_sub_type') {
+                    $rowData['sales_sub_type'] = self::salesSubtypeValue($cell, $row);
+                    continue;
+                }
 
                 // Check critical values
                 if(in_array($map[$col], ['reporting_month', 'sales_month', 'platform', 'region', 'upc', 'isrc', 'quantity', 'net_revenue'])) {
@@ -642,6 +661,7 @@ class ReportService
             'Sales Region'      => 'region',
             'Units of Sold'     => 'quantity',
             'Final Royalty'     => 'net_revenue',
+            'Sales Type'        => 'sales_type',
         ];
 
         for ($col = 'A'; $col <= $highestColumn; ++$col) {
@@ -653,7 +673,11 @@ class ReportService
             }
 
             // Map row header
-            if(isset($map_row[$value])) {
+            if (self::isSalesSubtypeHeader($value)) {
+                if (in_array('sales_sub_type', $map, true)) throw new \Exception('Duplicate Sales Sub Type column');
+                $map[$col] = 'sales_sub_type';
+            }
+            elseif(isset($map_row[$value])) {
                 $map[$col] = $map_row[$value];
             }
         }
@@ -689,7 +713,11 @@ class ReportService
                 }
 
                 $cell   = $sheet->getCell($col . $row);
-                $value  = $cell->getValue();
+                $value = $cell->getValue();
+                if ($map[$col] === 'sales_sub_type') {
+                    $rowData['sales_sub_type'] = self::salesSubtypeValue($cell, $row);
+                    continue;
+                }
 
                 // Check critical values
                 if(in_array($map[$col], ['reporting_month', 'sales_month', 'platform', 'region', 'upc', 'isrc', 'quantity', 'net_revenue'])) {
@@ -801,7 +829,11 @@ class ReportService
             }
 
             // Map row header
-            if(isset($map_row[$value])) {
+            if (self::isSalesSubtypeHeader($value)) {
+                if (in_array('sales_sub_type', $map, true)) throw new \Exception('Duplicate Sales Sub Type column');
+                $map[$col] = 'sales_sub_type';
+            }
+            elseif(isset($map_row[$value])) {
                 $map[$col] = $map_row[$value];
             }
         }
@@ -837,7 +869,11 @@ class ReportService
                 }
 
                 $cell   = $sheet->getCell($col . $row);
-                $value  = $cell->getValue();
+                $value = $cell->getValue();
+                if ($map[$col] === 'sales_sub_type') {
+                    $rowData['sales_sub_type'] = self::salesSubtypeValue($cell, $row);
+                    continue;
+                }
 
                 // Check critical values
                 if(in_array($map[$col], ['reporting_month', 'sales_month', 'platform', 'region', 'upc', 'isrc', 'quantity', 'net_revenue'])) {
