@@ -12,15 +12,24 @@ Log Activity
     </div>
 @endsection
 @section('content')
+    @php
+        $activityFilters = [
+            'today'=>['Aktivitas hari ini','Tercatat sejak 00.00','today','blue','today'],
+            'this_week'=>['Minggu ini','Sejak hari Senin','date_range','purple','this_week'],
+            'all'=>['Total aktivitas','Seluruh riwayat sistem','storage','green','total'],
+            'attention'=>['Perlu perhatian','Error dan peringatan','priority_high','orange','attention'],
+        ];
+    @endphp
     <div class="admin-summary-grid activity-summary-grid">
-        <article><span class="admin-summary-icon blue"><i class="material-icons-outlined">today</i></span><div><small>Aktivitas hari ini</small><strong>{{ number_format($activitySummary['today']) }}</strong><em>Tercatat sejak 00.00</em></div></article>
-        <article><span class="admin-summary-icon purple"><i class="material-icons-outlined">date_range</i></span><div><small>Minggu ini</small><strong>{{ number_format($activitySummary['this_week']) }}</strong><em>Sejak hari Senin</em></div></article>
-        <article><span class="admin-summary-icon green"><i class="material-icons-outlined">storage</i></span><div><small>Total aktivitas</small><strong>{{ number_format($activitySummary['total']) }}</strong><em>Seluruh riwayat sistem</em></div></article>
-        <article><span class="admin-summary-icon orange"><i class="material-icons-outlined">priority_high</i></span><div><small>Perlu perhatian</small><strong>{{ number_format($activitySummary['attention']) }}</strong><em>Error dan peringatan</em></div></article>
+        @foreach($activityFilters as $filter=>$card)
+            <article><a class="activity-summary-link" href="{{ route('admin.logactivity.index',['filter'=>$filter]) }}" @if($activeFilter === $filter) aria-current="page" @endif aria-label="Tampilkan {{ $card[0] }}">
+                <span class="admin-summary-icon {{ $card[3] }}"><i class="material-icons-outlined" aria-hidden="true">{{ $card[2] }}</i></span><div><small>{{ $card[0] }}</small><strong>{{ number_format($activitySummary[$card[4]]) }}</strong><em>{{ $card[1] }}</em></div>
+            </a></article>
+        @endforeach
     </div>
 
     <section class="admin-data-panel log-data-panel">
-        <header><div><h2>Riwayat aktivitas</h2><p>Gunakan pencarian untuk menemukan tindakan, pengguna, atau pesan tertentu.</p></div><span><i class="material-icons-outlined">touch_app</i> Klik baris untuk detail</span></header>
+        <header><div><h2>Riwayat aktivitas</h2><p>Filter aktif: <strong>{{ $activityFilters[$activeFilter][0] }}</strong>. Gunakan pencarian untuk menemukan tindakan, pengguna, atau pesan tertentu.</p></div><span><i class="material-icons-outlined">touch_app</i> Klik baris untuk detail</span></header>
         <div class="table-responsive">
             <table class="table" id="logactivity-table">
                 <thead>
@@ -63,6 +72,11 @@ Log Activity
         .sf-app .main-wrapper .main-content{max-width:1440px!important;padding:28px 32px 46px!important;background:#081225!important}.admin-list-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}.admin-list-header h1{margin:0;color:#f6faff!important;font-size:1.9rem!important;font-weight:800!important}.admin-list-header p{margin:6px 0 0;color:#91afd0;font-size:.78rem}.admin-header-note{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border:1px solid #345a82;border-radius:8px;color:#9ec7ef;font-size:.69rem;font-weight:700;white-space:nowrap}.admin-header-note i{font-size:16px}.admin-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:17px}.admin-summary-grid article{display:flex;align-items:center;gap:12px;min-height:105px;padding:16px;border:1px solid #294c71;border-radius:13px;background:linear-gradient(140deg,#0f223a,#0a192c)}.admin-summary-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:11px}.admin-summary-icon i{font-size:22px}.admin-summary-icon.blue{background:rgba(88,158,255,.16);color:#79b5ff}.admin-summary-icon.purple{background:rgba(166,123,255,.16);color:#be9cff}.admin-summary-icon.green{background:rgba(73,219,155,.15);color:#65e2aa}.admin-summary-icon.orange{background:rgba(255,151,92,.15);color:#ffab7f}.admin-summary-grid small{display:block;color:#93b3d4;font-size:.68rem}.admin-summary-grid strong{display:block;margin:2px 0;color:#f5f9ff;font-size:1.43rem;line-height:1.05}.admin-summary-grid em{display:block;color:#789aba;font-size:.64rem;font-style:normal}.admin-data-panel{overflow:hidden;border:1px solid #294c71;border-radius:14px;background:linear-gradient(145deg,#0e2036,#0a192b);box-shadow:0 14px 28px rgba(0,0,0,.12)}.admin-data-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:17px 19px;border-bottom:1px solid rgba(75,116,157,.35)}.admin-data-panel h2{margin:0;color:#f4f9ff;font-size:1rem;font-weight:800}.admin-data-panel header p{margin:4px 0 0;color:#8faecc;font-size:.72rem}.admin-data-panel header>span{display:inline-flex;align-items:center;gap:5px;color:#9cc4e8;font-size:.67rem;font-weight:700;white-space:nowrap}.admin-data-panel header>span i{font-size:16px}.admin-data-panel .table-responsive{padding:0 12px 10px}.admin-data-panel .dataTables_wrapper{padding-top:12px;color:#a9c3dc;font-size:.72rem}.admin-data-panel .dataTables_filter input,.admin-data-panel .dataTables_length select{border:1px solid #365b83;border-radius:7px;background:#09192b;color:#edf6ff;padding:5px 8px;outline:0}.admin-data-panel .dataTables_filter input:focus{border-color:#72b4f4}.admin-data-panel table{margin:12px 0!important;color:#c4d6e8}.admin-data-panel table thead th{padding:10px 9px;border-bottom:1px solid #3a5b7d!important;color:#8eb3d7;font-size:.63rem;letter-spacing:.06em;text-transform:uppercase}.admin-data-panel table tbody td{padding:12px 9px;border-color:rgba(57,90,124,.48);vertical-align:middle;font-size:.75rem}.admin-data-panel table tbody tr{cursor:pointer;transition:background .16s}.admin-data-panel table tbody tr:hover{background:rgba(69,132,192,.12)!important}.log-level{display:inline-flex;padding:4px 7px;border-radius:6px;font-size:.62rem;font-weight:800;text-transform:uppercase}.log-level-error{background:rgba(244,99,104,.16);color:#ff999d}.log-level-warning{background:rgba(255,179,71,.16);color:#ffc66b}.log-level-info{background:rgba(100,181,246,.14);color:#8ec6ff}.log-level-default{background:rgba(147,171,198,.14);color:#b3c9de}.log-message{color:#eaf4ff;font-weight:700}.log-user{display:inline-flex;align-items:center;gap:6px;color:#b7d3ed}.log-user i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#203b58;color:#87bfff;font-size:14px}.admin-data-panel .dataTables_paginate .paginate_button{border:1px solid #365b83!important;border-radius:6px!important;color:#b8d4ee!important;background:transparent!important}.admin-data-panel .dataTables_paginate .paginate_button.current{border-color:#ff7146!important;background:#ff7146!important;color:#fff!important}.admin-data-panel .dataTables_paginate .paginate_button:hover{border-color:#ff8b68!important;background:#1a3049!important;color:#fff!important}@media(max-width:900px){.admin-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.sf-app .main-wrapper .main-content{padding:18px!important}.admin-list-header,.admin-data-panel>header{align-items:flex-start;flex-direction:column}.admin-summary-grid{grid-template-columns:1fr}.admin-data-panel .table-responsive{padding:0 7px 8px}}
         #logDetailsModal .modal-body{overflow-wrap:anywhere}
         #logDetailsModal pre{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+        html[data-bs-theme] body.sf-app main.main-wrapper > .main-content.workspace-content.admin-workspace .activity-summary-grid > article:has(.activity-summary-link) { padding:0 !important; }
+        .activity-summary-link { display:flex; align-items:center; gap:12px; width:100%; min-height:105px; padding:20px 24px; border-radius:inherit; color:inherit; text-decoration:none; cursor:pointer; background:transparent !important; box-shadow:none !important; }
+        .activity-summary-link:hover { background:var(--sf-focus) !important; color:inherit; }
+        .activity-summary-link[aria-current="page"] { outline:2px solid var(--sf-accent); outline-offset:-2px; }
+        .activity-summary-link:focus-visible { outline:3px solid var(--sf-accent); outline-offset:3px; }
     </style>
 @endpush
 @push('script')
@@ -73,7 +87,7 @@ Log Activity
             var table = $('#logactivity-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.logactivity.get_data') }}",
+                ajax: { url: "{{ route('admin.logactivity.get_data') }}", data: { filter: @json($activeFilter) } },
                 // responsive: true,
                 pageLength: 10,
                 lengthChange: false,

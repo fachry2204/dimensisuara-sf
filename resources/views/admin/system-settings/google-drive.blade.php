@@ -31,7 +31,7 @@
         @if($driveReady)<form method="POST" action="{{ route('admin.system-settings.drive.start') }}">@csrf<button class="btn btn-outline-primary" type="submit" @disabled(!$settings['drive_enabled'])>Pindahkan File Released Sekarang</button></form>@endif
         @if($settings['drive_connection_status'])<span role="status" class="text-secondary">{{ $settings['drive_connection_status'] === 'ok' ? 'Koneksi berhasil' : 'Tes koneksi gagal' }} · {{ $settings['drive_checked_at'] }}</span>@endif
     </div>
-    <p class="form-text mt-3">Proses lama ke FTP dilewati saat Google Drive aktif. File yang sudah dipindahkan ke FTP tetap memakai koneksi FTP. Audio yang dipakai beberapa rilis menunggu sampai seluruh rilis terkait berstatus Released.</p>
+    <p class="form-text mt-3">Proses lama ke FTP dilewati saat Google Drive aktif. File yang sudah dipindahkan ke FTP tetap memakai koneksi FTP. Audio bersama memakai satu salinan di folder rilisan Published utama. Lihat progres di Automation → Status Upload Google Drive.</p>
 </div></div>
 <div class="card mb-4"><div class="card-body p-4"><h5>Worker dan Jadwal VPS</h5>
     <p>Jalankan worker khusus berikut melalui Supervisor atau layanan VPS:</p>
@@ -41,7 +41,7 @@
     <p class="form-text mb-0">WAV tidak dikonversi. Akses audio tetap melalui aplikasi dengan hak akses pengguna dan dukungan seek. Tidak ada salinan WAV permanen yang dibuat saat diputar; trafik dan latensi tetap melewati VPS. Jangan menghapus remote atau rclone.conf setelah file dipindahkan.</p>
 </div></div>
 @if($driveReady)
-@php($driveStatuses = ['pending'=>'Menunggu','copying'=>'Menyalin','cleanup_pending'=>'Di Drive; penghapusan lokal tertunda','complete'=>'Selesai','failed'=>'Gagal; file lokal dipertahankan'])
+@php($driveStatuses = ['pending'=>'Menunggu','copying'=>'Menyalin','cleanup_pending'=>'Di Drive; penghapusan lokal tertunda','complete'=>'Selesai','failed'=>'Gagal; file lokal dipertahankan','relocating'=>'Menata folder Drive','remote_cleanup_pending'=>'Pembersihan lokasi Drive lama tertunda','relocation_failed'=>'Penataan folder gagal'])
 <div class="card"><div class="card-body p-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2"><h5 class="mb-0">Riwayat Pemindahan</h5><a class="btn btn-outline-primary" href="{{ route('admin.system-settings.index',['tab'=>'google-drive']) }}">Perbarui Progres</a></div>
     <div class="d-flex flex-wrap gap-4 my-3"><span>Selesai: <strong>{{ $driveStats->get('complete')->total ?? 0 }}</strong></span><span>Gagal: <strong>{{ $driveStats->get('failed')->total ?? 0 }}</strong></span><span>Ukuran diproses: <strong>{{ number_format(($driveStats->get('complete')->bytes ?? 0)/1073741824,2,',','.') }} GB</strong></span></div>

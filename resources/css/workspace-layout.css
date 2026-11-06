@@ -150,7 +150,7 @@ html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-
     margin: 0 !important;
     padding: 0;
 }
-html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail :is(.release-overview-panel,.release-track-panel,.release-history-panel) {
+html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content .release-detail :is(.release-overview-panel,.release-track-panel,.release-history-panel,.release-drive-panel) {
     background: var(--release-surface) !important;
     border: 1px solid var(--sf-border) !important;
     border-radius: 16px;
@@ -770,3 +770,17 @@ html[data-bs-theme] body.sf-app main.main-wrapper > .workspace-content.customer-
     background-color: #6d28d9 !important;
     color: #fff !important;
 }
+
+.release-drive-panel { min-width: 0; overflow: hidden; padding: 0 !important; }
+.release-drive-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 22px 26px; border-bottom: 1px solid var(--sf-border); }
+.release-drive-heading h3 { margin: 0; font-size: 1.25rem; }
+.release-drive-heading .btn { min-height: 44px; display: inline-flex; align-items: center; }
+.release-drive-body { padding: 22px 26px; }
+.release-drive-summary { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.release-drive-panel table { min-width: 850px; }
+.release-drive-panel th, .release-drive-panel td { overflow-wrap: anywhere; }
+.release-drive-panel td small { display: block; margin-top: 5px; color: var(--sf-muted); }
+.release-drive-status { display: inline-block; padding: 5px 8px; border-radius: 5px; font-size: .8rem; font-weight: 650; background: #e2e8f0; color: #1e293b; }
+.release-drive-status--success { background: #146c43; color: #fff; }
+.release-drive-status--danger { background: #a61e32; color: #fff; }
+@media(max-width:575px) { .release-drive-heading, .release-drive-body { padding: 18px; } }

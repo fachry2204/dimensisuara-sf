@@ -162,6 +162,9 @@
             </div>
         </div>
     </div>
+    @if(($type ?? '') === 'admin' && $release->status === 'released' && isset($driveStorage))
+        <x-release-drive-status :storage="$driveStorage" />
+    @endif
     <div class="col-12 track-information release-track-panel">
         @if($release->type !== 'single')
             <h3 class="section-toggle-heading">

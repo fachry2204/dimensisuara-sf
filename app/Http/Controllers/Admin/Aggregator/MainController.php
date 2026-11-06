@@ -53,7 +53,8 @@ class MainController extends Controller
             abort(404);
         }
 
-        return view('admin.aggregator.show', compact('release'));
+        $driveStorage = app(\App\Services\ReleaseDriveStatus::class)->forRelease($release);
+        return view('admin.aggregator.show', compact('release', 'driveStorage'));
     }
 
     public function destroy(string $id, Request $request)

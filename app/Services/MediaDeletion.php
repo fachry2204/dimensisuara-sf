@@ -26,6 +26,7 @@ class MediaDeletion
             if ($file->backup_identifier) $pointers[] = ['ftp', $file->backup_identifier];
             if ($transfer) {
                 if ($transfer->remote_identifier) $pointers[] = ['rclone', $transfer->remote_identifier];
+                if (!empty($transfer->previous_remote_identifier)) $pointers[] = ['rclone',$transfer->previous_remote_identifier];
                 if ($transfer->local_identifier) {
                     $local = Storage::disk('local');
                     $identifier = $transfer->local_identifier;

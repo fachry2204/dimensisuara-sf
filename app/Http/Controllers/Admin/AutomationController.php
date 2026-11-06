@@ -14,6 +14,7 @@ class AutomationController extends Controller
     public function index(Request $request)
     {
         $automationTab = $request->input('tab', 'jobs');
+        if ($automationTab === 'drive') return view('admin.automation.drive-status',app(\App\Services\DriveUploadMonitor::class)->dashboard($request)+compact('automationTab'));
         if (in_array($automationTab, ['email', 'whatsapp'], true)) {
             $channel = $automationTab;
             $channelLabel = $channel === 'email' ? 'Email' : 'WhatsApp';
@@ -53,6 +54,15 @@ class AutomationController extends Controller
         Log::info('Retrying job ' . $id);
         Artisan::call('queue:retry', ['id' => $id]);
         return redirect()->back()->with('success', 'Job retried, please wait...');
+    }
+
+    public function startDrive(\App\Services\SystemSettings $settings)
+    {
+        if (!$settings->get('drive_enabled') || $settings->get('drive_connection_status') !== 'ok') return redirect()->route('admin.automation.index',['tab'=>'drive'])->withErrors(['drive'=>'Selesaikan Tes Koneksi dan aktifkan Google Drive terlebih dahulu.']);
+        $result=Artisan::call('drive:archive-released');
+        return $result === 0
+            ? redirect()->route('admin.automation.index',['tab'=>'drive'])->with('success','Pemindaian file Published dijadwalkan. Worker memindahkan file lokal dan menata arsip lama secara bertahap.')
+            : redirect()->route('admin.automation.index',['tab'=>'drive'])->withErrors(['drive'=>'Pemindaian belum berhasil. Periksa migrasi penataan folder dan antrean worker.']);
     }
 
     public function destroyNotification(Request $request, string $channel, int $delivery, \App\Services\AutomationRecords $records)

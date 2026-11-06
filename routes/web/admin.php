@@ -373,6 +373,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
         // Automation
         Route::prefix('automation')->middleware(['can:manage-automation'])->group(function () {
+            Route::post('drive/start',[AutomationController::class,'startDrive'])->middleware('throttle:3,1')->name('admin.automation.drive.start');
             Route::delete('notifications/{channel}/{delivery}', [AutomationController::class, 'destroyNotification'])->whereIn('channel', ['email', 'whatsapp'])->whereNumber('delivery')->name('admin.automation.notifications.destroy');
             Route::delete('records/{kind}', [AutomationController::class, 'destroyAllJobs'])->whereIn('kind', ['job', 'failed-job', 'batch'])->name('admin.automation.records.destroy-all');
             Route::delete('records/{kind}/{id}', [AutomationController::class, 'destroyJob'])->whereIn('kind', ['job', 'failed-job', 'batch'])->where('id', '[A-Za-z0-9-]+')->name('admin.automation.records.destroy');

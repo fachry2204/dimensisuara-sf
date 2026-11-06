@@ -24,6 +24,7 @@ class GoogleDriveArchiveTest extends LegacyImportTest
             $t->id(); foreach (['disk','identifier','original_name','mime_type','type','owner_type','owner_id','profileid','uploaded_at','size'] as $column) $t->text($column)->nullable(); $t->timestamps();
         });
         (require base_path('database/migrations/2026_10_31_110000_create_drive_transfers_table.php'))->up();
+        (require base_path('database/migrations/2026_11_07_060000_add_drive_layout_tracking.php'))->up();
         Storage::fake('local');
         $this->app->forgetInstance(SystemSettings::class);
         app(SystemSettings::class)->save(['drive_enabled'=>true]);
@@ -50,6 +51,130 @@ class GoogleDriveArchiveTest extends LegacyImportTest
         $client->shouldReceive('stat')->andReturn(['Size'=>26,'IsDir'=>false,'Hashes'=>['MD5'=>$valid ? md5('exact original media bytes') : str_repeat('0',32)]]);
         $this->app->instance(RcloneDrive::class,$client);
         return $client;
+    }
+
+    public function test_named_archive_path_is_safe_unique_and_uses_main_published_release(): void
+    {
+        $file=$this->media();
+        $release=\App\Models\Release::first();
+        $release->update(['title'=>'A / Release: [] ..','primaryartists'=>json_encode([['name'=>'Artist / Name']])]);
+        $release->profile->update(['firstname'=>'Client / Name','lastname'=>'Test']);
+        $second=\App\Models\Release::create(['title'=>'Other','status'=>'released','profileid'=>$release->profileid]);
+        DB::table('release_track')->insert(['release_id'=>$second->id,'track_id'=>$file->owner_id,'track_order'=>0]);
+        $path=app(\App\Services\DriveArchivePath::class)->destination($file,md5('exact original media bytes'));
+        $this->assertStringContainsString('/Client Name Test (C'.$release->profileid.')/Artist Name/A Release (R'.$release->id.')/',$path);
+        $this->assertStringContainsString('Audio Penuh (F'.$file->id.'-',$path);
+        $this->assertStringEndsWith('.wav',$path);
+        app(RcloneDrive::class)->validateRemote($path);
+        $this->assertStringNotContainsString('..',$path);
+    }
+
+    public function test_existing_drive_archive_is_relocated_only_after_destination_verification(): void
+    {
+        $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav';
+        $file->update(['disk'=>'rclone','identifier'=>$old]);
+        $md5=md5('exact original media bytes'); $stat=['Size'=>26,'IsDir'=>false,'Hashes'=>['MD5'=>$md5]];
+        $destination=app(\App\Services\DriveArchivePath::class)->destination($file,$md5);
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('stat')->with($old)->once()->andReturn($stat);
+        $client->shouldReceive('stat')->with($destination)->twice()->andReturn($stat);
+        $client->shouldReceive('run')->with(['copyto',$old,$destination,'--checksum','--immutable'])->once()->andReturnUsing(function () use ($file,$old) { $this->assertSame($old,$file->fresh()->identifier); return ''; });
+        $client->shouldReceive('run')->with(Mockery::on(fn ($args)=>$args[0]==='rmdir'))->andReturn('');
+        $client->shouldReceive('deleteFile')->with($old)->once()->andReturnUsing(function () use ($file,$destination) { $this->assertSame($destination,$file->fresh()->identifier); });
+        $this->app->instance(RcloneDrive::class,$client);
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame($destination,$file->fresh()->identifier);
+        $transfer=DB::table('drive_transfers')->where('file_id',$file->id)->first();
+        $this->assertSame('complete',$transfer->status);
+        $this->assertEquals(2,$transfer->layout_version);
+        $this->assertNull($transfer->previous_remote_identifier);
+        app(ReleasedFilesDrive::class)->archive($file->id);
+    }
+
+    public function test_bad_relocation_checksum_preserves_old_pointer_and_remote_file(): void
+    {
+        $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav'; $file->update(['disk'=>'rclone','identifier'=>$old]);
+        $md5=md5('exact original media bytes');
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('stat')->with($old)->once()->andReturn(['Size'=>26,'Hashes'=>['MD5'=>$md5]]);
+        $client->shouldReceive('stat')->with(Mockery::on(fn ($remote)=>$remote!==$old))->once()->andReturn(['Size'=>26,'Hashes'=>['MD5'=>str_repeat('0',32)]]);
+        $client->shouldReceive('run')->once()->andReturn(''); $client->shouldNotReceive('deleteFile');
+        $this->app->instance(RcloneDrive::class,$client);
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame($old,$file->fresh()->identifier);
+        $this->assertSame('relocation_failed',DB::table('drive_transfers')->where('file_id',$file->id)->value('status'));
+    }
+
+    public function test_remote_cleanup_failure_is_resumable_without_recopying_or_changing_access(): void
+    {
+        $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav'; $file->update(['disk'=>'rclone','identifier'=>$old]);
+        $md5=md5('exact original media bytes'); $stat=['Size'=>26,'Hashes'=>['MD5'=>$md5]];
+        $destination=app(\App\Services\DriveArchivePath::class)->destination($file,$md5);
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('stat')->andReturn($stat);
+        $client->shouldReceive('run')->with(['copyto',$old,$destination,'--checksum','--immutable'])->once()->andReturn('');
+        $client->shouldReceive('run')->with(Mockery::on(fn ($args)=>$args[0]==='rmdir'))->andReturn('');
+        $deletes=0;
+        $client->shouldReceive('deleteFile')->with($old)->twice()->andReturnUsing(function () use (&$deletes) { if (++$deletes===1) throw new \RuntimeException('Cleanup unavailable'); });
+        $this->app->instance(RcloneDrive::class,$client);
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame($destination,$file->fresh()->identifier);
+        $this->assertSame('remote_cleanup_pending',DB::table('drive_transfers')->where('file_id',$file->id)->value('status'));
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame('complete',DB::table('drive_transfers')->where('file_id',$file->id)->value('status'));
+        $this->assertNull(DB::table('drive_transfers')->where('file_id',$file->id)->value('previous_remote_identifier'));
+    }
+
+    public function test_queue_scan_records_pending_and_includes_old_drive_layout_once_per_file(): void
+    {
+        config(['cache.default'=>'array']); \Illuminate\Support\Facades\Queue::fake();
+        $local=$this->media(); $old=$this->media('cover'); $old->update(['disk'=>'rclone','identifier'=>'gdrive:DimensiSuara/files/old.jpg']);
+        $this->assertSame(2,app(ReleasedFilesDrive::class)->queuePublished());
+        $this->assertSame('pending',DB::table('drive_transfers')->where('file_id',$local->id)->value('status'));
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\ArchiveReleasedFile::class,2);
+    }
+
+    public function test_upload_monitor_counts_and_filters_published_file_states(): void
+    {
+        $pending=$this->media(); $uploaded=$this->media('cover'); $this->client();
+        app(ReleasedFilesDrive::class)->archive($uploaded->id);
+        $failed=$this->media('thumbnail'); $active=$this->media('ipl');
+        foreach ([$failed->id=>'failed',$active->id=>'copying'] as $id=>$status) DB::table('drive_transfers')->insert(['file_id'=>$id,'local_identifier'=>'media/source','status'=>$status]);
+        $monitor=app(\App\Services\DriveUploadMonitor::class);
+        $data=$monitor->dashboard(Request::create('/automation','GET',['tab'=>'drive']));
+        $this->assertSame(['all'=>4,'pending'=>1,'uploading'=>1,'uploaded'=>1,'failed'=>1],$data['stats']);
+        $this->assertTrue($data['layoutReady']);
+        $filtered=$monitor->dashboard(Request::create('/automation','GET',['tab'=>'drive','status'=>'failed']));
+        $this->assertSame(1,$filtered['files']->total());
+        $this->assertSame($failed->id,$filtered['files']->first()->id);
+    }
+
+    public function test_drive_automation_page_and_start_action_use_async_queue_and_require_ready_connection(): void
+    {
+        config(['cache.default'=>'array']); \Illuminate\Support\Facades\Queue::fake();
+        $file=$this->media();
+        $admin=new class extends \App\Models\User\Admin { public function hasPermission(string $permission): bool { return true; } };
+        $admin->forceFill(['id'=>91,'name'=>'Admin Drive','email_verified_at'=>now()]); $admin->setRelation('unreadNotifications',collect());
+        $this->actingAs($admin,'admin');
+        $this->get(route('admin.automation.index',['tab'=>'drive']))->assertOk()->assertSee('Status Upload Google Drive')->assertSee('Proses semua file Published');
+        $this->post(route('admin.automation.drive.start'))->assertSessionHasErrors('drive');
+        \Illuminate\Support\Facades\Queue::assertNothingPushed();
+        app(SystemSettings::class)->save(['drive_connection_status'=>'ok']);
+        $this->post(route('admin.automation.drive.start'))->assertSessionHasNoErrors()->assertRedirect(route('admin.automation.index',['tab'=>'drive']));
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\ArchiveReleasedFile::class,fn ($job)=>$job->fileId===$file->id);
+        $this->assertSame('local',$file->fresh()->disk);
+        $this->get(route('admin.automation.index',['tab'=>'drive','status'=>'failed']))->assertOk()->assertSee('Tidak ada file untuk status yang dipilih.');
+    }
+
+    public function test_layout_migration_is_idempotent_and_unknown_transfer_history_remains_explicit(): void
+    {
+        $file=$this->media();
+        (require base_path('database/migrations/2026_11_07_060000_add_drive_layout_tracking.php'))->up();
+        $this->assertNotNull($file->fresh());
+        Schema::drop('drive_transfers');
+        $data=app(\App\Services\DriveUploadMonitor::class)->dashboard(Request::create('/automation','GET',['tab'=>'drive']));
+        $this->assertFalse($data['ready']); $this->assertFalse($data['layoutReady']);
+        $this->assertSame(1,$data['stats']['pending']);
     }
 
     public function test_released_wav_and_artwork_are_verified_before_local_deletion(): void
@@ -90,7 +215,7 @@ class GoogleDriveArchiveTest extends LegacyImportTest
         $this->assertSame('complete', DB::table('drive_transfers')->where('file_id', $file->id)->value('status'));
     }
 
-    public function test_non_released_and_shared_with_pending_release_stay_local(): void
+    public function test_only_recordings_with_no_published_release_stay_local(): void
     {
         $file = $this->media();
         $cover = $this->media('cover');
@@ -101,7 +226,7 @@ class GoogleDriveArchiveTest extends LegacyImportTest
         DB::table('releases')->update(['status'=>'released']);
         $release = \App\Models\Release::create(['title'=>'Pending shared recording','status'=>'pending','profileid'=>$file->profileid]);
         DB::table('release_track')->insert(['release_id'=>$release->id,'track_id'=>$file->owner_id]);
-        $this->assertFalse(app(ReleasedFilesDrive::class)->eligible()->whereKey($file->id)->exists());
+        $this->assertTrue(app(ReleasedFilesDrive::class)->eligible()->whereKey($file->id)->exists());
         $this->assertTrue(app(ReleasedFilesDrive::class)->eligible()->whereKey($cover->id)->exists());
     }
 
@@ -142,7 +267,7 @@ class GoogleDriveArchiveTest extends LegacyImportTest
     {
         $file = $this->media(); $local = $file->identifier;
         $file->update(['disk'=>'rclone','identifier'=>'gdrive:DimensiSuara/files/1/test.wav']);
-        DB::table('drive_transfers')->insert(['file_id'=>$file->id,'local_identifier'=>$local,'remote_identifier'=>$file->identifier,'status'=>'cleanup_pending','size'=>26,'md5'=>md5('exact original media bytes'),'verified_at'=>now()]);
+        DB::table('drive_transfers')->insert(['file_id'=>$file->id,'local_identifier'=>$local,'remote_identifier'=>$file->identifier,'status'=>'cleanup_pending','size'=>26,'md5'=>md5('exact original media bytes'),'verified_at'=>now(),'layout_version'=>\App\Services\DriveArchivePath::VERSION]);
         $this->client();
         app(ReleasedFilesDrive::class)->archive($file->id);
         Storage::disk('local')->assertMissing($local);

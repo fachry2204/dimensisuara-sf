@@ -27,11 +27,11 @@ Menu **System Setting → Setting Google Drive** menggunakan rclone yang sudah t
 ## Cakupan
 
 - Audio Track `full`/`trimmed`, serta Release `cover`/`thumbnail`/`ipl`, pada disk lokal aplikasi. Status release harus `released`.
-- Audio yang terhubung ke beberapa rilis hanya dipindahkan bila semuanya released. File lokal hilang, rilis pending/rejected/draft, identitas pelanggan, logo aplikasi, serta kontrak tidak dipindahkan.
+- Audio yang terhubung ke beberapa rilis memakai satu salinan pada folder rilisan Published dengan ID terkecil. Audio dapat dipindahkan setelah salah satu rilisan terkait Published; akses dari rilisan lain tetap melalui file yang sama di aplikasi. File yang hanya terkait rilis pending/rejected/draft, identitas pelanggan, logo aplikasi, serta kontrak tidak dipindahkan.
 - Saat Drive aktif, proses backup FTP lama dilewati. File yang sebelumnya sudah dipindahkan ke FTP tetap dilayani lewat FTP; pemindahan FTP → Drive tidak termasuk pemindahan lokal ini.
 - WAV/FLAC tidak dikonversi. Penyalinan memakai `rclone copyto --checksum --immutable`. Aplikasi memeriksa ukuran dan MD5 remote melalui `lsjson --stat --hash --hash-type MD5`, serta memeriksa ulang sumber sebelum mengubah referensi database.
 - Pointer file di database disimpan lebih dulu sebagai disk `rclone` beserta remote/path lengkap, lalu file lokal dihapus. Jika worker berhenti di antaranya, status `cleanup_pending` diproses ulang setelah verifikasi remote. File lokal berbeda atau masih dipakai record lain dipertahankan.
-- Path remote unik berdasarkan ID file dan MD5, sehingga judul sama tidak bertabrakan. Tidak ada operasi sync, purge, atau pemindahan seluruh folder hosting. Kegagalan disimpan di drive_transfers dan dicoba kembali pada pemindaian berikutnya.
+- Path baru: folder tujuan / Nama Client (C-ID) / Nama Artis / Judul Release (R-ID) / Judul - Jenis (F-ID-checksum).ext. ID client/rilisan membedakan nama yang sama; ID file dan checksum mencegah penimpaan konten berbeda. Tidak ada operasi sync atau purge. Kegagalan disimpan di drive_transfers dan dicoba kembali pada pemindaian berikutnya.
 - Setelah ada arsip terverifikasi, nama remote dan path konfigurasi dikunci di UI. Folder tujuan boleh berubah untuk arsip baru; setiap file menyimpan lokasi lamanya sendiri. Jangan menghapus atau mengubah identitas akun pada remote yang dipakai arsip.
 
 ## Akses file dan operasional
