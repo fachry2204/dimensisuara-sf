@@ -105,6 +105,61 @@ class GoogleDriveArchiveTest extends LegacyImportTest
         $this->assertSame('relocation_failed',DB::table('drive_transfers')->where('file_id',$file->id)->value('status'));
     }
 
+    public function test_copy_error_can_resume_only_when_destination_size_and_checksum_match(): void
+    {
+        foreach ([true,false] as $matching) {
+            $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav';
+            $file->update(['disk'=>'rclone','identifier'=>$old]);
+            $md5=md5('exact original media bytes'); $stat=['Size'=>26,'Hashes'=>['MD5'=>$md5]];
+            $destination=app(\App\Services\DriveArchivePath::class)->destination($file,$md5);
+            $client=Mockery::mock(RcloneDrive::class)->makePartial();
+            $client->shouldReceive('stat')->with($old)->once()->andReturn($stat);
+            $client->shouldReceive('stat')->with($destination)->times($matching ? 3 : 1)
+                ->andReturn($matching ? $stat : ['Size'=>26,'Hashes'=>['MD5'=>str_repeat('0',32)]]);
+            $client->shouldReceive('run')->with(['copyto',$old,$destination,'--checksum','--immutable'])->once()
+                ->andThrow(new \App\Exceptions\DriveSetupException('Salinan tujuan tidak cocok. (copyto, kode 7)'));
+            if ($matching) {
+                $client->shouldReceive('deleteFile')->with($old)->once()->andReturnUsing(function () use ($file,$destination) {
+                    $this->assertSame($destination,$file->fresh()->identifier);
+                });
+                $client->shouldReceive('run')->with(Mockery::on(fn ($args)=>$args[0]==='rmdir'))->andReturn('');
+            } else $client->shouldNotReceive('deleteFile');
+            $this->app->instance(RcloneDrive::class,$client);
+            app(ReleasedFilesDrive::class)->archive($file->id);
+            $this->assertSame($matching ? $destination : $old,$file->fresh()->identifier);
+            $transfer=DB::table('drive_transfers')->where('file_id',$file->id)->first();
+            $this->assertSame($matching ? 'complete' : 'relocation_failed',$transfer->status);
+            if (!$matching) $this->assertStringContainsString('Tahap menyalin ke folder baru:',$transfer->error);
+        }
+    }
+
+    public function test_source_lookup_failure_reports_stage_and_keeps_current_location(): void
+    {
+        $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav';
+        $file->update(['disk'=>'rclone','identifier'=>$old]);
+        $client=Mockery::mock(RcloneDrive::class)->makePartial();
+        $client->shouldReceive('stat')->with($old)->once()->andThrow(new \App\Exceptions\DriveSetupException('File tidak ditemukan. (lsjson, kode 3)'));
+        $client->shouldNotReceive('run'); $client->shouldNotReceive('deleteFile');
+        $this->app->instance(RcloneDrive::class,$client);
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame($old,$file->fresh()->identifier);
+        $this->assertStringContainsString('Tahap membaca sumber Drive: File tidak ditemukan.',DB::table('drive_transfers')->where('file_id',$file->id)->value('error'));
+    }
+
+    public function test_location_save_failure_preserves_source_and_hides_database_details(): void
+    {
+        $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav';
+        $file->update(['disk'=>'rclone','identifier'=>$old]);
+        $this->client()->shouldNotReceive('deleteFile');
+        DB::unprepared("CREATE TRIGGER reject_drive_pointer BEFORE UPDATE OF identifier ON filestorage BEGIN SELECT RAISE(ABORT, 'private-database-detail'); END");
+        app(ReleasedFilesDrive::class)->archive($file->id);
+        $this->assertSame($old,$file->fresh()->identifier);
+        $transfer=DB::table('drive_transfers')->where('file_id',$file->id)->first();
+        $this->assertSame('relocation_failed',$transfer->status);
+        $this->assertStringContainsString('Tahap menyimpan lokasi baru:',$transfer->error);
+        $this->assertStringNotContainsString('private-database-detail',$transfer->error);
+    }
+
     public function test_remote_cleanup_failure_is_resumable_without_recopying_or_changing_access(): void
     {
         $file=$this->media(); $old='gdrive:DimensiSuara/files/'.$file->id.'/old.wav'; $file->update(['disk'=>'rclone','identifier'=>$old]);

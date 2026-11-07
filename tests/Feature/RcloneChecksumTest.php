@@ -94,6 +94,9 @@ class RcloneChecksumTest extends TestCase
     public static function processFailures(): array
     {
         return [
+            ['immutable file modified secret-test-token','Salinan tujuan sudah ada tetapi tidak cocok'],
+            ['corrupted on transfer secret-test-token','Rclone mendeteksi ukuran atau checksum'],
+            ['object not found secret-test-token','File atau folder Google Drive tidak ditemukan'],
             ['invalid_grant token revoked secret-test-token', 'Otorisasi Google Drive ditolak'],
             ['Failed to save config: permission denied secret-test-token', 'Akses ditolak'],
             ['storageQuotaExceeded secret-test-token', 'Kuota penyimpanan'],
@@ -112,12 +115,14 @@ class RcloneChecksumTest extends TestCase
         $process->shouldReceive('run')->once()->andReturn(1);
         $process->shouldReceive('isSuccessful')->once()->andReturnFalse();
         $process->shouldReceive('getErrorOutput')->once()->andReturn($stderr);
+        $process->shouldReceive('getExitCode')->once()->andReturn(7);
         $client=Mockery::mock(RcloneDrive::class)->makePartial();
         $client->shouldReceive('process')->once()->andReturn($process);
         try { $client->run(['listremotes','--long']); $this->fail('Expected failure'); }
         catch (\App\Exceptions\DriveSetupException $error) {
             $this->assertStringContainsString($expected,$error->getMessage());
             $this->assertStringNotContainsString('secret-test-token',$error->getMessage());
+            $this->assertStringContainsString('(listremotes, kode 7)',$error->getMessage());
         }
     }
 

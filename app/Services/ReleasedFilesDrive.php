@@ -119,11 +119,21 @@ class ReleasedFilesDrive
         }
     }
 
+    private function relocationStep(string $stage, callable $operation): mixed
+    {
+        try { return $operation(); }
+        catch (\Throwable $exception) {
+            $detail=$exception instanceof \App\Exceptions\DriveSetupException || ($exception instanceof RuntimeException && !$exception instanceof \Illuminate\Database\QueryException)
+                ? $exception->getMessage() : 'Operasi gagal; sumber tetap dipertahankan.';
+            throw new RuntimeException('Tahap '.$stage.': '.$detail,0,$exception);
+        }
+    }
+
     private function relocate(File $file, ?object $transfer): void
     {
         $client = app(RcloneDrive::class);
         $source = $file->identifier;
-        $stat = $client->stat($source);
+        $stat = $this->relocationStep('membaca sumber Drive',fn () => $client->stat($source));
         $md5 = strtolower($stat['Hashes']['MD5'] ?? ''); $size = (int)($stat['Size'] ?? -1);
         if ($size < 0 || !preg_match('/^[a-f0-9]{32}$/D',$md5)) throw new RuntimeException('Sumber Drive belum dapat diverifikasi untuk penataan folder.');
         $destination = app(DriveArchivePath::class)->destination($file,$md5);
@@ -132,15 +142,22 @@ class ReleasedFilesDrive
             return;
         }
         DB::table('drive_transfers')->updateOrInsert(['file_id'=>$file->id],['local_identifier'=>$transfer->local_identifier ?? '', 'remote_identifier'=>$source,'status'=>'relocating','error'=>null,'attempts'=>($transfer->attempts ?? 0)+1,'updated_at'=>now(),'created_at'=>$transfer->created_at ?? now()]);
-        $client->run(['copyto',$source,$destination,'--checksum','--immutable']);
-        $this->verify($client->stat($destination),$size,$md5);
-        DB::transaction(function () use ($file,$source,$destination,$size,$md5) {
+        $this->relocationStep('menyalin ke folder baru',function () use ($client,$source,$destination,$size,$md5) {
+            try { $client->run(['copyto',$source,$destination,'--checksum','--immutable']); }
+            catch (\App\Exceptions\DriveSetupException $copyError) {
+                // A copy command can fail after creating its destination. Resume only with exact content proof.
+                try { $this->verify($client->stat($destination),$size,$md5); }
+                catch (\Throwable) { throw $copyError; }
+            }
+        });
+        $this->relocationStep('memverifikasi folder baru',fn () => $this->verify($client->stat($destination),$size,$md5));
+        $this->relocationStep('menyimpan lokasi baru',fn () => DB::transaction(function () use ($file,$source,$destination,$size,$md5) {
             $locked = File::lockForUpdate()->findOrFail($file->id);
             if ($locked->disk !== 'rclone' || $locked->identifier !== $source || !$this->publishedFiles()->whereKey($file->id)->exists()) throw new RuntimeException('Data file berubah saat penataan. Lokasi lama dipertahankan.');
             $locked->update(['identifier'=>$destination,'size'=>$size]);
             DB::table('drive_transfers')->where('file_id',$file->id)->update(['remote_identifier'=>$destination,'previous_remote_identifier'=>$source,'size'=>$size,'md5'=>$md5,'verified_at'=>now(),'status'=>'remote_cleanup_pending','layout_version'=>DriveArchivePath::VERSION,'updated_at'=>now()]);
-        });
-        $this->cleanupOldRemote($file->fresh(),DB::table('drive_transfers')->where('file_id',$file->id)->first());
+        }));
+        $this->relocationStep('membersihkan lokasi lama',fn () => $this->cleanupOldRemote($file->fresh(),DB::table('drive_transfers')->where('file_id',$file->id)->first()));
     }
 
     private function cleanupOldRemote(File $file, object $transfer): void

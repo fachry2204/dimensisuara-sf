@@ -35,3 +35,5 @@ Unggahan baru mengikuti struktur nama ini. Arsip Drive lama disalin ke tujuan ba
 File VPS dihapus hanya setelah Drive dan pointer database terverifikasi. File yang berubah, gagal dibaca, gagal checksum, atau masih direferensikan record lokal lain dipertahankan dan dicoba lagi; jangan menghapusnya manual sebelum masalah selesai. Status cleanup_pending berarti file sudah di Drive tetapi pembersihan VPS belum tuntas. Status remote_cleanup_pending berarti tujuan baru sudah siap tetapi lokasi Drive lama belum selesai dibersihkan.
 
 Status UI berasal dari catatan worker, bukan pemeriksaan cloud langsung setiap halaman dibuka. Waktu verifikasi adalah waktu pemeriksaan salinan oleh aplikasi.
+
+Jika copyto melaporkan kegagalan setelah membuat file tujuan, worker memeriksa kembali ukuran dan MD5 tujuan. Hanya salinan yang identik dengan sumber yang dapat dilanjutkan ke penyimpanan lokasi baru dan pembersihan sumber. Salinan yang tidak cocok tidak ditimpa. Error penataan mencatat tahap membaca sumber, menyalin, memverifikasi, menyimpan lokasi, atau membersihkan lokasi lama; error rclone juga mencatat nama perintah dan kode keluar tanpa stderr mentah.

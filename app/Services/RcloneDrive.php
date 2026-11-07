@@ -26,7 +26,8 @@ class RcloneDrive
             $process = $this->process($arguments);
             $process->run();
             if (!$process->isSuccessful()) {
-                throw new \App\Exceptions\DriveSetupException($this->failureMessage($process->getErrorOutput()));
+                $operation=in_array($arguments[0] ?? '',['lsjson','copyto','listremotes','deletefile','rmdir'],true) ? $arguments[0] : 'perintah';
+                throw new \App\Exceptions\DriveSetupException($this->failureMessage($process->getErrorOutput()).' ('.$operation.', kode '.(int)$process->getExitCode().')');
             }
             return $process->getOutput();
         } catch (\App\Exceptions\DriveSetupException $exception) {
@@ -43,6 +44,9 @@ class RcloneDrive
     {
         // Match diagnostics internally; only fixed messages can reach the browser or logs.
         return match (true) {
+            (bool) preg_match('/immutable file modified|source and destination exist but do not match/i', $error) => 'Salinan tujuan sudah ada tetapi tidak cocok dengan sumber. File tujuan tidak ditimpa; periksa ukuran dan checksum kedua salinan.',
+            (bool) preg_match('/corrupted on transfer|hash(?:es)? differ|checksum.*(?:mismatch|differ)|sizes differ/i', $error) => 'Rclone mendeteksi ukuran atau checksum hasil salinan berbeda. Sumber tetap dipertahankan.',
+            (bool) preg_match('/object not found|directory not found|couldn.t find (?:file|directory)|file not found|notFound/i', $error) => 'File atau folder Google Drive tidak ditemukan pada lokasi yang tercatat. Periksa apakah sumber dipindahkan atau dihapus di luar aplikasi.',
             (bool) preg_match('/open_basedir/i', $error) => 'PHP-FPM membatasi akses lokasi file melalui open_basedir. Periksa izin path binary rclone dan rclone.conf pada PHP Settings domain di Plesk; gunakan lokasi yang diizinkan untuk aplikasi ini.',
             (bool) preg_match('/invalid_grant|invalid_token|token.*(?:expired|revoked)|oauth.*(?:failed|error)|unauthorized|invalid_client/i', $error) => 'Otorisasi Google Drive ditolak atau token kedaluwarsa. Hubungkan ulang remote sebagai pengguna aplikasi dengan konfigurasi yang sama.',
             (bool) preg_match('/permission denied|access denied|operation not permitted|insufficient.*permission|forbidden/i', $error) => 'Akses ditolak. Periksa izin pengguna PHP pada binary, folder konfigurasi, rclone.conf, dan folder tujuan Drive. Konfigurasi juga harus dapat diperbarui saat token disegarkan.',
