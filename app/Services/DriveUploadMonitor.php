@@ -22,7 +22,10 @@ class DriveUploadMonitor
             $bucket="CASE WHEN dt.status IN ('copying','relocating') THEN 'uploading' WHEN dt.status IN ('failed','relocation_failed') THEN 'failed' WHEN filestorage.disk='rclone' AND dt.verified_at IS NOT NULL AND dt.remote_identifier=filestorage.identifier THEN 'uploaded' ELSE 'pending' END";
         } else $bucket="'pending'";
         $stats=['all'=>0,'pending'=>0,'uploading'=>0,'uploaded'=>0,'failed'=>0];
-        foreach ((clone $base)->selectRaw($bucket.' as bucket, COUNT(*) as total')->groupByRaw($bucket)->get() as $group) { $stats[$group->bucket]=(int)$group->total; $stats['all']+=(int)$group->total; }
+        $classified=(clone $base)->selectRaw($bucket.' as bucket')->toBase();
+        $counts=DB::query()->fromSub($classified,'drive_file_states')
+            ->select('bucket')->selectRaw('COUNT(*) as total')->groupBy('bucket')->get();
+        foreach ($counts as $group) { $stats[$group->bucket]=(int)$group->total; $stats['all']+=(int)$group->total; }
         if ($status !== 'all') $base->whereRaw($bucket.' = ?',[$status]);
         $columns=['filestorage.*'];
         if ($ready) $columns=array_merge($columns,['dt.status as transfer_status','dt.verified_at','dt.updated_at as processed_at','dt.remote_identifier']);

@@ -147,6 +147,17 @@ class GoogleDriveArchiveTest extends LegacyImportTest
         $filtered=$monitor->dashboard(Request::create('/automation','GET',['tab'=>'drive','status'=>'failed']));
         $this->assertSame(1,$filtered['files']->total());
         $this->assertSame($failed->id,$filtered['files']->first()->id);
+        $pending->replicate()->save();
+        $filtered=$monitor->dashboard(Request::create('/automation','GET',['tab'=>'drive','status'=>'pending']));
+        $this->assertSame(2,$filtered['files']->total());
+        $this->assertSame(['all'=>5,'pending'=>2,'uploading'=>1,'uploaded'=>1,'failed'=>1],$filtered['stats']);
+    }
+
+    public function test_upload_monitor_without_files_returns_zero_for_every_state(): void
+    {
+        $data=app(\App\Services\DriveUploadMonitor::class)->dashboard(Request::create('/automation','GET',['tab'=>'drive']));
+        $this->assertSame(['all'=>0,'pending'=>0,'uploading'=>0,'uploaded'=>0,'failed'=>0],$data['stats']);
+        $this->assertSame(0,$data['files']->total());
     }
 
     public function test_drive_automation_page_and_start_action_use_async_queue_and_require_ready_connection(): void
