@@ -532,6 +532,23 @@ class MainController extends Controller
         }
     }
 
+    public function uploadReviewed(Request $request)
+    {
+        abort_unless($request->user()->can('view-releases-all'),403);
+        $data=$request->validate([
+            'ids'=>['required','array','min:1','max:5000'],
+            'ids.*'=>['integer','min:1','distinct'],
+        ]);
+        $count=DB::transaction(function () use ($request,$data) {
+            $query=Release::visibleTo($request->user())->where('releases.status','review');
+            $query->whereIn('releases.id',$data['ids']);
+            $releases=$query->orderBy('releases.id')->lockForUpdate()->get();
+            foreach ($releases as $release) $this->service->adminUpload($release);
+            return $releases->count();
+        });
+        return response()->json(['message'=>$count.' rilisan diubah menjadi Uploading.','updated'=>$count]);
+    }
+
     public function verify(ReleaseVerifyRequest $request, $id)
     {
         $release = Release::findOrFail($id);
@@ -688,8 +705,8 @@ class MainController extends Controller
 
             // Sorting
             $columns = ['title', 'type', 'status', 'releaseon', 'fullname', 'aggregator', 'created_at'];
-            $orderColumn = $columns[$request->input('order.0.column')];
-            $orderDir = $request->input('order.0.dir');
+            $orderColumn = $columns[$request->input('order.0.column',6)] ?? 'created_at';
+            $orderDir = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
             $query->orderBy($orderColumn, $orderDir);
 
             // Pagination

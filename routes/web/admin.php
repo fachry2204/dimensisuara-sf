@@ -148,6 +148,7 @@ Route::middleware(['auth','verified'])->group(function () {
             Route::get('statistics/{id}', [HomeController::class, 'releaseStatistics'])->name('admin.releases.statistics');
 
             Route::get('/', [AggregatorController::class, 'index'])->name('admin.releases.index');
+            Route::post('upload-reviewed', [AggregatorController::class, 'uploadReviewed'])->middleware('can:manage-releases-status')->name('admin.releases.upload-reviewed');
             
             Route::middleware(['can:create-releases'])->group(function () {
                 Route::get('/create',           [AggregatorController::class, 'create'])->name('admin.releases.create');
