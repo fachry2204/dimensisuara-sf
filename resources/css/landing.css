@@ -33,3 +33,11 @@
 .release-dialog .dialog-art{width:100%;min-width:0;aspect-ratio:1 / 1;align-self:center;background:#080b14}
 .release-dialog .dialog-art>img{display:block;width:100%;height:100%;aspect-ratio:1 / 1;object-fit:contain}
 .release-dialog .dialog-art>.artwork-fallback{width:100%;height:100%;aspect-ratio:1 / 1}
+
+.artwork-fallback{container-type:inline-size}
+.artwork-fallback>.artwork-label{position:static;max-width:100%;margin-bottom:auto;font-size:clamp(4px,5cqi,9px);letter-spacing:.12em;line-height:1.4}
+.artwork-fallback>.artwork-title{max-width:100%;font-size:clamp(8px,12cqi,28px);line-height:1.15;overflow-wrap:anywhere;margin-top:12%;margin-bottom:5%}
+.artwork-fallback>.artwork-title-long{font-size:clamp(7px,9cqi,22px)}
+.artwork-fallback>.artwork-title-extra-long{font-size:clamp(6px,7cqi,18px)}
+.artwork-fallback>.artwork-credit{max-width:100%;font-size:clamp(5px,5cqi,10px);letter-spacing:.1em;line-height:1.4;overflow-wrap:anywhere}
+.artwork-fallback>.artwork-unavailable{font-size:clamp(4px,4.5cqi,9px);line-height:1.4;margin-top:7%;color:#d5cddd}
