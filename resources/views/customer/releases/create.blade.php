@@ -329,7 +329,7 @@
                                         </tr>
                                         <tr>
                                             <td>Record Label</td>
-                                            <td x-text="$store.release.recordlabel"></td>
+                                            <td><span x-text="$store.release.recordlabel"></span> <x-whitelabel-status :active="!$restrictRecordLabel" /></td>
                                         </tr>
                                         <tr>
                                             <td>UPC</td>

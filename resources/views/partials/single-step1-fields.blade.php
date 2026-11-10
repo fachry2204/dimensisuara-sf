@@ -212,7 +212,7 @@
 
     <!-- Record Label -->
     <div class="form-group col-12 col-md-6 mb-3">
-        <label for="recordlabel" class="form-label">Nama Label</label>
+        <label for="recordlabel" class="form-label">Nama Label <x-whitelabel-status :active="isset($restrictRecordLabel) && !$restrictRecordLabel" /></label>
         <input type="text" class="form-control" name="recordlabel" id="recordlabel" x-model="$store.release.recordlabel"
             maxlength="100" @readonly($restrictRecordLabel ?? false) required aria-describedby="recordlabel-help">
         <small id="recordlabel-help" class="text-muted">{{ ($restrictRecordLabel ?? false) ? 'Nama Label menggunakan Dimensi Suara. Hubungi admin untuk mengaktifkan Whitelabel.' : 'Isi nama label yang akan dicantumkan pada rilis.' }}</small>
