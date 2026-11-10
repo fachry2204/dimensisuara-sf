@@ -106,7 +106,7 @@
                                 </tr>
                                 <tr>
                                     <td>Record Label</td>
-                                    <td>{{ $release->recordlabel }} <x-whitelabel-status :active="$release->profile?->whitelabel_enabled ?? false" /></td>
+                                    <td>{{ filled($release->recordlabel) ? $release->recordlabel : '-' }}<x-whitelabel-status :active="$release->profile?->whitelabel_enabled ?? false" :show-inactive="true" :stacked="true" /></td>
                                 </tr>
                                 <tr>
                                     <td>Primary Artists</td>
