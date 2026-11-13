@@ -40,7 +40,7 @@ class ReleasedFilesDrive
         return File::query()->whereNotNull('identifier')->where('identifier','!=','')
             ->where(function ($q) {
                 $q->where(function ($q) {
-                    $q->whereIn('type',['cover','thumbnail','ipl'])->whereHasMorph('owner',[Release::class],fn ($r) => $r->where('status','released'));
+                    $q->whereIn('type',['cover','ipl'])->whereHasMorph('owner',[Release::class],fn ($r) => $r->where('status','released'));
                 })->orWhere(function ($q) {
                     $q->whereIn('type',['full','trimmed'])->whereHasMorph('owner',[Track::class],fn ($t) => $t
                         ->whereHas('releases',fn ($r) => $r->where('status','released')));
@@ -50,7 +50,6 @@ class ReleasedFilesDrive
 
     public function archive(int $id): void
     {
-        if (!app(SystemSettings::class)->get('drive_enabled')) return;
         if (!\Illuminate\Support\Facades\Schema::hasColumn('drive_transfers','layout_version')) return;
         $db = DB::connection();
         $mysql = $db->getDriverName() === 'mysql';
@@ -59,6 +58,11 @@ class ReleasedFilesDrive
         try {
             $file = File::find($id);
             if (!$file) return;
+            if ($file->type === 'thumbnail') {
+                if ($file->disk === 'rclone') app(LocalReleaseThumbnails::class)->restore($file);
+                return;
+            }
+            if (!app(SystemSettings::class)->get('drive_enabled')) return;
             $pending = DB::table('drive_transfers')->where('file_id',$id)->first();
             if ($file->disk === 'rclone') {
                 if ($pending && filled($pending->local_identifier) && $pending->status === 'cleanup_pending') $this->cleanup($file,$pending);
@@ -103,7 +107,7 @@ class ReleasedFilesDrive
                 $existing = DB::table('drive_transfers')->where('file_id',$id)->first();
                 DB::table('drive_transfers')->updateOrInsert(['file_id'=>$id],[
                     'local_identifier'=>$existing->local_identifier ?? ($current->disk === 'local' ? $current->identifier : ''),
-                    'status'=>$current->disk === 'rclone' ? (filled($existing->previous_remote_identifier ?? null) ? 'remote_cleanup_pending' : (($existing->layout_version ?? 0) < DriveArchivePath::VERSION ? 'relocation_failed' : 'cleanup_pending')) : 'failed',
+                    'status'=>$current->type === 'thumbnail' ? 'thumbnail_restore_failed' : ($current->disk === 'rclone' ? (filled($existing->previous_remote_identifier ?? null) ? 'remote_cleanup_pending' : (($existing->layout_version ?? 0) < DriveArchivePath::VERSION ? 'relocation_failed' : 'cleanup_pending')) : 'failed'),
                     'error'=>mb_substr($safe,0,500),'updated_at'=>now(),'created_at'=>$existing->created_at ?? now(),
                 ]);
             }

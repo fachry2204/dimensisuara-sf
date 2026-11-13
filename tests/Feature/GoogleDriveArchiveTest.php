@@ -193,7 +193,7 @@ class GoogleDriveArchiveTest extends LegacyImportTest
     {
         $pending=$this->media(); $uploaded=$this->media('cover'); $this->client();
         app(ReleasedFilesDrive::class)->archive($uploaded->id);
-        $failed=$this->media('thumbnail'); $active=$this->media('ipl');
+        $failed=$this->media('cover'); $active=$this->media('ipl');
         foreach ([$failed->id=>'failed',$active->id=>'copying'] as $id=>$status) DB::table('drive_transfers')->insert(['file_id'=>$id,'local_identifier'=>'media/source','status'=>$status]);
         $monitor=app(\App\Services\DriveUploadMonitor::class);
         $data=$monitor->dashboard(Request::create('/automation','GET',['tab'=>'drive']));
@@ -246,7 +246,7 @@ class GoogleDriveArchiveTest extends LegacyImportTest
     public function test_released_wav_and_artwork_are_verified_before_local_deletion(): void
     {
         $this->client();
-        foreach (['full','cover','thumbnail','ipl'] as $type) {
+        foreach (['full','cover','ipl'] as $type) {
             $file = $this->media($type); $local = $file->identifier;
             app(ReleasedFilesDrive::class)->archive($file->id);
             $this->assertSame('rclone',$file->fresh()->disk);

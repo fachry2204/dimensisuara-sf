@@ -42,6 +42,16 @@ class ReleaseDriveStatus
             if ($matches->isEmpty()) $matches = collect([null]);
             foreach ($matches as $file) {
                 $transfer = $file ? $transfers->get($file->id) : null;
+                if ($type === 'thumbnail') {
+                    $local=$file && $file->disk==='local' && filled($file->identifier);
+                    $rows[]=['file_id'=>$file?->id,'name'=>$file?->original_name ?: '-','type'=>$label,'title'=>$title,
+                        'state'=>$local ? 'local_thumbnail' : ($file ? 'thumbnail_restore' : 'missing'),
+                        'status'=>$local ? 'Thumbnail di server' : ($file ? ($transfer?->status==='thumbnail_restore_failed' ? 'Pemulihan thumbnail gagal' : 'Menunggu kembali ke server') : 'Tidak tersedia'),
+                        'tone'=>$local ? 'success' : 'neutral',
+                        'detail'=>$local ? 'Thumbnail tetap di server dan tidak diunggah ke Google Drive.' : 'Thumbnail dikembalikan dari Drive; cover asli tetap di Drive. Sumber harus tersedia dan lolos verifikasi.',
+                        'location'=>$local ? 'Server lokal' : ($file ? 'Google Drive' : '-'),'verified_at'=>null,'updated_at'=>$transfer?->updated_at];
+                    continue;
+                }
                 $verified = $file && $file->disk === 'rclone' && filled($file->identifier) && $transfer?->verified_at
                     && $transfer->remote_identifier === $file->identifier;
                 $state = 'missing'; $status = 'Tidak tersedia'; $detail = 'Belum ada file tersimpan untuk jenis ini.';

@@ -2,6 +2,10 @@
 
 Tab Automation → Status Upload Google Drive menampilkan file lokal dan Drive yang terkait rilisan Published. Kartu dapat memfilter total, belum diunggah/antre, sedang diproses, sudah terverifikasi, dan gagal. File pada FTP atau penyimpanan lain ditampilkan sebagai jumlah terpisah; pemindahan ini menangani media pada VPS dan penataan arsip Drive.
 
+Thumbnail dikecualikan dari pengarsipan dan penghitung unggahan Drive. Thumbnail baru tetap dibuat di server. Thumbnail yang sudah berada di Drive dijadwalkan kembali ke server melalui `drive:restore-thumbnails` setiap lima menit, termasuk thumbnail rilisan yang statusnya sudah berubah. Job thumbnail lama juga memakai alur pemulihan, sehingga tidak menghapus thumbnail lokal. Worker mengunduh sumber ke temporary aplikasi, memverifikasi ukuran/MD5, membuat JPEG maksimal 300 × 300 piksel, lalu memperbarui pointer hanya setelah file lokal tersedia. Jika sumber thumbnail tidak tersedia, cover asli Drive atau cover lokal dicoba untuk membuat ulang thumbnail. Jika keduanya gagal, lokasi cloud dipertahankan dengan status thumbnail_restore_failed. Salinan cloud tidak dihapus oleh pemulihan ini. Detail rilisan menyebut thumbnail disimpan lokal atau pemulihannya masih menunggu/gagal; baris thumbnail tidak masuk total file yang harus diunggah ke Drive.
+
+Setelah deployment, jalankan `queue:restart`, `optimize:clear`, lalu `drive:restore-thumbnails`. Tidak ada migrasi baru. Scheduler dan worker drive-archive harus aktif; pemulihan tetap dapat berjalan saat pengarsipan Drive dinonaktifkan. File sumber yang hilang dari Drive dan server tidak dapat dipulihkan tanpa salinan lain.
+
 Struktur baru di bawah folder tujuan yang tersimpan:
 
 ```text

@@ -52,12 +52,12 @@ class ReleaseDriveStatusTest extends TestCase
         $full=$this->file('full'); $this->transfer($full,['status'=>'copying','verified_at'=>null]);
         $trimmed=$this->file('trimmed'); $this->transfer($trimmed,['status'=>'failed','verified_at'=>null,'error'=>'private-token-should-not-display']);
         $data=$this->data(); $states=array_column($data['rows'],'state');
-        $this->assertSame(['verified','verified','not_uploaded','copying','failed'],$states);
-        $this->assertSame(['files'=>5,'verified'=>2,'not_uploaded'=>3,'failed'=>1,'missing'=>0],$data['counts']);
-        $this->assertStringContainsString('pembersihan lokal',$data['rows'][1]['detail']);
+        $this->assertSame(['verified','thumbnail_restore','not_uploaded','copying','failed'],$states);
+        $this->assertSame(['files'=>4,'verified'=>1,'not_uploaded'=>3,'failed'=>1,'missing'=>0],$data['counts']);
+        $this->assertStringContainsString('dikembalikan dari Drive',$data['rows'][1]['detail']);
         $this->assertSame('FTP',$data['rows'][2]['location']);
         $html=Blade::render('<x-release-drive-status :storage="$storage" />',['storage'=>$data]);
-        $this->assertStringContainsString('2 dari 5 file terverifikasi',$html);
+        $this->assertStringContainsString('1 dari 4 file terverifikasi',$html);
         $this->assertStringContainsString('07 Nov 2026 10:00',$html);
         $this->assertStringNotContainsString('private-token-should-not-display',$html);
         $this->assertStringNotContainsString('gdrive:files/',$html);
@@ -74,6 +74,18 @@ class ReleaseDriveStatusTest extends TestCase
         $this->assertNull($data['rows'][0]['verified_at']);
     }
 
+    public function test_local_thumbnail_is_intentional_local_storage_and_not_a_pending_drive_upload(): void
+    {
+        $this->file('thumbnail');
+        $data=$this->data();
+        $this->assertSame('local_thumbnail',$data['rows'][1]['state']);
+        $this->assertSame('Thumbnail di server',$data['rows'][1]['status']);
+        $this->assertSame('Server lokal',$data['rows'][1]['location']);
+        $this->assertSame(0,$data['counts']['files']);
+        $this->assertSame(0,$data['counts']['not_uploaded']);
+        $this->assertSame(4,$data['counts']['missing']);
+    }
+
     public function test_missing_files_pending_and_shared_track_waiting_are_explicit(): void
     {
         $id=$this->file('cover'); $this->transfer($id,['status'=>'pending','verified_at'=>null]);
@@ -83,7 +95,7 @@ class ReleaseDriveStatusTest extends TestCase
         $this->assertSame('pending',$data['rows'][0]['state']);
         $this->assertSame('not_uploaded',$data['rows'][3]['state']);
         $this->assertStringContainsString('satu salinan',$data['rows'][3]['detail']);
-        $this->assertSame(3,$data['counts']['missing']);
+        $this->assertSame(2,$data['counts']['missing']);
         DB::table('releases')->where('id',2)->update(['status'=>'released']);
         $this->assertSame('not_uploaded',$this->data()['rows'][3]['state']);
     }

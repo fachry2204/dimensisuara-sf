@@ -13,6 +13,7 @@ Schedule::command('queue:work status-notifications --queue=default --stop-when-e
 
 Schedule::job(new ClearUnusedReleases)->daily();
 Schedule::command('drive:archive-released')->everyFiveMinutes()->withoutOverlapping();
+Schedule::command('drive:restore-thumbnails')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('queue:work drive-archive --queue=drive-archive --stop-when-empty --max-time=50 --timeout=900 --tries=1')
     ->everyMinute()->withoutOverlapping(30)->runInBackground()
     ->when(fn () => (bool) app(\App\Services\SystemSettings::class)->get('drive_enabled'));

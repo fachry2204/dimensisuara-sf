@@ -31,7 +31,7 @@
         @if($driveReady)<form method="POST" action="{{ route('admin.system-settings.drive.start') }}">@csrf<button class="btn btn-outline-primary" type="submit" @disabled(!$settings['drive_enabled'])>Pindahkan File Released Sekarang</button></form>@endif
         @if($settings['drive_connection_status'])<span role="status" class="text-secondary">{{ $settings['drive_connection_status'] === 'ok' ? 'Koneksi berhasil' : 'Tes koneksi gagal' }} · {{ $settings['drive_checked_at'] }}</span>@endif
     </div>
-    <p class="form-text mt-3">Proses lama ke FTP dilewati saat Google Drive aktif. File yang sudah dipindahkan ke FTP tetap memakai koneksi FTP. Audio bersama memakai satu salinan di folder rilisan Published utama. Lihat progres di Automation → Status Upload Google Drive.</p>
+    <p class="form-text mt-3">Proses lama ke FTP dilewati saat Google Drive aktif. File yang sudah dipindahkan ke FTP tetap memakai koneksi FTP. Audio bersama memakai satu salinan di folder rilisan Published utama. Thumbnail tetap di server; hanya cover asli yang diarsipkan untuk gambar rilisan. Lihat progres di Automation → Status Upload Google Drive.</p>
 </div></div>
 <div class="card mb-4"><div class="card-body p-4"><h5>Worker dan Jadwal VPS</h5>
     <p>Jalankan worker khusus berikut melalui Supervisor atau layanan VPS:</p>

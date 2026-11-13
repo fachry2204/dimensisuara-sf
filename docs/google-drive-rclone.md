@@ -26,7 +26,7 @@ Menu **System Setting → Setting Google Drive** menggunakan rclone yang sudah t
 
 ## Cakupan
 
-- Audio Track `full`/`trimmed`, serta Release `cover`/`thumbnail`/`ipl`, pada disk lokal aplikasi. Status release harus `released`.
+- Audio Track `full`/`trimmed`, serta Release `cover`/`ipl`, pada disk lokal aplikasi. Status release harus `released`. Thumbnail disimpan di server dan tidak diunggah ke Drive.
 - Audio yang terhubung ke beberapa rilis memakai satu salinan pada folder rilisan Published dengan ID terkecil. Audio dapat dipindahkan setelah salah satu rilisan terkait Published; akses dari rilisan lain tetap melalui file yang sama di aplikasi. File yang hanya terkait rilis pending/rejected/draft, identitas pelanggan, logo aplikasi, serta kontrak tidak dipindahkan.
 - Saat Drive aktif, proses backup FTP lama dilewati. File yang sebelumnya sudah dipindahkan ke FTP tetap dilayani lewat FTP; pemindahan FTP → Drive tidak termasuk pemindahan lokal ini.
 - WAV/FLAC tidak dikonversi. Penyalinan memakai `rclone copyto --checksum --immutable`. Aplikasi memeriksa ukuran dan MD5 remote melalui `lsjson --stat --hash --hash-type MD5`, serta memeriksa ulang sumber sebelum mengubah referensi database.

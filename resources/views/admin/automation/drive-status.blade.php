@@ -17,6 +17,7 @@
     <p>Struktur tujuan: <strong>Nama Client / Nama Artis / Judul Release</strong>. Nama folder client dan rilisan dilengkapi ID agar nama yang sama tidak tertukar. Audio bersama memakai satu salinan di folder rilisan Published utama.</p>
     <p>File lokal dihapus setelah ukuran dan checksum Drive cocok serta lokasi baru tersimpan. Status mengikuti proses terakhir yang dicatat worker.</p>
     <p>Proses berjalan bertahap melalui worker. Jadwal otomatis melanjutkan file berikutnya sampai selesai.</p>
+    <p>Thumbnail tetap disimpan di server dan tidak termasuk antrean unggah Drive. Thumbnail lama di Drive dikembalikan melalui worker; statusnya dapat dilihat pada detail rilisan.</p>
     @if(!$layoutReady)<div class="alert alert-warning">Pembaruan riwayat penataan folder belum tersedia. Pasang migrasi Drive sebelum memulai pemindahan.</div>@endif
     @if(!$driveEnabled || !$connectionOk)<div class="alert alert-warning">Selesaikan Tes Koneksi dan aktifkan Google Drive pada pengaturan sistem.</div>@endif
     @if($other)<p>{{ $other }} file berada pada penyimpanan lain seperti FTP dan tidak termasuk pemindahan file server lokal.</p>@endif
