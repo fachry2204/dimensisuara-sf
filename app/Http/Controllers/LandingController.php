@@ -23,17 +23,22 @@ class LandingController extends Controller
             ->orderByDesc('id');
     }
 
-    private function artwork(Release $release): string|\App\Models\File|null
+    private function artworks(Release $release): array
     {
+        $artworks=[];
         foreach ([$release->thumbnail, $release->cover] as $file) {
-            if ($file && $file->disk === 'rclone' && in_array($file->mime_type, ['image/jpeg','image/png','image/webp'],true)) return $file;
+            if ($file && $file->disk === 'rclone' && $file->identifier) {
+                $mime=strtolower(trim((string)$file->mime_type));
+                if (in_array($mime,['image/jpeg','image/png','image/webp'],true)
+                    || (in_array($mime,['','application/octet-stream','image/jpg'],true) && in_array(strtolower(pathinfo($file->identifier,PATHINFO_EXTENSION)),['jpg','jpeg','png','webp'],true))) $artworks[]=$file;
+            }
             if (!$file || $file->disk !== 'local' || !$file->identifier) continue;
             $root = realpath(Storage::disk('local')->path(''));
             $path = realpath(Storage::disk('local')->path($file->identifier));
             if (!$root || !$path || !str_starts_with($path, $root.DIRECTORY_SEPARATOR) || !is_file($path)) continue;
-            if (in_array(@getimagesize($path)['mime'] ?? '', ['image/jpeg', 'image/png', 'image/webp'], true)) return $path;
+            if (in_array(@getimagesize($path)['mime'] ?? '', ['image/jpeg', 'image/png', 'image/webp'], true)) $artworks[]=$path;
         }
-        return null;
+        return $artworks;
     }
 
     public function index(SystemSettings $settings)
@@ -81,7 +86,7 @@ class LandingController extends Controller
     private function prepareReleases(iterable $releases): void
     {
         foreach ($releases as $release) {
-            $release->landing_artwork = $this->artwork($release) ? route('landing.cover', $release->id) : null;
+            $release->landing_artwork = $this->artworks($release) ? route('landing.cover', $release->id) : null;
             $release->landing_artist = collect($release->primaryartists)->pluck('name')->filter()->implode(', ');
         }
     }
@@ -89,9 +94,16 @@ class LandingController extends Controller
     public function cover(int $release, \Illuminate\Http\Request $request)
     {
         $item = $this->catalogue()->with(['cover', 'thumbnail'])->findOrFail($release);
-        $path = $this->artwork($item);
-        abort_unless($path, 404);
-        if ($path instanceof \App\Models\File) return app(\App\Services\RcloneDrive::class)->response($path,$request,true);
-        return response()->file($path, ['Cache-Control' => 'public, max-age=3600', 'X-Content-Type-Options' => 'nosniff']);
+        $unavailable=false;
+        foreach ($this->artworks($item) as $path) {
+            if ($path instanceof \App\Models\File) {
+                try { return app(\App\Services\RcloneDrive::class)->response($path,$request,true); }
+                catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+                    if (!in_array($exception->getStatusCode(),[404,503],true)) throw $exception;
+                    $unavailable=$unavailable || $exception->getStatusCode()===503;
+                }
+            } else return response()->file($path, ['Cache-Control' => 'public, max-age=3600', 'X-Content-Type-Options' => 'nosniff']);
+        }
+        abort($unavailable ? 503 : 404);
     }
 }

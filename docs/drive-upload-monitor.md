@@ -36,4 +36,6 @@ File VPS dihapus hanya setelah Drive dan pointer database terverifikasi. File ya
 
 Status UI berasal dari catatan worker, bukan pemeriksaan cloud langsung setiap halaman dibuka. Waktu verifikasi adalah waktu pemeriksaan salinan oleh aplikasi.
 
+Jika cover publik tidak tampil setelah diarsipkan, jalankan `drive:inspect-artwork ID_RILIS` melalui Artisan Plesk. Perintah hanya membaca record thumbnail/cover dan metadata Drive, menampilkan MIME, ukuran, serta diagnosis rclone yang telah disanitasi. Tidak memindahkan atau menghapus file. Hasil CLI belum memastikan izin PHP-FPM sama; bila CLI berhasil tetapi endpoint publik tetap 503, periksa konfigurasi dan izin PHP web. Cover Drive tanpa MIME database dapat dikenali melalui ekstensi gambar, lalu MIME metadata Drive diverifikasi sebelum disajikan. Thumbnail yang gagal diakses dapat beralih ke cover utama.
+
 Jika copyto melaporkan kegagalan setelah membuat file tujuan, worker memeriksa kembali ukuran dan MD5 tujuan. Hanya salinan yang identik dengan sumber yang dapat dilanjutkan ke penyimpanan lokasi baru dan pembersihan sumber. Salinan yang tidak cocok tidak ditimpa. Error penataan mencatat tahap membaca sumber, menyalin, memverifikasi, menyimpan lokasi, atau membersihkan lokasi lama; error rclone juga mencatat nama perintah dan kode keluar tanpa stderr mentah.

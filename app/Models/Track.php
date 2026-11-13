@@ -245,8 +245,8 @@ class Track extends Model
             $pretty = [];
             foreach ($contributors as $contributor) {
                 $pretty[] = (object) [
-                    'name' => $contributor->name,
-                    'role' => $roles[$contributor->role],
+                    'name' => data_get($contributor, 'name') ?? '-',
+                    'role' => $this->creditRoleName($roles, data_get($contributor, 'role')),
                 ];
             }
 
@@ -265,8 +265,8 @@ class Track extends Model
             $pretty = [];
             foreach ($productions as $production) {
                 $pretty[] = (object) [
-                    'name' => $production->name,
-                    'role' => $roles[$production->role],
+                    'name' => data_get($production, 'name') ?? '-',
+                    'role' => $this->creditRoleName($roles, data_get($production, 'role')),
                 ];
             }
 
@@ -274,6 +274,11 @@ class Track extends Model
         }
 
         return [];
+    }
+
+    private function creditRoleName(array $roles, mixed $role): string
+    {
+        return is_int($role) || is_string($role) ? ($roles[$role] ?? '-') : '-';
     }
 
     public function getViewsAttribute()

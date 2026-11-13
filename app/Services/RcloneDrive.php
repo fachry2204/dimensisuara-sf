@@ -201,6 +201,11 @@ class RcloneDrive
     {
         try { $stat = $this->stat($file->identifier); }
         catch (\Throwable) { abort(503, 'File Google Drive sementara tidak tersedia.'); }
+        $mime=$file->mime_type ?: 'application/octet-stream';
+        if ($publicCover) {
+            $mime=strtolower(trim((string)($stat['MimeType'] ?? $file->mime_type)));
+            abort_unless(in_array($mime,['image/jpeg','image/png','image/webp'],true),404);
+        }
         $size = (int) $stat['Size'];
         $start = 0; $end = max(0,$size-1); $status = 200;
         if ($range = $request->header('Range')) {
@@ -215,7 +220,7 @@ class RcloneDrive
         $length = $size ? $end-$start+1 : 0;
         $name = $file->original_name ?: 'download';
         $fallback = preg_replace('/[^a-zA-Z0-9._-]/','_', $name) ?: 'download';
-        $headers = ['Content-Type'=>$file->mime_type ?: 'application/octet-stream', 'Content-Length'=>(string) $length,
+        $headers = ['Content-Type'=>$mime, 'Content-Length'=>(string) $length,
             'Accept-Ranges'=>'bytes', 'X-Content-Type-Options'=>'nosniff', 'X-Accel-Buffering'=>'no',
             'Cache-Control'=>$publicCover ? 'public, max-age=3600' : 'private, no-store',
             'Content-Disposition'=>HeaderUtils::makeDisposition($request->boolean('dl') ? ResponseHeaderBag::DISPOSITION_ATTACHMENT : ResponseHeaderBag::DISPOSITION_INLINE, $name, $fallback)];

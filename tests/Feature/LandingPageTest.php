@@ -29,6 +29,47 @@ class LandingPageTest extends TestCase
         parent::tearDown();
     }
 
+    public function test_drive_artwork_with_missing_mime_is_listed_and_validated_using_drive_metadata(): void
+    {
+        Schema::table('filestorage',fn ($t)=>$t->string('mime_type')->nullable());
+        $id=$this->release('Archived cover');
+        DB::table('filestorage')->insert(['disk'=>'rclone','identifier'=>'gdrive:catalogue/cover.jpeg','type'=>'cover','owner_type'=>Release::class,'owner_id'=>$id]);
+        $this->get('/rilis')->assertOk()->assertSee(route('landing.cover',$id),false);
+        $client=\Mockery::mock(\App\Services\RcloneDrive::class)->makePartial();
+        $client->shouldReceive('stat')->andReturn(['Size'=>4,'MimeType'=>'image/jpeg','IsDir'=>false]);
+        $client->shouldReceive('stream')->once()->with('gdrive:catalogue/cover.jpeg',0,4)->andReturnUsing(fn()=>print('jpeg'));
+        $this->app->instance(\App\Services\RcloneDrive::class,$client);
+        $this->get(route('landing.cover',$id))->assertOk()->assertHeader('Content-Type','image/jpeg')->assertStreamedContent('jpeg');
+    }
+
+    public function test_public_cover_falls_back_when_drive_thumbnail_is_unavailable_and_rejects_unsafe_mime(): void
+    {
+        Schema::table('filestorage',fn ($t)=>$t->string('mime_type')->nullable());
+        $id=$this->release('Thumbnail fallback');
+        foreach (['thumbnail','cover'] as $type) DB::table('filestorage')->insert(['disk'=>'rclone','identifier'=>'gdrive:catalogue/'.$type.'.png','type'=>$type,'owner_type'=>Release::class,'owner_id'=>$id,'mime_type'=>'image/png']);
+        $client=\Mockery::mock(\App\Services\RcloneDrive::class)->makePartial();
+        $client->shouldReceive('stat')->with('gdrive:catalogue/thumbnail.png')->andThrow(new \App\Exceptions\DriveSetupException('File tidak ditemukan.'));
+        $client->shouldReceive('stat')->with('gdrive:catalogue/cover.png')->andReturn(['Size'=>4,'MimeType'=>'image/png']);
+        $this->app->instance(\App\Services\RcloneDrive::class,$client);
+        $this->get(route('landing.cover',$id))->assertOk()->assertHeader('Content-Type','image/png');
+        $unsafe=\Mockery::mock(\App\Services\RcloneDrive::class)->makePartial();
+        $unsafe->shouldReceive('stat')->andReturn(['Size'=>4,'MimeType'=>'text/html']);
+        $unsafe->shouldNotReceive('stream');
+        $this->app->instance(\App\Services\RcloneDrive::class,$unsafe);
+        $this->get(route('landing.cover',$id))->assertNotFound();
+    }
+
+    public function test_artwork_diagnostic_reports_fixed_drive_error_without_changing_file(): void
+    {
+        $id=$this->release('Diagnostic');
+        DB::table('filestorage')->insert(['disk'=>'rclone','identifier'=>'gdrive:catalogue/cover.jpeg','type'=>'cover','owner_type'=>Release::class,'owner_id'=>$id]);
+        $client=\Mockery::mock(\App\Services\RcloneDrive::class);
+        $client->shouldReceive('stat')->once()->andThrow(new \App\Exceptions\DriveSetupException('Akses ditolak. (lsjson, kode 7)'));
+        $this->app->instance(\App\Services\RcloneDrive::class,$client);
+        $this->artisan('drive:inspect-artwork',['release'=>$id])->expectsOutput('Akses ditolak. (lsjson, kode 7)')->assertFailed();
+        $this->assertSame('gdrive:catalogue/cover.jpeg',DB::table('filestorage')->value('identifier'));
+    }
+
     private function release(string $title, string $status = 'released', ?string $date = null): int
     {
         return DB::table('releases')->insertGetId(['title'=>$title,'primaryartists'=>'[{"name":"Test Artist"}]','status'=>$status,'releaseddate'=>$date ?? today()->subDay()->toDateString(),'type'=>'single']);
